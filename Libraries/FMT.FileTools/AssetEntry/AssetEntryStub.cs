@@ -1,10 +1,5 @@
-﻿using FrostySdk;
-using FrostySdk.FrostbiteSdk.Managers;
-using System;
+﻿using FrostySdk.FrostbiteSdk.Managers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FMT.FileTools.AssetEntry
 {

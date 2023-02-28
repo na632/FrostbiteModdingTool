@@ -17,19 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using v2k4FIFAModding.Frosty;
 
 namespace FMT.Pages.Common
@@ -102,7 +95,7 @@ namespace FMT.Pages.Common
         {
             await UpdateLoadingVisibility(true);
             await Task.Delay(200);
-            await Dispatcher.InvokeAsync(async() =>
+            await Dispatcher.InvokeAsync(async () =>
             {
                 await OpenAsset(SelectedEntry);
             });
@@ -338,7 +331,7 @@ namespace FMT.Pages.Common
                     }
                     MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
-                    if(SelectedEbxAsset == null)
+                    if (SelectedEbxAsset == null)
                     {
                         MainEditorWindow.Log($"Failed to load Selected Ebx Asset for {ebxEntry.Filename}");
                         return;
@@ -597,22 +590,22 @@ namespace FMT.Pages.Common
                                 var dialogAnswer = saveFileDialog.ShowDialog();
                                 if (dialogAnswer.HasValue && dialogAnswer.Value)
                                 {
-                                    
+
                                     var obj = await Task.Run(() =>
                                     {
                                         return AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry).RootObject;
                                     });
                                     var serialisedObj = await Task.Run(() =>
                                     {
-                                        return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings() 
+                                        return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings()
                                         {
-                                            ReferenceLoopHandling= ReferenceLoopHandling.Ignore,
+                                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                                             MaxDepth = 4,
                                         });
                                     });
                                     await File.WriteAllTextAsync(saveFileDialog.FileName, serialisedObj);
                                     MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
-                                   
+
                                 }
                             }
                             else if (useJsonResult == MessageBoxResult.No)
@@ -665,7 +658,7 @@ namespace FMT.Pages.Common
                         AssetManager.Instance.RevertAsset(SelectedEntry);
                     }
                 }
-                
+
                 if (SelectedLegacyEntry != null)
                 {
                     AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
@@ -683,9 +676,9 @@ namespace FMT.Pages.Common
 
                 //UpdateAssetListView();
             }
-            finally 
-            { 
-                UpdateLoadingVisibility(false); 
+            finally
+            {
+                UpdateLoadingVisibility(false);
             }
 
         }
@@ -719,7 +712,7 @@ namespace FMT.Pages.Common
                     var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
                     TextureExporter textureExporter = new TextureExporter();
-                   
+
                     try
                     {
                         expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
@@ -745,8 +738,8 @@ namespace FMT.Pages.Common
 
                     //ImageViewer.Source = LoadImage(textureBytes);
                     ImageViewer.Source = LoadImage(((MemoryStream)expToStream).ToArray());
-                    
-                  
+
+
 
 
                     ImageViewerScreen.Visibility = Visibility.Visible;
@@ -789,7 +782,7 @@ namespace FMT.Pages.Common
 
                 var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
-                ImageEngineImage imageEngineImage = new ImageEngineImage(((MemoryStream)stream).ToArray());
+                ImageEngineImage imageEngineImage = new ImageEngineImage(stream.ToArray());
                 var iData = imageEngineImage.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.BMP), MipHandling.KeepTopOnly, removeAlpha: false);
 
                 //var CurrentDDSImage = new DDSImage(stream);
@@ -824,7 +817,7 @@ namespace FMT.Pages.Common
 
         private System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
         {
-            if (imageData == null || imageData.Length == 0) 
+            if (imageData == null || imageData.Length == 0)
                 return null;
 
             if (bitmapImage != null)

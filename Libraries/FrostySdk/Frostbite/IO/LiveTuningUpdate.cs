@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostySdk.Frostbite.IO
 {
@@ -22,10 +20,10 @@ namespace FrostySdk.Frostbite.IO
         public bool HasFIFALiveTuningUpdate => File.Exists(FIFALiveTuningUpdatePath);
         public Dictionary<string, (int, int)> LiveTuningUpdates { get; } = new Dictionary<string, (int, int)>();
 
-        public Dictionary<string, LiveTuningUpdateEntry> LiveTuningUpdateEntries => 
+        public Dictionary<string, LiveTuningUpdateEntry> LiveTuningUpdateEntries =>
             LiveTuningUpdates.ToDictionary(x => x.Key
-                , x => new LiveTuningUpdateEntry(x.Key, x.Value.Item1, x.Value.Item2) 
-                { 
+                , x => new LiveTuningUpdateEntry(x.Key, x.Value.Item1, x.Value.Item2)
+                {
                 });
 
         public List<Guid> LiveTuningUpdateGuids { get; } = new List<Guid>();

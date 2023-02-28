@@ -3,16 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {
     public class FIFALeague
     {
-        public int countryid{ get; set; }
+        public int countryid { get; set; }
         public string leaguename { get; set; }
         public int leaguetype { get; set; }
         public int level { get; set; }

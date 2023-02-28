@@ -110,7 +110,7 @@ namespace FrostbiteSdk
                 }
             }
 
-            if(resultHash == null || resultHash.Length != 256)
+            if (resultHash == null || resultHash.Length != 256)
             {
                 throw new Exception("Result Hash must be 256 bytes in Length");
             }
@@ -157,33 +157,33 @@ namespace FrostbiteSdk
             return obj.GetProperty(propName) != null;
         }
 
-            public static bool PropertyExistsDynamic(this ExpandoObject obj, string propName)
-            {
-                if (obj is ExpandoObject)
-                    return ((IDictionary<string, object>)obj).ContainsKey(propName);
+        public static bool PropertyExistsDynamic(this ExpandoObject obj, string propName)
+        {
+            if (obj is ExpandoObject)
+                return ((IDictionary<string, object>)obj).ContainsKey(propName);
 
-                return obj.GetProperty(propName) != null;
-            }
+            return obj.GetProperty(propName) != null;
+        }
 
 
-            public static PropertyInfo[] GetProperties(this object obj)
-            {
-                Type t = obj.GetType();
-                return t.GetProperties();
-            }
+        public static PropertyInfo[] GetProperties(this object obj)
+        {
+            Type t = obj.GetType();
+            return t.GetProperties();
+        }
 
-            public static PropertyInfo GetProperty(this object obj, string propName)
-            {
-                Type t = obj.GetType();
-                return t.GetProperty(propName, BindingFlags.Instance | BindingFlags.Public);
-            }
+        public static PropertyInfo GetProperty(this object obj, string propName)
+        {
+            Type t = obj.GetType();
+            return t.GetProperty(propName, BindingFlags.Instance | BindingFlags.Public);
+        }
 
-            public static object GetPropertyValue(this object obj, string propName)
-            {
-                Type t = obj.GetType();
-                var p = t.GetProperty(propName, BindingFlags.Instance | BindingFlags.Public);
-                return p.GetValue(obj);
-            }
+        public static object GetPropertyValue(this object obj, string propName)
+        {
+            Type t = obj.GetType();
+            var p = t.GetProperty(propName, BindingFlags.Instance | BindingFlags.Public);
+            return p.GetValue(obj);
+        }
 
         public static void SetPropertyValue<T>(object obj, string propName, T value)
         {
@@ -195,47 +195,47 @@ namespace FrostbiteSdk
         }
 
         public static void SetPropertyValue(object obj, string propName, dynamic value)
+        {
+            Type t = obj.GetType();
+            Type t2 = value.GetType();
+            var p = t.GetProperty(propName);
+            var parseMethod = p.PropertyType.GetMethods().FirstOrDefault(x => x.Name == "Parse");
+            if (parseMethod != null && p.PropertyType != value.GetType())
             {
-                Type t = obj.GetType();
-                Type t2 = value.GetType();
-                var p = t.GetProperty(propName);
-                var parseMethod = p.PropertyType.GetMethods().FirstOrDefault(x => x.Name == "Parse");
-                if (parseMethod != null && p.PropertyType != value.GetType())
-                {
-                    var v = parseMethod.Invoke(p, new[] { value });
-                    if (propName != "BaseField")
-                        p.SetValue(obj, v);
-                }
-                else
-                {
-                    if (propName != "BaseField")
-                        p.SetValue(obj, value);
-                }
+                var v = parseMethod.Invoke(p, new[] { value });
+                if (propName != "BaseField")
+                    p.SetValue(obj, v);
             }
-
-            public static bool HasProperty(object obj, string propName)
+            else
             {
-                return obj.GetType().GetProperty(propName) != null;
+                if (propName != "BaseField")
+                    p.SetValue(obj, value);
             }
+        }
 
-            public static bool HasProperty(ExpandoObject obj, string propertyName)
-            {
-                return ((IDictionary<String, object>)obj).ContainsKey(propertyName);
-            }
+        public static bool HasProperty(object obj, string propName)
+        {
+            return obj.GetType().GetProperty(propName) != null;
+        }
 
-            //public static void SetPropertyValue(this object obj, string propName, dynamic value)
-            //{
-            //    Type t = obj.GetType();
-            //    var p = t.GetProperty(propName);
-            //    p.SetValue(obj, value);
-            //}
+        public static bool HasProperty(ExpandoObject obj, string propertyName)
+        {
+            return ((IDictionary<String, object>)obj).ContainsKey(propertyName);
+        }
 
-            public static T GetObjectAsType<T>(this object obj)
-            {
-                Type t = obj.GetType();
-                var s = JsonConvert.SerializeObject(obj);
-                return JsonConvert.DeserializeObject<T>(s);
-            }
+        //public static void SetPropertyValue(this object obj, string propName, dynamic value)
+        //{
+        //    Type t = obj.GetType();
+        //    var p = t.GetProperty(propName);
+        //    p.SetValue(obj, value);
+        //}
+
+        public static T GetObjectAsType<T>(this object obj)
+        {
+            Type t = obj.GetType();
+            var s = JsonConvert.SerializeObject(obj);
+            return JsonConvert.DeserializeObject<T>(s);
+        }
 
         /// <summary>
         /// Perform a deep Copy of the object, using Json as a serialization method. NOTE: Private members are not cloned using this method.
@@ -266,7 +266,7 @@ namespace FrostbiteSdk
         public static dynamic CloneJson(this object source)
         {
             // Don't serialize a null object, simply return the default for that object
-            if (ReferenceEquals(source, null)) 
+            if (source is null)
                 return null;
 
             var sourceType = source.GetType();
@@ -275,8 +275,8 @@ namespace FrostbiteSdk
             // for example in default constructor some list property initialized with some values,
             // but in 'source' these items are cleaned -
             // without ObjectCreationHandling.Replace default constructor values will be added to result
-            var deserializeSettings = new JsonSerializerSettings 
-            { 
+            var deserializeSettings = new JsonSerializerSettings
+            {
                 ObjectCreationHandling = ObjectCreationHandling.Replace,
                 NullValueHandling = NullValueHandling.Ignore,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,

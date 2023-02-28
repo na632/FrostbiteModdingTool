@@ -1,16 +1,12 @@
 ﻿using FrostbiteSdk;
-using Frosty;
-using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
-using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,172 +19,174 @@ namespace SdkGenerator
 
         public ILogger Logger
         {
-            get { 
-				if(logger== null)
+            get
+            {
+                if (logger == null)
                 {
-					logger = new NullLogger();
+                    logger = new NullLogger();
                 }
-				return logger
-					
-					; }
+                return logger
+
+                    ;
+            }
             set { logger = value; }
         }
 
-		public BuildSDK(ILogger inLogger = null)
+        public BuildSDK(ILogger inLogger = null)
         {
-			if(inLogger != null)
+            if (inLogger != null)
             {
-				logger = inLogger;
+                logger = inLogger;
             }
         }
 
-		public string ProcessName = ProfileManager.ProfileName;
-		public string OverrideProfileName = null;
+        public string ProcessName = ProfileManager.ProfileName;
+        public string OverrideProfileName = null;
 
-		public Process GetProcess()
+        public Process GetProcess()
         {
-			var eP = ProfileManager.EditorProfiles.Select(x => x.Name).ToList();
+            var eP = ProfileManager.EditorProfiles.Select(x => x.Name).ToList();
 
-			var allProcesses = Process.GetProcesses();
-			var process = allProcesses.FirstOrDefault(x => eP.Any(y => y.Equals(x.ProcessName, StringComparison.OrdinalIgnoreCase)));
-			if(process == null)
+            var allProcesses = Process.GetProcesses();
+            var process = allProcesses.FirstOrDefault(x => eP.Any(y => y.Equals(x.ProcessName, StringComparison.OrdinalIgnoreCase)));
+            if (process == null)
             {
-				process = allProcesses.FirstOrDefault(x => eP.Any(y => y.Equals(x.ProcessName, StringComparison.OrdinalIgnoreCase)));
+                process = allProcesses.FirstOrDefault(x => eP.Any(y => y.Equals(x.ProcessName, StringComparison.OrdinalIgnoreCase)));
                 Thread.Sleep(1000);
-			}
-			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
-			return process;
-		}
+            }
+            //var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
+            return process;
+        }
 
-		public bool WaitForMainMenu = false;
+        public bool WaitForMainMenu = false;
 
         Process SdkProcess = null;
-		bool ResultState = false;
-		public async Task<bool> Build()
+        bool ResultState = false;
+        public async Task<bool> Build()
         {
-			int attemptToFindProcess = 0;
-			do
-			{
-				SdkProcess = GetProcess();
-			
-				if (SdkProcess != null)
-				{
-					//string text = SdkProcess.MainModule?.ModuleName;
-				}
-				attemptToFindProcess++;
-				await Task.Delay(1000);
-				if (attemptToFindProcess > 60)
-				{
-					break;
-				}
-			}
-			while (SdkProcess == null);
+            int attemptToFindProcess = 0;
+            do
+            {
+                SdkProcess = GetProcess();
 
-			if (SdkProcess != null)
-			{
-				ProfileManager.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName.Replace(" ", "") : OverrideProfileName);
+                if (SdkProcess != null)
+                {
+                    //string text = SdkProcess.MainModule?.ModuleName;
+                }
+                attemptToFindProcess++;
+                await Task.Delay(1000);
+                if (attemptToFindProcess > 60)
+                {
+                    break;
+                }
+            }
+            while (SdkProcess == null);
 
-				Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
-				Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");
-				Console.WriteLine($"Process Found {SdkProcess.ProcessName}");
+            if (SdkProcess != null)
+            {
+                ProfileManager.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName.Replace(" ", "") : OverrideProfileName);
 
-				Logger.Log($"Process Found {SdkProcess.ProcessName}");
+                Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
+                Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");
+                Console.WriteLine($"Process Found {SdkProcess.ProcessName}");
 
-				if(WaitForMainMenu)
-					await Task.Delay(5000);
-			}
-			else
-			{
+                Logger.Log($"Process Found {SdkProcess.ProcessName}");
 
-				Debug.WriteLine("Process Not Found");
-				Trace.WriteLine("Process Not Found");
-				Console.WriteLine("Process Not Found");
+                if (WaitForMainMenu)
+                    await Task.Delay(5000);
+            }
+            else
+            {
 
-				Logger.LogError($"Process Not Found");
+                Debug.WriteLine("Process Not Found");
+                Trace.WriteLine("Process Not Found");
+                Console.WriteLine("Process Not Found");
+
+                Logger.LogError($"Process Not Found");
 
 
-				ResultState = false;
-				return false;
-			}
+                ResultState = false;
+                return false;
+            }
 
-			List<SdkUpdateTask> list = new List<SdkUpdateTask>
-			{
+            List<SdkUpdateTask> list = new List<SdkUpdateTask>
+            {
 				//new SdkUpdateTask
 				//{
 				//	DisplayName = "Waiting for process to become active",
 				//	Task = OnDetectRunningProcess
 				//},
 				new SdkUpdateTask
-				{
-					DisplayName = "Scanning for type info offset",
-					Task = OnFindTypeInfoOffset
-				},
-				new SdkUpdateTask
-				{
-					DisplayName = "Dumping types from memory",
-					Task = OnGatherTypesFromMemory
-				},
-				new SdkUpdateTask
-				{
-					DisplayName = "Cross referencing assets",
-					Task = OnCrossReferenceAssets
-				},
-				new SdkUpdateTask
-				{
-					DisplayName = "Creating SDK",
-					Task = OnCreateSdk
-				}
-			};
-
-			SdkUpdateState state = new SdkUpdateState();
-			foreach (SdkUpdateTask task in list)
-			{
-				task.State = SdkUpdateTaskState.Active;
-				await Task.Run(delegate
-				{
-					task.Task(task, state);
-				});
-				if (task.State == SdkUpdateTaskState.CompletedFail)
-				{
-					break;
-				}
-			}
-
-			Debug.WriteLine("Finished");
-			Trace.WriteLine("Finished");
-			Console.WriteLine("Finished");
-			Logger.Log("Finished SDK Build");
-			return ResultState;
-		}
-
-		private bool OnFindTypeInfoOffset(SdkUpdateTask task, object state)
-		{
-			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
-			if (SdkProcess != null)
-			{
-				long baseAddress = 0;
-				try
                 {
-					baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
-				}
-				catch (Exception)
+                    DisplayName = "Scanning for type info offset",
+                    Task = OnFindTypeInfoOffset
+                },
+                new SdkUpdateTask
+                {
+                    DisplayName = "Dumping types from memory",
+                    Task = OnGatherTypesFromMemory
+                },
+                new SdkUpdateTask
+                {
+                    DisplayName = "Cross referencing assets",
+                    Task = OnCrossReferenceAssets
+                },
+                new SdkUpdateTask
+                {
+                    DisplayName = "Creating SDK",
+                    Task = OnCreateSdk
+                }
+            };
+
+            SdkUpdateState state = new SdkUpdateState();
+            foreach (SdkUpdateTask task in list)
+            {
+                task.State = SdkUpdateTaskState.Active;
+                await Task.Run(delegate
+                {
+                    task.Task(task, state);
+                });
+                if (task.State == SdkUpdateTaskState.CompletedFail)
+                {
+                    break;
+                }
+            }
+
+            Debug.WriteLine("Finished");
+            Trace.WriteLine("Finished");
+            Console.WriteLine("Finished");
+            Logger.Log("Finished SDK Build");
+            return ResultState;
+        }
+
+        private bool OnFindTypeInfoOffset(SdkUpdateTask task, object state)
+        {
+            SdkUpdateState sdkUpdateState = state as SdkUpdateState;
+            if (SdkProcess != null)
+            {
+                long baseAddress = 0;
+                try
+                {
+                    baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
+                }
+                catch (Exception)
                 {
 
                 }
-				MemoryReader memoryReader = new MemoryReader(SdkProcess, baseAddress);
-				sdkUpdateState.Process = SdkProcess;
-				if (memoryReader == null)
-				{
-					task.State = SdkUpdateTaskState.CompletedFail;
-					return false;
-				}
-				//if (process.ProcessName.ToUpper() == "MADDEN21")
-    //            {
-				//	//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
-				//	// "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
-				//	sdkUpdateState.TypeInfoOffset = 0x1483E1760;
+                MemoryReader memoryReader = new MemoryReader(SdkProcess, baseAddress);
+                sdkUpdateState.Process = SdkProcess;
+                if (memoryReader == null)
+                {
+                    task.State = SdkUpdateTaskState.CompletedFail;
+                    return false;
+                }
+                //if (process.ProcessName.ToUpper() == "MADDEN21")
+                //            {
+                //	//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
+                //	// "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
+                //	sdkUpdateState.TypeInfoOffset = 0x1483E1760;
 
-				//}
+                //}
                 //else
                 //if (process.ProcessName.ToUpper() == "FIFA21")
                 //{
@@ -199,13 +197,13 @@ namespace SdkGenerator
 
                 //}
                 else
-				{
+                {
 
 
-					// TODO: You need this for FIFA 20 and older
+                    // TODO: You need this for FIFA 20 and older
 
-					List<string> patterns = new List<string>()
-					{
+                    List<string> patterns = new List<string>()
+                    {
                 "488b05???????? 48894108 48890d???????? 48???? C3",
                 //"488b05???????? 48894108 48890d????????",
                 "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
@@ -232,113 +230,113 @@ namespace SdkGenerator
 
                     if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.SDKAOBScan))
                     {
-						patterns.Clear();
-						patterns.Insert(0, ProfileManager.LoadedProfile.SDKAOBScan);
-						Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfileManager.LoadedProfile.SDKAOBScan);
-					}
+                        patterns.Clear();
+                        patterns.Insert(0, ProfileManager.LoadedProfile.SDKAOBScan);
+                        Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfileManager.LoadedProfile.SDKAOBScan);
+                    }
 
 
-					if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.SDKFirstTypeInfo))
-					{
-						sdkUpdateState.TypeInfoOffset = Convert.ToInt64(ProfileManager.LoadedProfile.SDKFirstTypeInfo, 16);
+                    if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.SDKFirstTypeInfo))
+                    {
+                        sdkUpdateState.TypeInfoOffset = Convert.ToInt64(ProfileManager.LoadedProfile.SDKFirstTypeInfo, 16);
 
-						Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfileManager.LoadedProfile.SDKFirstTypeInfo);
-					}
-					else
-					{
-						List<long> listOfOffsets = null;
+                        Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfileManager.LoadedProfile.SDKFirstTypeInfo);
+                    }
+                    else
+                    {
+                        List<long> listOfOffsets = null;
 
-						var selectedPattern = string.Empty;
-						foreach (string pattern in patterns)
-						{
-							memoryReader.Position = baseAddress;
-							listOfOffsets = memoryReader.scan(pattern).ToList();
-							if (listOfOffsets.Count != 0)
-							{
-								selectedPattern = pattern;
-								break;
-							}
-						}
-						if (listOfOffsets.Count == 0)
-							throw new Exception("Unable to find TypeInfo Offset");
+                        var selectedPattern = string.Empty;
+                        foreach (string pattern in patterns)
+                        {
+                            memoryReader.Position = baseAddress;
+                            listOfOffsets = memoryReader.scan(pattern).ToList();
+                            if (listOfOffsets.Count != 0)
+                            {
+                                selectedPattern = pattern;
+                                break;
+                            }
+                        }
+                        if (listOfOffsets.Count == 0)
+                            throw new Exception("Unable to find TypeInfo Offset");
 
-						Debug.WriteLine("Used Pattern :: " + selectedPattern);
+                        Debug.WriteLine("Used Pattern :: " + selectedPattern);
 
-						listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
-						var firstOff = listOfOffsets[0];
-						memoryReader.Position = firstOff + 3;
-						int num = memoryReader.ReadInt();
-						memoryReader.Position = firstOff + 3 + num + 4;
-						sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
-					}
-				}
+                        listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
+                        var firstOff = listOfOffsets[0];
+                        memoryReader.Position = firstOff + 3;
+                        int num = memoryReader.ReadInt();
+                        memoryReader.Position = firstOff + 3 + num + 4;
+                        sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
+                    }
+                }
 
 
-				task.State = SdkUpdateTaskState.CompletedSuccessful;
+                task.State = SdkUpdateTaskState.CompletedSuccessful;
 
-				task.StatusMessage = string.Format("0x{0}", sdkUpdateState.TypeInfoOffset.ToString("X8"));
-				Debug.WriteLine(task.StatusMessage);
-				Trace.WriteLine(task.StatusMessage);
-				Console.WriteLine(task.StatusMessage);
-				ResultState = true;
-				return true;
-			}
+                task.StatusMessage = string.Format("0x{0}", sdkUpdateState.TypeInfoOffset.ToString("X8"));
+                Debug.WriteLine(task.StatusMessage);
+                Trace.WriteLine(task.StatusMessage);
+                Console.WriteLine(task.StatusMessage);
+                ResultState = true;
+                return true;
+            }
 
-			task.State = SdkUpdateTaskState.CompletedFail;
-			ResultState = false;
-			return false;
-		}
+            task.State = SdkUpdateTaskState.CompletedFail;
+            ResultState = false;
+            return false;
+        }
 
-		private bool OnGatherTypesFromMemory(SdkUpdateTask task, object state)
-		{
-			Debug.WriteLine("OnGatherTypesFromMemory");
+        private bool OnGatherTypesFromMemory(SdkUpdateTask task, object state)
+        {
+            Debug.WriteLine("OnGatherTypesFromMemory");
 
-			SdkUpdateState obj = state as SdkUpdateState;
-			//obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
-			obj.Creator = new SDKGenerator.ClassesSdkCreatorV2(obj);
+            SdkUpdateState obj = state as SdkUpdateState;
+            //obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
+            obj.Creator = new SDKGenerator.ClassesSdkCreatorV2(obj);
 
             bool flag = obj.Creator.GatherTypeInfos(task);
-			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
-			Debug.WriteLine("OnGatherTypesFromMemory:: " + flag);
+            Debug.WriteLine("OnGatherTypesFromMemory:: " + flag);
 
-			ResultState = flag;
-			return flag;
+            ResultState = flag;
+            return flag;
 
-			//task.State = SdkUpdateTaskState.CompletedSuccessful;
-			//return true;
-		}
+            //task.State = SdkUpdateTaskState.CompletedSuccessful;
+            //return true;
+        }
 
 
 
-		private bool OnCrossReferenceAssets(SdkUpdateTask task, object state)
-		{
+        private bool OnCrossReferenceAssets(SdkUpdateTask task, object state)
+        {
 
-			Debug.WriteLine("OnCrossReferenceAssets");
+            Debug.WriteLine("OnCrossReferenceAssets");
 
-			bool flag = (state as SdkUpdateState).Creator.CrossReferenceAssets(task);
-			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+            bool flag = (state as SdkUpdateState).Creator.CrossReferenceAssets(task);
+            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
-			Debug.WriteLine("OnCrossReferenceAssets:: " + flag);
+            Debug.WriteLine("OnCrossReferenceAssets:: " + flag);
 
-			ResultState = flag;
-			return flag;
+            ResultState = flag;
+            return flag;
 
-			//task.State = SdkUpdateTaskState.CompletedSuccessful;
-			//return true;
-		}
+            //task.State = SdkUpdateTaskState.CompletedSuccessful;
+            //return true;
+        }
 
-		private bool OnCreateSdk(SdkUpdateTask task, object state)
-		{
-			Debug.WriteLine("OnCreateSdk");
+        private bool OnCreateSdk(SdkUpdateTask task, object state)
+        {
+            Debug.WriteLine("OnCreateSdk");
 
             bool flag = (state as SdkUpdateState).Creator.CreateSDK();
             //bool flag = (state as SdkUpdateState).Creator.CreateSDK((int)AssetManager.Instance.fs.Head, ProfilesLibrary.SDKFilename, AssetManager.Instance.fs);
             task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
-			Debug.WriteLine("OnCreateSdk:: " + flag);
-			ResultState = flag;
-			return flag;
-		}
-	}
+            Debug.WriteLine("OnCreateSdk:: " + flag);
+            ResultState = flag;
+            return flag;
+        }
+    }
 }

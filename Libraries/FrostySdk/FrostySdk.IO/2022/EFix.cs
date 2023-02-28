@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostbiteSdk.IO
 {
@@ -19,7 +16,7 @@ namespace FrostbiteSdk.IO
         //    Guid Guid;
         //}
         //class_types[class_type_count];
-        public List<Guid> class_types = new List<Guid>();   
+        public List<Guid> class_types = new List<Guid>();
 
         public Guid ClassTypeGuid { get; set; }
 

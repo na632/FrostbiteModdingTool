@@ -1,9 +1,7 @@
 using FMT.FileTools;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
-using FrostyEditor.IO;
 using FrostySdk;
-using FrostySdk.IO;
 using System;
 using System.IO;
 
@@ -32,16 +30,16 @@ namespace SdkGenerator.BaseInfo
             }
 
             long position2 = reader.ReadLong();
-                ClassesSdkCreator.offset = reader.ReadLong();
-                Guid guid = Guid.Empty;
-                if (
-                    ProfileManager.IsFIFA19DataVersion() || 
-                    ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20180628)
-                {
-                    guid = reader.ReadGuid();
-                }
+            ClassesSdkCreator.offset = reader.ReadLong();
+            Guid guid = Guid.Empty;
+            if (
+                ProfileManager.IsFIFA19DataVersion() ||
+                ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20180628)
+            {
+                guid = reader.ReadGuid();
+            }
 
-                id = reader.ReadUShort();
+            id = reader.ReadUShort();
 
             //if (ProfilesLibrary.IsFIFA19DataVersion())
             //    reader.ReadUShort();
@@ -53,30 +51,30 @@ namespace SdkGenerator.BaseInfo
 
             //isDataContainer = reader.ReadUShort();
             isDataContainer = ProfileManager.IsFIFA19DataVersion() ? reader.ReadByte() : reader.ReadUShort();
-                padding = new byte[4]
-                {
+            padding = new byte[4]
+            {
                     reader.ReadByte(),
                     reader.ReadByte(),
                     reader.ReadByte(),
                     reader.ReadByte()
-                };
-                parentClass = reader.ReadLong();
-                reader.Position = position2;
-                typeInfo = new TypeInfo();
-                typeInfo.Read(reader);
-                if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20180628)
-                {
-                    typeInfo.guid = guid;
-                }
-                if (typeInfo.parentClass != 0L)
-                {
-                    parentClass = typeInfo.parentClass;
-                }
-                reader.Position = parentClass;
-                if (reader.Position == position)
-                {
-                    parentClass = 0L;
-                }
+            };
+            parentClass = reader.ReadLong();
+            reader.Position = position2;
+            typeInfo = new TypeInfo();
+            typeInfo.Read(reader);
+            if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20180628)
+            {
+                typeInfo.guid = guid;
+            }
+            if (typeInfo.parentClass != 0L)
+            {
+                parentClass = typeInfo.parentClass;
+            }
+            reader.Position = parentClass;
+            if (reader.Position == position)
+            {
+                parentClass = 0L;
+            }
 
 
         }

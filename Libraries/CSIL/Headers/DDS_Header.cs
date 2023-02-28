@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UsefulThings;
 
 namespace CSharpImageLibrary.Headers
@@ -109,10 +105,10 @@ namespace CSharpImageLibrary.Headers
                         }
                         break;
 
-                    // Others I know, but they aren't supported for now. Too uncommon and too much work to add for fun.
+                        // Others I know, but they aren't supported for now. Too uncommon and too much work to add for fun.
                 }
             }
-            
+
             /// <summary>
             /// Build PixelFormat sub-header for a specified surface format.
             /// </summary>
@@ -192,7 +188,7 @@ namespace CSharpImageLibrary.Headers
                         dwGBitMask = 0;
                         dwBBitMask = 0;
                         break;
-                    #endregion Uncompressed
+                        #endregion Uncompressed
                 }
             }
 
@@ -345,42 +341,42 @@ namespace CSharpImageLibrary.Headers
             /// <summary>
             /// Required.
             /// </summary>
-            DDSD_CAPS = 0x1,            
+            DDSD_CAPS = 0x1,
 
             /// <summary>
             /// Required.
             /// </summary>
-            DDSD_HEIGHT = 0x2,          
+            DDSD_HEIGHT = 0x2,
 
             /// <summary>
             /// Required.
             /// </summary>
-            DDSD_WIDTH = 0x4,           
+            DDSD_WIDTH = 0x4,
 
             /// <summary>
             /// Required when Pitch is specified for uncompressed textures.
             /// </summary>
-            DDSD_PITCH = 0x8,           
+            DDSD_PITCH = 0x8,
 
             /// <summary>
             /// Required.
             /// </summary>
-            DDSD_PIXELFORMAT = 0x1000,  
+            DDSD_PIXELFORMAT = 0x1000,
 
             /// <summary>
             /// Required if texture contains mipmaps.
             /// </summary>
-            DDSD_MIPMAPCOUNT = 0x20000, 
+            DDSD_MIPMAPCOUNT = 0x20000,
 
             /// <summary>
             /// Required when pitch/linear size is specified for compressed textures.
             /// </summary>
-            DDSD_LINEARSIZE = 0x80000,  
+            DDSD_LINEARSIZE = 0x80000,
 
             /// <summary>
             /// Required for Depth/Volume textures.
             /// </summary>
-            DDSD_DEPTH = 0x800000    
+            DDSD_DEPTH = 0x800000
         }
 
         /// <summary>
@@ -397,7 +393,7 @@ namespace CSharpImageLibrary.Headers
             /// <summary>
             /// Should be set for mipmapped image
             /// </summary> 
-            DDSCAPS_MIPMAP = 0x400000, 
+            DDSCAPS_MIPMAP = 0x400000,
 
             /// <summary>
             /// Required.
@@ -429,13 +425,13 @@ namespace CSharpImageLibrary.Headers
             /// <summary>
             /// Contains uncompressed RGB. dwRGBBitCount and RGB bitmasks have a value
             /// </summary>
-            DDPF_RGB = 0x40,            
+            DDPF_RGB = 0x40,
 
             /// <summary>
             /// Used in some old files for YUV uncompressed data. i.e. dwRGBBitCount contains YUV bitcount, dwRBitMask contains Y mask, dwGBitMask contains U mask, dwBBitMask contains V mask.
             /// YUV is a weird colourspace. Y = intensity, UV = colour. Y = 0-1 (0-255), U,V = -0.5-0.5 (-128-127) or 0-255.
             /// </summary>
-            DDPF_YUV = 0x200,           
+            DDPF_YUV = 0x200,
 
             /// <summary>
             /// Old flag for single channel colour uncompressed. dwRGBBitCount contains luminescence channel bit count, dwRBitMask contains channel mask. Can combine with DDPF_ALPHAPIXELS for 2 channel DDS file.
@@ -546,7 +542,7 @@ namespace CSharpImageLibrary.Headers
             DDS_ALPHA_MODE_CUSTOM = 4,
         }
 
-        
+
 
         /// <summary>
         /// Indicates type of DXGI/DX10 texture.
@@ -568,7 +564,7 @@ namespace CSharpImageLibrary.Headers
             /// <summary>
             /// 3D Texture specified by dwWidth, dwHeight, and dwDepth. Must have DDSD_DEPTH Flag set in dwFlags.
             /// </summary> 
-            DDS_DIMENSION_TEXTURE3D = 4, 
+            DDS_DIMENSION_TEXTURE3D = 4,
         }
 
         /// <summary>
@@ -715,7 +711,7 @@ namespace CSharpImageLibrary.Headers
             Mode_2,
             Mode_3,
             Mode_4,
-            Mode_5, 
+            Mode_5,
             Mode_6,
             Mode_7
         }
@@ -818,7 +814,7 @@ namespace CSharpImageLibrary.Headers
                 if (((int)dwFlags & values[i]) != 0)
                     flags += $"[{names[i]}] ";
             }
-            
+
             return flags;
         }
 
@@ -902,9 +898,9 @@ namespace CSharpImageLibrary.Headers
                     arraySize = 1
                 };
             }
-                
+
         }
-        
+
 
         /// <summary>
         /// Determines friendly format from FourCC, with additional DXGI/DX10 format.
@@ -1048,7 +1044,7 @@ namespace CSharpImageLibrary.Headers
 
             // KFreon: Write reserved1
             for (int i = 0; i < 11; i++)
-                headerData.AddRange(BitConverter.GetBytes((int)0));
+                headerData.AddRange(BitConverter.GetBytes(0));
 
             // KFreon: Write PIXELFORMAT
             headerData.AddRange(BitConverter.GetBytes(ddspf.dwSize));

@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -36,7 +34,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         public List<uint> Offsets { get; private set; } = new List<uint>();
 
-        public List<CASBundleEntry> Entries { get; private set;  } = new List<CASBundleEntry>();
+        public List<CASBundleEntry> Entries { get; private set; } = new List<CASBundleEntry>();
 
         public long TotalSize
         {
@@ -105,7 +103,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects)
-                    
+
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

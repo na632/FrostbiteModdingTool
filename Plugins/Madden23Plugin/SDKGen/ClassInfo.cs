@@ -1,30 +1,29 @@
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
-using System;
 
 namespace SdkGenerator.Madden23
 {
-	public class ClassInfo : IClassInfo
-	{
-		public ITypeInfo typeInfo { get; set; }
+    public class ClassInfo : IClassInfo
+    {
+        public ITypeInfo typeInfo { get; set; }
 
-		public ushort id { get; set; }
+        public ushort id { get; set; }
 
-		public ushort isDataContainer { get; set; }
+        public ushort isDataContainer { get; set; }
 
-		public byte[] padding { get; set; }
+        public byte[] padding { get; set; }
 
-		public long parentClass { get; set; }
+        public long parentClass { get; set; }
 
-		public long nextOffset { get; set; }
+        public long nextOffset { get; set; }
 
-		public void Read(MemoryReader reader)
-		{
-			long position = reader.Position;
+        public void Read(MemoryReader reader)
+        {
+            long position = reader.Position;
 
-			long typePosition = reader.ReadLong();
-			var previousOffset = reader.ReadLong();
-			nextOffset = reader.ReadLong();
+            long typePosition = reader.ReadLong();
+            var previousOffset = reader.ReadLong();
+            nextOffset = reader.ReadLong();
             //long typePosition2 = reader.ReadLong();
 
             id = reader.ReadUShort();
@@ -43,24 +42,24 @@ namespace SdkGenerator.Madden23
 
             reader.Position = typePosition;
             typeInfo = new TypeInfo();
-			typeInfo.Read(reader);
-			if (typeInfo.parentClass != 0L)
-			{
-				parentClass = typeInfo.parentClass;
-			}
-			if (parentClass == position)
-			{
-				parentClass = 0L;
-			}
+            typeInfo.Read(reader);
+            if (typeInfo.parentClass != 0L)
+            {
+                parentClass = typeInfo.parentClass;
+            }
+            if (parentClass == position)
+            {
+                parentClass = 0L;
+            }
 
-			//ClassesSdkCreator.offset = nextOffset;
+            //ClassesSdkCreator.offset = nextOffset;
 
-		}
+        }
 
-		public override string ToString()
+        public override string ToString()
         {
-			if(typeInfo!=null && !string.IsNullOrEmpty(typeInfo.name))
-				return typeInfo.name;
+            if (typeInfo != null && !string.IsNullOrEmpty(typeInfo.name))
+                return typeInfo.name;
 
             return base.ToString();
         }

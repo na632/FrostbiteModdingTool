@@ -1,8 +1,8 @@
 namespace FrostySdk.Resources
 {
-	public enum VertexElementClassification
-	{
-		PerVertex,
-		PerInstance
-	}
+    public enum VertexElementClassification
+    {
+        PerVertex,
+        PerInstance
+    }
 }

@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using static CSharpImageLibrary.DDS.DDS_BlockHelpers;
-using UsefulThings;
 using System.Numerics;
+using static CSharpImageLibrary.DDS.DDS_BlockHelpers;
 using static CSharpImageLibrary.DDS.DX10_Helpers;
 
 namespace CSharpImageLibrary.DDS
@@ -92,7 +85,7 @@ namespace CSharpImageLibrary.DDS
                 LDRColour RGBPrecisionWithP = mode.RGBPrecisionWithP;
 
                 // Red
-                for(i = 0; i < numEndPoints; i++)
+                for (i = 0; i < numEndPoints; i++)
                 {
                     if (start + RGBPrecision.R > 128)
                         Debugger.Break();  // Error
@@ -190,7 +183,7 @@ namespace CSharpImageLibrary.DDS
                         int numBits = i != 0 ? APrecision : APrecision - 1;
                         if (start + numBits > 128)
                         {
-                        Debugger.Break();
+                            Debugger.Break();
                             // Error
                         }
                         w2[i] = GetBits(source, sourceStart, ref start, numBits);
@@ -247,7 +240,7 @@ namespace CSharpImageLibrary.DDS
         internal static void CompressBC7Block(byte[] source, int sourceStart, int sourceLineLength, byte[] destination, int destStart)  // Flags?
         {
             LDRColourEndPointPair[][] AllEndPoints = new LDRColourEndPointPair[BC7_MAX_SHAPES][];
-            for(int i = 0; i < BC7_MAX_SHAPES; i++)
+            for (int i = 0; i < BC7_MAX_SHAPES; i++)
                 AllEndPoints[i] = new LDRColourEndPointPair[BC7_MAX_REGIONS];
 
             LDRColour[] block = new LDRColour[NUM_PIXELS_PER_BLOCK];
@@ -328,7 +321,7 @@ namespace CSharpImageLibrary.DDS
                             auShape[s] = s;
                         }
 
-                        for(int i = 0; i < items; i++)
+                        for (int i = 0; i < items; i++)
                         {
                             for (int j = i + 1; j < shapes; j++)
                             {
@@ -355,7 +348,7 @@ namespace CSharpImageLibrary.DDS
 
                     switch (r)
                     {
-                        case 1: 
+                        case 1:
                             for (int i = 0; i < NUM_PIXELS_PER_BLOCK; i++)
                             {
                                 var temp = block[i].A;
@@ -389,7 +382,7 @@ namespace CSharpImageLibrary.DDS
         static float Refine(int shape, int rotation, int indexMode, LDRColourEndPointPair[][] AllEndPoints, Mode mode, LDRColour[] block, byte[] destination, int destStart)
         {
             LDRColourEndPointPair[] EndPoints = AllEndPoints[shape];
-            
+
             LDRColourEndPointPair[] OrgEndPoints = new LDRColourEndPointPair[BC7_MAX_REGIONS];
             LDRColourEndPointPair[] OptEndPoints = new LDRColourEndPointPair[BC7_MAX_REGIONS];
 
@@ -455,7 +448,7 @@ namespace CSharpImageLibrary.DDS
                 int[] aPVote = new int[BC7_MAX_REGIONS << 1] { 0, 0, 0, 0, 0, 0 };
                 int[] aCount = new int[BC7_MAX_REGIONS << 1] { 0, 0, 0, 0, 0, 0 };
 
-                
+
                 for (int ch = 0; ch < BC7_NUM_CHANNELS; ch++)
                 {
                     int ep = 0;
@@ -565,7 +558,7 @@ namespace CSharpImageLibrary.DDS
         static void OptimiseOne(float fOrgErr, Mode mode, ref LDRColourEndPointPair org, ref LDRColourEndPointPair opt, int indexMode, LDRColour[] block, int np)
         {
             float fOptErr = fOrgErr;
-            opt = org; 
+            opt = org;
             LDRColourEndPointPair new_a = new LDRColourEndPointPair(), new_b = new LDRColourEndPointPair(), newEndPoints = new LDRColourEndPointPair();
             bool do_b;
 
@@ -591,7 +584,7 @@ namespace CSharpImageLibrary.DDS
                             continue;
                         break;
                 }
-                
+
 
                 // figure out which endpoint when perturbed gives the most improvement and start there
                 // if we just alternate, we can easily end up in a local minima
@@ -647,7 +640,7 @@ namespace CSharpImageLibrary.DDS
                 }
 
                 // Now alternate end points and keep trying till there is not improvement
-                for (;;)
+                for (; ; )
                 {
                     float err = PerturbOne(mode, ch, ref newEndPoints, ref opt, fOptErr, do_b, indexMode, block, np);
                     if (err >= fOptErr)
@@ -1039,7 +1032,7 @@ namespace CSharpImageLibrary.DDS
             Mode mode = Modes[modeVal];
 
             int partitions = mode.Partitions;
-            int indexPrecision = indexMode  != 0 ? mode.APrecision : mode.IndexPrecision;
+            int indexPrecision = indexMode != 0 ? mode.APrecision : mode.IndexPrecision;
             int alphaPrecision = indexMode != 0 ? mode.IndexPrecision : mode.APrecision;
             int numIndicies = 1 << indexPrecision;
             int alphaNumIndicies = 1 << alphaPrecision;
@@ -1078,7 +1071,7 @@ namespace CSharpImageLibrary.DDS
 
                 if (alphaPrecision == 0)
                 {
-                    RGBColour[] MinMax= OptimiseRGBA_BC67(Colour, 4, np, pixelIndicies);
+                    RGBColour[] MinMax = OptimiseRGBA_BC67(Colour, 4, np, pixelIndicies);
                     EndPoints[p].A = new LDRColour(MinMax[0].r, MinMax[0].g, MinMax[0].b, MinMax[0].a);
                     EndPoints[p].B = new LDRColour(MinMax[1].r, MinMax[1].g, MinMax[1].b, MinMax[1].a);
                 }
@@ -1101,7 +1094,7 @@ namespace CSharpImageLibrary.DDS
 
             if (alphaPrecision == 0)
             {
-                for(int p = 0; p <= partitions; p++)
+                for (int p = 0; p <= partitions; p++)
                     for (int i = 0; i < numIndicies; i++)
                         palette[p][i] = Interpolate(EndPoints[p].A, EndPoints[p].B, i, i, indexPrecision, indexPrecision);
             }
@@ -1112,7 +1105,7 @@ namespace CSharpImageLibrary.DDS
                     for (int i = 0; i < numIndicies; i++)
                         palette[p][i] = InterpolateRGB(EndPoints[p].A, EndPoints[p].B, i, indexPrecision);
 
-                    for(int i = 0; i < alphaNumIndicies; i++)
+                    for (int i = 0; i < alphaNumIndicies; i++)
                         palette[p][i].A = InterpolateA(EndPoints[p].A, EndPoints[p].B, i, alphaPrecision);
                 }
             }

@@ -1,13 +1,9 @@
 ﻿using FMT.FileTools;
 using FMT.FileTools.Modding;
-using FrostbiteSdk;
 using FrostySdk;
-using FrostySdk.Frosty;
 using FrostySdk.IO;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FrostbiteModdingUI.Models
@@ -61,7 +57,7 @@ namespace FrostbiteModdingUI.Models
             if (File.Exists(filename))
                 File.Delete(filename);
 
-            using(NativeWriter nw = new NativeWriter(new FileStream(filename, FileMode.CreateNew)))
+            using (NativeWriter nw = new NativeWriter(new FileStream(filename, FileMode.CreateNew)))
             {
                 nw.WriteLengthPrefixedString(Title);
                 nw.WriteLengthPrefixedString(!string.IsNullOrEmpty(Description) ? Description : string.Empty);
@@ -69,7 +65,7 @@ namespace FrostbiteModdingUI.Models
                 nw.WriteLengthPrefixedString(!string.IsNullOrEmpty(Version) ? Version : string.Empty);
 
                 nw.Write((short)mods.Count);
-                foreach(var m in mods)
+                foreach (var m in mods)
                 {
                     nw.WriteLengthPrefixedString(m.GetType().ToString());
                     byte[] compBytes = Utils.CompressFile(m.ModBytes, compressionOverride: CompressionType.Default);
@@ -96,7 +92,7 @@ namespace FrostbiteModdingUI.Models
                 Mods = new List<IFrostbiteMod>();
 
                 var modCount = nr.ReadShort();
-                for(var i = 0; i < modCount; i++)
+                for (var i = 0; i < modCount; i++)
                 {
                     var modType = nr.ReadLengthPrefixedString();
                     var byteCount = nr.ReadInt();

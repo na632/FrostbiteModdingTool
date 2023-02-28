@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UsefulThings;
 
 namespace CSharpImageLibrary.Headers
@@ -72,7 +69,7 @@ namespace CSharpImageLibrary.Headers
         {
             None = 0,
             Palette = 1,
-            Colour = 2, 
+            Colour = 2,
             PaletteAndColour = 3,
             Alpha = 4,
             AlphaAndColour = 6
@@ -148,7 +145,7 @@ namespace CSharpImageLibrary.Headers
 
             // Chars = 'PNG'
             for (int i = 1; i < Identifier.Length; i++)
-                if (IDBlock[i] != Identifier[i-1])
+                if (IDBlock[i] != Identifier[i - 1])
                     return false;
 
             // \n\r→\n

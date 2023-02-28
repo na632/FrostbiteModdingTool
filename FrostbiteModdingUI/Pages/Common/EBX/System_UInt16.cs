@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FrostbiteModdingUI.Pages.Common.EBX
+﻿namespace FrostbiteModdingUI.Pages.Common.EBX
 {
     public class System_UInt16 : System_Int32
     {

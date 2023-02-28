@@ -5,12 +5,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using SdkGenerator;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using v2k4FIFAModdingCL;
 
 namespace FrostbiteModdingTests

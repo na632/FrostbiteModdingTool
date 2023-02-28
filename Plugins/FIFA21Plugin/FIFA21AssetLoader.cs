@@ -1,37 +1,32 @@
 ﻿using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA21Plugin
 {
 
-	public class FIFA21AssetLoader : IAssetLoader
-	{
-		public List<DbObject> AllDbObjects = new List<DbObject>();
-		internal struct BundleFileInfo
-		{
-			public int Index;
+    public class FIFA21AssetLoader : IAssetLoader
+    {
+        public List<DbObject> AllDbObjects = new List<DbObject>();
+        internal struct BundleFileInfo
+        {
+            public int Index;
 
-			public int Offset;
+            public int Offset;
 
-			public int Size;
+            public int Size;
 
-			public BundleFileInfo(int index, int offset, int size)
-			{
-				Index = index;
-				Offset = offset;
-				Size = size;
-			}
-		}
+            public BundleFileInfo(int index, int offset, int size)
+            {
+                Index = index;
+                Offset = offset;
+                Size = size;
+            }
+        }
 
 
 
@@ -51,9 +46,9 @@ namespace FIFA21Plugin
 
                 assetManager.Logger.Log($"Loading data ({tocFileRAW})");
                 using TOCFile tocFile = new TOCFile(tocFileRAW, true, true, false, sbIndex, false);
-				using SBFile sbFile = new SBFile(tocFile, tocFileRAW.Replace(".toc",".sb"), true, true, false, sbIndex, false);
-                
-				sbIndex++;
+                using SBFile sbFile = new SBFile(tocFile, tocFileRAW.Replace(".toc", ".sb"), true, true, false, sbIndex, false);
+
+                sbIndex++;
             }
         }
 
@@ -69,27 +64,27 @@ namespace FIFA21Plugin
         }
 
         static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
-		{
-			List<int> positions = new List<int>();
-			int patternLength = pattern.Length;
-			int totalLength = bytes.Length;
-			byte firstMatchByte = pattern[0];
-			for (int i = 0; i < totalLength; i++)
-			{
-				if (firstMatchByte == bytes[i] && totalLength - i >= patternLength)
-				{
-					byte[] match = new byte[patternLength];
-					Array.Copy(bytes, i, match, 0, patternLength);
-					if (match.SequenceEqual<byte>(pattern))
-					{
-						positions.Add(i);
-						i += patternLength - 1;
-					}
-				}
-			}
-			return positions;
-		}
-	}
+        {
+            List<int> positions = new List<int>();
+            int patternLength = pattern.Length;
+            int totalLength = bytes.Length;
+            byte firstMatchByte = pattern[0];
+            for (int i = 0; i < totalLength; i++)
+            {
+                if (firstMatchByte == bytes[i] && totalLength - i >= patternLength)
+                {
+                    byte[] match = new byte[patternLength];
+                    Array.Copy(bytes, i, match, 0, patternLength);
+                    if (match.SequenceEqual<byte>(pattern))
+                    {
+                        positions.Add(i);
+                        i += patternLength - 1;
+                    }
+                }
+            }
+            return positions;
+        }
+    }
 
 
 }

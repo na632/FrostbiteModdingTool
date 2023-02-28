@@ -1,6 +1,5 @@
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
-using FrostyEditor.IO;
 using FrostySdk;
 
 namespace SdkGenerator.BaseInfo

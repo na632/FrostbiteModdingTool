@@ -2,17 +2,14 @@
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SdkGenerator;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -82,7 +79,7 @@ namespace FrostbiteModdingTests
 
             projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());
 
-            
+
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
@@ -257,7 +254,7 @@ namespace FrostbiteModdingTests
                     var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
                     var res = project.AssetManager.GetRes(resentry);
                     MeshSet meshSet = new MeshSet(res);
-                    using(NativeWriter nwTest = new NativeWriter(new FileStream("MeshSet-" + skinnedMeshEntry.Filename + ".dat", FileMode.Create)))
+                    using (NativeWriter nwTest = new NativeWriter(new FileStream("MeshSet-" + skinnedMeshEntry.Filename + ".dat", FileMode.Create)))
                     {
                         nwTest.WriteBytes(((MemoryStream)res).ToArray());
                     }

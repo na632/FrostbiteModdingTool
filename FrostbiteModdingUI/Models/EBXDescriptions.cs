@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FMT.Models
 {
@@ -41,7 +38,7 @@ namespace FMT.Models
                     cachedDescriptions = new EBXDescriptions();
 
                     var descriptionsDirectory = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "Models", "EBX", "Descriptions"), "*.json", new EnumerationOptions() { RecurseSubdirectories = true });
-                    foreach(var descFile in descriptionsDirectory)
+                    foreach (var descFile in descriptionsDirectory)
                     {
                         var ebxD = JsonConvert.DeserializeObject<EBXDescriptions>(
                             System.IO.File.ReadAllText(descFile));

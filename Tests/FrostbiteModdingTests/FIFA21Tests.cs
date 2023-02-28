@@ -1,29 +1,22 @@
-using FIFAModdingUI;
+using FMT.FileTools;
+using Frostbite.FileManagers;
+using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
-using FrostySdk.Frosty.FET;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Win32;
+using SdkGenerator;
 using System;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using SdkGenerator;
-using FrostySdk;
-using FrostbiteSdk.Frostbite.FileManagers;
-using Frostbite.FileManagers;
-using FifaLibrary;
-using System.Data;
-using System.Collections.Generic;
-using Microsoft.Win32;
-using FMT.FileTools;
 
 namespace FrostbiteModdingTests
 {
@@ -142,9 +135,9 @@ namespace FrostbiteModdingTests
                 GameInstanceSingleton.InjectDLL(legmodsupportdllpath);
             }
 
-    }
+        }
 
-    [TestMethod]
+        [TestMethod]
         public void TestExportFaceMesh()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
@@ -198,7 +191,7 @@ namespace FrostbiteModdingTests
                     //importer.ImportFBX("test.fbx", meshSet, skinnedMeshEbx, skinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
                     importer.ImportFBX(@"C:\Users\paula\Desktop\head_250_0_0_mesh.fbx", meshSet, skinnedMeshEbx, skinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
                     {
-                         SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
+                        SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
                     });
 
                     res = project.AssetManager.GetRes(resentry);
@@ -273,7 +266,7 @@ namespace FrostbiteModdingTests
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", 
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     //@"C:\Users\paula\Downloads\Villalibre Molina.fifamod"
                     //@"E:\Origin Games\FIFA 21\fet gp change.fifamod"
@@ -459,7 +452,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             AssetManager.Instance.DoLegacyImageImport(@"G:\Work\FIFA Modding\Career Mod\st_bootflow_v2k4.png"
                 , (LegacyFileEntry)AssetManager.Instance.EnumerateCustomAssets("legacy")
-                .FirstOrDefault(x=>x.Name.Contains("st_bootflow", StringComparison.OrdinalIgnoreCase)));
+                .FirstOrDefault(x => x.Name.Contains("st_bootflow", StringComparison.OrdinalIgnoreCase)));
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
@@ -708,9 +701,9 @@ namespace FrostbiteModdingTests
 
         }
 
-            public void DeleteOldTestMods()
+        public void DeleteOldTestMods()
         {
-            foreach(var s in Directory.GetFiles("/", "*.fbmod"))
+            foreach (var s in Directory.GetFiles("/", "*.fbmod"))
             {
                 File.Delete(s);
             }
@@ -821,7 +814,7 @@ namespace FrostbiteModdingTests
             //    }
 
 
-                
+
             //}
 
             //for (var iMerg = 0; iMerg < dtMerger.Rows.Count; iMerg++)

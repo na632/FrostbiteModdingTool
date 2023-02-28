@@ -1,17 +1,10 @@
 ﻿using FMT.FileTools.Modding;
 using FrostbiteSdk;
 using FrostySdk;
-using FrostySdk.Frosty;
 using MaterialDesignThemes.Wpf;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using v2k4FIFAModding;
 
 //namespace FIFAModdingUI.Mods
 namespace FMT.Mods
@@ -39,7 +32,7 @@ namespace FMT.Mods
                 get
                 {
                     var mt = string.Empty;
-                    if(!string.IsNullOrEmpty(Type))
+                    if (!string.IsNullOrEmpty(Type))
                     {
                         switch (Type)
                         {
@@ -81,7 +74,7 @@ namespace FMT.Mods
                             pik = PackIconKind.Controller;
                             break;
                     }
-                    return pik ;
+                    return pik;
                 }
             }
 
@@ -165,7 +158,7 @@ namespace FMT.Mods
                 get
                 {
                     var fmod = GetFrostbiteMod();
-                    if(fmod != null && fmod.Resources != null)
+                    if (fmod != null && fmod.Resources != null)
                         return fmod.Resources.Where(x => x.Type != ModResourceType.Embedded);
                     return null;
                 }
@@ -173,7 +166,7 @@ namespace FMT.Mods
 
             public override bool Equals(object obj)
             {
-                if(obj is ModItem)
+                if (obj is ModItem)
                 {
                     return ((ModItem)obj).Path.ToLower() == this.Path.ToLower();
                 }
@@ -222,7 +215,9 @@ namespace FMT.Mods
             Load();
         }
 
-        public string ModListLocation { get
+        public string ModListLocation
+        {
+            get
             {
                 string v = "Mods\\ModList.json";
                 if (ModListProfile != null)
@@ -232,7 +227,8 @@ namespace FMT.Mods
                 }
 
                 return v;
-            } }
+            }
+        }
 
         public void Load()
         {
@@ -260,7 +256,7 @@ namespace FMT.Mods
 
         public void Save()
         {
-            System.IO.File.WriteAllText(ModListLocation, Newtonsoft.Json.JsonConvert.SerializeObject(ModListItems.Select(x=>x.Path)));
+            System.IO.File.WriteAllText(ModListLocation, Newtonsoft.Json.JsonConvert.SerializeObject(ModListItems.Select(x => x.Path)));
         }
     }
 
@@ -272,12 +268,12 @@ namespace FMT.Mods
 
         public bool InstallLocaleFile { get; set; }
 
-        public string DirectoryLocation 
-        { 
-            get 
+        public string DirectoryLocation
+        {
+            get
             {
                 return "Mods\\Profiles\\" + ProfileName;
-            } 
+            }
         }
 
         private ModList ModList;
@@ -294,21 +290,21 @@ namespace FMT.Mods
             ModList = new ModList(this);
         }
 
-        private string ModListProfileLocation 
-        { 
+        private string ModListProfileLocation
+        {
             get
             {
                 return DirectoryLocation + "\\Profile.json";
-            } 
+            }
         }
 
         public void Load()
         {
             if (System.IO.File.Exists(ModListProfileLocation))
             {
-                var r = Newtonsoft.Json.JsonConvert.DeserializeObject<ModListProfile> (System.IO.File.ReadAllText(ModListProfileLocation));
-               
-                if(r != null)
+                var r = Newtonsoft.Json.JsonConvert.DeserializeObject<ModListProfile>(System.IO.File.ReadAllText(ModListProfileLocation));
+
+                if (r != null)
                 {
                     this.ProfileName = r.ProfileName;
                     this.InstallLocaleFile = r.InstallLocaleFile;
@@ -325,9 +321,9 @@ namespace FMT.Mods
         public static IEnumerable<ModListProfile> LoadAll()
         {
             Directory.CreateDirectory("Mods\\Profiles\\");
-            foreach(var d in Directory.GetDirectories("Mods\\Profiles\\"))
+            foreach (var d in Directory.GetDirectories("Mods\\Profiles\\"))
             {
-                if(File.Exists(d + "\\ModList.json") && File.Exists(d + "\\Profile.json"))
+                if (File.Exists(d + "\\ModList.json") && File.Exists(d + "\\Profile.json"))
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(d);
                     var mlp = new ModListProfile(directoryInfo.Name);

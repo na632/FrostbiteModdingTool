@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace CareerExpansionMod.CEM.FIFA
 {
@@ -13,8 +11,11 @@ namespace CareerExpansionMod.CEM.FIFA
     {
         public string isocountrycode { get; set; }
         public string nationname { get; set; }
-    public string confederation { get; set; }
-public string top_tier { get; set; } public string nationstartingfirstletter { get; set; } public string groupid { get; set; } public string nationid { get; set; }
+        public string confederation { get; set; }
+        public string top_tier { get; set; }
+        public string nationstartingfirstletter { get; set; }
+        public string groupid { get; set; }
+        public string nationid { get; set; }
 
         public static IEnumerable<FIFANation> FIFANations;
         public static IEnumerable<FIFANation> GetFIFANations()

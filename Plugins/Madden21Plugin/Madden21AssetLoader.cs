@@ -1,40 +1,35 @@
 ﻿using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using static FrostySdk.Managers.AssetManager;
 
 namespace Madden21Plugin
 {
 
-	public class Madden21AssetLoader : IAssetLoader
-	{
-		public class BundleFileInfo
-		{
-			public class BundleItem : IEquatable<BundleItem>
+    public class Madden21AssetLoader : IAssetLoader
+    {
+        public class BundleFileInfo
+        {
+            public class BundleItem : IEquatable<BundleItem>
             {
-				public string EbxResOrChunk { get; set; }
-				public string NameOrGuid { get; set; }
+                public string EbxResOrChunk { get; set; }
+                public string NameOrGuid { get; set; }
 
-				public BundleItem(string type, string name)
+                public BundleItem(string type, string name)
                 {
-					EbxResOrChunk = type;
-					NameOrGuid = name;
+                    EbxResOrChunk = type;
+                    NameOrGuid = name;
                 }
 
-				public override bool Equals(object obj)
-				{
-					if (obj is BundleItem)
-					{
-						return Equals(obj);
-					}
-					return base.Equals(obj);
-				}
+                public override bool Equals(object obj)
+                {
+                    if (obj is BundleItem)
+                    {
+                        return Equals(obj);
+                    }
+                    return base.Equals(obj);
+                }
 
                 public override int GetHashCode()
                 {
@@ -43,76 +38,76 @@ namespace Madden21Plugin
 
                 public bool Equals(BundleItem other)
                 {
-					return (other.EbxResOrChunk == this.EbxResOrChunk && other.NameOrGuid == this.NameOrGuid);
+                    return (other.EbxResOrChunk == this.EbxResOrChunk && other.NameOrGuid == this.NameOrGuid);
                 }
 
                 public override string ToString()
                 {
-					return $"{EbxResOrChunk} - {NameOrGuid}";
+                    return $"{EbxResOrChunk} - {NameOrGuid}";
                 }
             }
 
 
-			/// <summary>
-			/// A list of all the items included in the bundle by name / guid
-			/// </summary>
-			public List<BundleItem> ItemsInBundle;
+            /// <summary>
+            /// A list of all the items included in the bundle by name / guid
+            /// </summary>
+            public List<BundleItem> ItemsInBundle;
 
-			public DbObject BundleObject = new DbObject();
+            public DbObject BundleObject = new DbObject();
 
-			public int Index;
+            public int Index;
 
-			public int TocIndex 
-			{
-				get
+            public int TocIndex
+            {
+                get
                 {
 
-					var mangledCasIndex = (Index + int.MinValue);
-					return mangledCasIndex;
-				}
-			}
+                    var mangledCasIndex = (Index + int.MinValue);
+                    return mangledCasIndex;
+                }
+            }
 
-			public int Offset;
+            public int Offset;
 
-			public int Size;
+            public int Size;
 
-			public long OffsetPosition;
+            public long OffsetPosition;
 
-			public long SizePosition;
+            public long SizePosition;
 
-			public long CasIndexPosition;
+            public long CasIndexPosition;
 
-			public bool IsParent;
+            public bool IsParent;
 
-			public BundleFileInfo Parent = null;
+            public BundleFileInfo Parent = null;
 
-			public BundleFileInfo(int index, int offset, int size, long offset_pos, long size_pos, long casIndex_pos, bool isParent, BundleFileInfo parent)
-			{
-				Index = index;
-				Offset = offset;
-				Size = size;
-				OffsetPosition = offset_pos;
-				SizePosition = size_pos;
-				CasIndexPosition = casIndex_pos;
-				ItemsInBundle = new List<BundleItem>();
-				IsParent = isParent;
-				Parent = parent;
-			}
+            public BundleFileInfo(int index, int offset, int size, long offset_pos, long size_pos, long casIndex_pos, bool isParent, BundleFileInfo parent)
+            {
+                Index = index;
+                Offset = offset;
+                Size = size;
+                OffsetPosition = offset_pos;
+                SizePosition = size_pos;
+                CasIndexPosition = casIndex_pos;
+                ItemsInBundle = new List<BundleItem>();
+                IsParent = isParent;
+                Parent = parent;
+            }
 
             public override string ToString()
             {
-				return Index.ToString() + "-offset:(" + Offset + ")-size:(" + Size.ToString() + ")";
+                return Index.ToString() + "-offset:(" + Offset + ")-size:(" + Size.ToString() + ")";
             }
 
             public override bool Equals(object obj)
             {
-				if (obj is BundleFileInfo)
-				{
-					var other = obj as BundleFileInfo;
-					if (other != null)
-					{
-					}
-				}
+                if (obj is BundleFileInfo)
+                {
+                    var other = obj as BundleFileInfo;
+                    if (other != null)
+                    {
+                    }
+                }
                 return base.Equals(obj);
             }
 
@@ -122,40 +117,40 @@ namespace Madden21Plugin
             }
         }
 
-		public List<TOCFile> LoadedTOCFiles = new List<TOCFile>();
+        public List<TOCFile> LoadedTOCFiles = new List<TOCFile>();
 
-		public void Load(AssetManager parent, BinarySbDataHelper helper)
-		{
-			byte[] key = KeyManager.Instance.GetKey("Key2");
-			foreach (Catalog item2 in parent.fs.EnumerateCatalogInfos())
-			{
-				foreach (string sbName in item2.SuperBundles.Keys)
-				{
-					SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-					int sbIndex = -1;
-					if (superBundleEntry != null)
-					{
-						sbIndex = parent.superBundles.IndexOf(superBundleEntry);
-					}
-					else
-					{
-						parent.superBundles.Add(new SuperBundleEntry
-						{
-							Name = sbName
-						});
-						sbIndex = parent.superBundles.Count - 1;
-					}
-					parent.Logger.Log($"Loading data ({sbName})");
+        public void Load(AssetManager parent, BinarySbDataHelper helper)
+        {
+            byte[] key = KeyManager.Instance.GetKey("Key2");
+            foreach (Catalog item2 in parent.fs.EnumerateCatalogInfos())
+            {
+                foreach (string sbName in item2.SuperBundles.Keys)
+                {
+                    SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
+                    int sbIndex = -1;
+                    if (superBundleEntry != null)
+                    {
+                        sbIndex = parent.superBundles.IndexOf(superBundleEntry);
+                    }
+                    else
+                    {
+                        parent.superBundles.Add(new SuperBundleEntry
+                        {
+                            Name = sbName
+                        });
+                        sbIndex = parent.superBundles.Count - 1;
+                    }
+                    parent.Logger.Log($"Loading data ({sbName})");
 
-					parent.superBundles.Add(new SuperBundleEntry
-					{
-						Name = sbName
-					});
-					string tocPath = sbName;
-					if (item2.SuperBundles[sbName])
-					{
-						tocPath = sbName.Replace("win32", item2.Name);
-					}
+                    parent.superBundles.Add(new SuperBundleEntry
+                    {
+                        Name = sbName
+                    });
+                    string tocPath = sbName;
+                    if (item2.SuperBundles[sbName])
+                    {
+                        tocPath = sbName.Replace("win32", item2.Name);
+                    }
 
 
                     if (
@@ -171,17 +166,17 @@ namespace Madden21Plugin
                     {
 
                         TOCFile tocFile = new TOCFile(tocPath);
-						tocFile.Read(tocPath, parent, helper, sbIndex);
-						sbIndex++;
-						LoadedTOCFiles.Add(tocFile);
+                        tocFile.Read(tocPath, parent, helper, sbIndex);
+                        sbIndex++;
+                        LoadedTOCFiles.Add(tocFile);
 
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
                     }
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
 
 }

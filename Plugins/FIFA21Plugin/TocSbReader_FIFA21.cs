@@ -1,17 +1,10 @@
 ﻿using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA21Plugin
 {
@@ -79,7 +72,7 @@ namespace FIFA21Plugin
 
                 // TOC File 
                 TOCFile = new TOCFile(nativePath.Replace(".sb", ".toc"), DoLogging, ProcessData, false);
-                
+
                 if (TOCFile.TOCObjects != null && TOCFile.TOCObjects.Count > 0 && !ProcessData)
                     objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
 
@@ -106,7 +99,7 @@ namespace FIFA21Plugin
             return null;
         }
 
-        
+
 
         public List<DbObject> ReadSB(string sbPath, string nativeSBPath = null)
         {

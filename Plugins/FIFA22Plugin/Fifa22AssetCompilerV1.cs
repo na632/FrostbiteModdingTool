@@ -1,8 +1,4 @@
-﻿using FMT.FileTools;
-using Frostbite.FileManagers;
-using FrostbiteSdk.Frostbite.FileManagers;
-using FrostySdk;
-using FrostySdk.Frostbite;
+﻿using FrostySdk;
 using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
@@ -11,12 +7,8 @@ using FrostySdk.Managers;
 using ModdingSupport;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
 
 namespace FIFA22Plugin
 {
@@ -132,9 +124,9 @@ namespace FIFA22Plugin
 
         //}
 
-        
 
-        
+
+
 
 
         public List<ChunkAssetEntry> AddedChunks = new List<ChunkAssetEntry>();
@@ -289,7 +281,7 @@ namespace FIFA22Plugin
             return result;
         }
 
-       
+
 
 
         private void ModifyTOCCasBundles(string directory = "native_patch")

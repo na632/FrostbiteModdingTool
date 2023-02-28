@@ -1,13 +1,12 @@
-using FrostyEditor.IO;
-using FrostySdk;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
+using FrostySdk;
 
 namespace SdkGenerator.Madden20
 {
-	public class FieldInfo : BaseInfo.FieldInfo, IFieldInfo
-	{
-		public uint nameHash { get; set; }
+    public class FieldInfo : BaseInfo.FieldInfo, IFieldInfo
+    {
+        public uint nameHash { get; set; }
         string IFieldInfo.name { get; set; }
         ushort IFieldInfo.flags { get; set; }
         uint IFieldInfo.offset { get; set; }
@@ -16,22 +15,22 @@ namespace SdkGenerator.Madden20
         int IFieldInfo.index { get; set; }
 
         public override void Read(MemoryReader reader)
-		{
-			name = reader.ReadNullTerminatedString();
-			nameHash = reader.ReadUInt();
-			flags = reader.ReadUShort();
-			offset = reader.ReadUShort();
-			typeOffset = reader.ReadLong();
-		}
+        {
+            name = reader.ReadNullTerminatedString();
+            nameHash = reader.ReadUInt();
+            flags = reader.ReadUShort();
+            offset = reader.ReadUShort();
+            typeOffset = reader.ReadLong();
+        }
 
-		public override void Modify(DbObject fieldObj)
-		{
-			fieldObj.SetValue("nameHash", nameHash);
-		}
+        public override void Modify(DbObject fieldObj)
+        {
+            fieldObj.SetValue("nameHash", nameHash);
+        }
 
         public override string ToString()
         {
-			return name;
+            return name;
         }
 
         public override bool Equals(object obj)

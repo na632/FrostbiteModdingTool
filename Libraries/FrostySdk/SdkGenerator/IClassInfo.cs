@@ -1,7 +1,6 @@
-﻿using System;
+﻿using FrostySdk;
+using System;
 using System.Collections.Generic;
-using FrostbiteSdk;
-using FrostySdk;
 
 namespace FrostbiteSdk.SdkGenerator
 {
@@ -23,12 +22,12 @@ namespace FrostbiteSdk.SdkGenerator
 
         public long parentClass { get; set; }
 
-		public long nextOffset { get; set; }
+        public long nextOffset { get; set; }
     }
 
     public interface ITypeInfo : ISdkGenInfo
     {
-		public uint nameHash { get; set; }
+        public uint nameHash { get; set; }
         public string name { get; set; }
 
         public ushort flags { get; set; }

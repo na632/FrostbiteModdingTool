@@ -20,9 +20,9 @@ namespace FrostbiteSdk.FrostbiteSdk.Managers
 
         public override bool Equals(object obj)
         {
-            if(obj is EmbeddedFileEntry other)
+            if (obj is EmbeddedFileEntry other)
             {
-                if(other != null)
+                if (other != null)
                 {
                     return other.ImportedFileLocation == this.ImportedFileLocation
                         || other.ExportedRelativePath == this.ExportedRelativePath

@@ -1,16 +1,12 @@
-﻿using FrostySdk;
-using FrostySdk.Frostbite;
+﻿using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SdkGenerator;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace FrostbiteModdingTests
 {
@@ -98,9 +94,9 @@ namespace FrostbiteModdingTests
             var buildCache = new CacheManager();
             buildCache.LoadData("Madden22", GamePath, this, false, true);
 
-            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
-            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("file", StringComparison.OrdinalIgnoreCase));
-            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("collector", StringComparison.OrdinalIgnoreCase));
+            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
+            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("file", StringComparison.OrdinalIgnoreCase));
+            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("collector", StringComparison.OrdinalIgnoreCase));
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
     }

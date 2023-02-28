@@ -1,65 +1,60 @@
 ﻿using FMT.FileTools;
-using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using v2k4FIFAModdingCL;
 
 namespace FrostySdk.Frostbite
 {
-	/// <summary>
-	/// A Build / Load Cache Data via FrostySDK
-	/// </summary>
+    /// <summary>
+    /// A Build / Load Cache Data via FrostySDK
+    /// </summary>
     public class CacheManager : ILogger
     {
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="GameVersion"></param>
-		/// <param name="GameLocation"></param>
-		/// <param name="logger">ILogger</param>
-		/// <param name="forceDeleteOfOld">Force the deletion of old Cache to rebuild it again</param>
-		/// <param name="loadSDK">If you have already built the SDK, then just use the one you have</param>
-		/// <returns></returns>
-		public bool LoadData(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
-		{
-            if(AssetManager.Instance != null)
-			{
-				AssetManager.Instance.Dispose();
-				AssetManager.Instance = null;
-			}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="GameVersion"></param>
+        /// <param name="GameLocation"></param>
+        /// <param name="logger">ILogger</param>
+        /// <param name="forceDeleteOfOld">Force the deletion of old Cache to rebuild it again</param>
+        /// <param name="loadSDK">If you have already built the SDK, then just use the one you have</param>
+        /// <returns></returns>
+        public bool LoadData(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
+        {
+            if (AssetManager.Instance != null)
+            {
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;
+            }
 
             var result = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
-			return result;
-		}
+            return result;
+        }
 
-		public async Task<bool> LoadDataAsync(string GameVersion, string gameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
-		{
-			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{gameLocation})");
-			if (ProfileManager.Initialize(GameVersion))
-			{
-				return await Task.Run(() => Load(gameLocation, logger, loadSDK, forceDeleteOfOld));
-			}
-			else
+        public async Task<bool> LoadDataAsync(string GameVersion, string gameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
+        {
+            Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{gameLocation})");
+            if (ProfileManager.Initialize(GameVersion))
             {
-				logger.LogError("Profile does not exist");
-				Debug.WriteLine($"[ERROR] Failed to initialise");
-			}
-			return false;
-		}
+                return await Task.Run(() => Load(gameLocation, logger, loadSDK, forceDeleteOfOld));
+            }
+            else
+            {
+                logger.LogError("Profile does not exist");
+                Debug.WriteLine($"[ERROR] Failed to initialise");
+            }
+            return false;
+        }
 
-		public bool Load(ReadOnlySpan<char> gameLocation, ILogger logger, bool loadSDK, bool forceDeleteOfOld)
-		{
+        public bool Load(ReadOnlySpan<char> gameLocation, ILogger logger, bool loadSDK, bool forceDeleteOfOld)
+        {
             if (ProfileManager.RequiresKey)
             {
                 KeyManager.ReadInKeys();
@@ -94,10 +89,10 @@ namespace FrostySdk.Frostbite
         }
 
 
-		public static bool HasEbx(string name)
-		{
-			return GetEbx(name) != null;
-		}
+        public static bool HasEbx(string name)
+        {
+            return GetEbx(name) != null;
+        }
 
         public static EbxAssetEntry GetEbx(string name)
         {
@@ -120,8 +115,8 @@ namespace FrostySdk.Frostbite
                 var ChunkDataOffset = nativeReader.ReadULong();
                 var NameToPositionOffset = nativeReader.ReadULong();
 
-				nativeReader.Position = (long)EbxDataOffset;
-				var ebxCount = nativeReader.ReadUInt();
+                nativeReader.Position = (long)EbxDataOffset;
+                var ebxCount = nativeReader.ReadUInt();
 
 
             }
@@ -130,13 +125,13 @@ namespace FrostySdk.Frostbite
 
         private string LastMessage = null;
 
-		public void Log(string text, params object[] vars)
+        public void Log(string text, params object[] vars)
         {
-			if(!string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(LastMessage))
-			{
-				Debug.WriteLine(text);
+            if (!string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(LastMessage))
+            {
+                Debug.WriteLine(text);
             }
-			LastMessage = text;
+            LastMessage = text;
         }
 
         public void LogError(string text, params object[] vars)

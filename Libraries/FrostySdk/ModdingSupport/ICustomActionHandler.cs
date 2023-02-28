@@ -3,10 +3,10 @@ using System.IO;
 
 namespace Frosty.ModSupport.Handlers
 {
-	public interface ICustomActionHandler
-	{
-		object Load(object existing, byte[] newData);
+    public interface ICustomActionHandler
+    {
+        object Load(object existing, byte[] newData);
 
-		AssetEntry Modify(AssetEntry origEntry, Stream baseStream, object data, out byte[] outData);
-	}
+        AssetEntry Modify(AssetEntry origEntry, Stream baseStream, object data, out byte[] outData);
+    }
 }

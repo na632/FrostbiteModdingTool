@@ -1,17 +1,9 @@
 ﻿using FMT.FileTools;
 using FrostySdk;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using Newtonsoft.Json.Serialization;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static FrostySdk.Managers.AssetManager;
 
 namespace Madden22Plugin
 {
@@ -61,7 +53,7 @@ namespace Madden22Plugin
                 List<DbObject> objs = new List<DbObject>();
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
                 {
-                    
+
                     // TOC File 
                     TOCFile = new TOCFile(this);
                     TOCFile.SuperBundleName = SBName;

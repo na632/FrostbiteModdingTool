@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace FMT.Models
@@ -181,7 +178,7 @@ namespace FMT.Models
 
                     if (ArrayIndex.Value > vanillaList.Count - 1)
                         return;
-                    
+
                     PropertyOriginalValue = vanillaList[ArrayIndex.Value];
                 }
 
@@ -224,5 +221,5 @@ namespace FMT.Models
         }
     }
 
-    
+
 }

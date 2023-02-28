@@ -1,6 +1,3 @@
-using FMT.FileTools;
-using FrostySdk;
-using FrostySdk.IO;
 using FrostySdk.Resources;
 
 namespace FMT.FileTools

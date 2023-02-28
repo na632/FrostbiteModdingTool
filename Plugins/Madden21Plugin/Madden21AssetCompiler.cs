@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static Madden21Plugin.Madden21AssetLoader;
 using static ModdingSupport.ModExecutor;
 
 namespace Madden21Plugin
@@ -91,7 +90,7 @@ namespace Madden21Plugin
         /// <returns></returns>
         public bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
-            ModExecuter = (ModExecutor)modExecuter;
+            ModExecuter = modExecuter;
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
             if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
@@ -138,29 +137,29 @@ namespace Madden21Plugin
             return false;
         }
 
-            private class BundleFileEntry
+        private class BundleFileEntry
+        {
+            public int CasIndex;
+
+            public int Offset;
+
+            public int Size;
+
+            public BundleFileEntry(int inCasIndex, int inOffset, int inSize)
             {
-                public int CasIndex;
-
-                public int Offset;
-
-                public int Size;
-
-                public BundleFileEntry(int inCasIndex, int inOffset, int inSize)
-                {
-                    CasIndex = inCasIndex;
-                    Offset = inOffset;
-                    Size = inSize;
-                }
+                CasIndex = inCasIndex;
+                Offset = inOffset;
+                Size = inSize;
             }
+        }
 
-            private static readonly object locker = new object();
+        private static readonly object locker = new object();
 
-            public static int CasFileCount = 0;
+        public static int CasFileCount = 0;
 
-            private Dictionary<int, string> casFiles = new Dictionary<int, string>();
+        private Dictionary<int, string> casFiles = new Dictionary<int, string>();
 
-            public Dictionary<int, string> CasFiles => casFiles;
+        public Dictionary<int, string> CasFiles => casFiles;
 
 
         Catalog catalogInfo;
@@ -194,7 +193,7 @@ namespace Madden21Plugin
                         if (!ModExecutor.UseModData)
                         {
                             if (File.Exists(location_toc_file + ".bak"))
-                                File.Copy(location_toc_file + ".bak", location_toc_file,true);
+                                File.Copy(location_toc_file + ".bak", location_toc_file, true);
 
                             if (!File.Exists(location_toc_file + ".bak") || ModExecuter.GameWasPatched)
                                 File.Copy(location_toc_file, location_toc_file + ".bak");
@@ -207,8 +206,8 @@ namespace Madden21Plugin
                             tocchunkposition = reader_original_toc_file.ReadUInt();
                             byte_array_of_original_toc_file = reader_original_toc_file.ReadToEnd();
                         }
-                        string location_toc_file_mod_data = location_toc_file.Replace("\\\\","\\").Replace("patch\\win32", $"{ModDirectory}\\patch\\win32", StringComparison.OrdinalIgnoreCase);
-                        
+                        string location_toc_file_mod_data = location_toc_file.Replace("\\\\", "\\").Replace("patch\\win32", $"{ModDirectory}\\patch\\win32", StringComparison.OrdinalIgnoreCase);
+
                         FileInfo fi_toc_file_mod_data = new FileInfo(location_toc_file_mod_data);
                         if (!Directory.Exists(fi_toc_file_mod_data.DirectoryName))
                         {
@@ -393,7 +392,7 @@ namespace Madden21Plugin
                                                         //res.SetValue("size", resAssetEntry.Size);
                                                         res.SetValue("cas", casFileIndex);
                                                         res.SetValue("offset", (uint)writer_new_cas_file.BaseStream.Position);
-                                                        res.SetValue("resRid", (ulong)resAssetEntry.ResRid);
+                                                        res.SetValue("resRid", resAssetEntry.ResRid);
                                                         res.SetValue("resMeta", resAssetEntry.ResMeta);
                                                         res.SetValue("resType", resAssetEntry.ResType);
                                                         writer_new_cas_file.Write(ModExecuter.archiveData[resAssetEntry.Sha1].Data);
@@ -491,7 +490,7 @@ namespace Madden21Plugin
                                                     }
                                                     bundleFileEntry.CasIndex = casFileIndex;
                                                     bundleFileEntry.Offset = (int)writer_new_cas_file.BaseStream.Position;
-                                                    bundleFileEntry.Size = (int)(bwBytes.Length);
+                                                    bundleFileEntry.Size = bwBytes.Length;
                                                     writer_new_cas_file.WriteBytes(bwBytes);
                                                 }
 
@@ -513,7 +512,7 @@ namespace Madden21Plugin
                                             }
                                             writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(bundleName.Reverse().ToArray()));
                                             writer_new_toc_file_mod_data.Write(0);
-                                          
+
                                         }
                                         newBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position - position;
                                         writer_new_toc_file_mod_data.Write(bundleCount);
@@ -537,7 +536,7 @@ namespace Madden21Plugin
                                         tocFile.Read(location_toc_file, AssetManager.Instance, new BinarySbDataHelper(AssetManager.Instance), 0, false, false);
 
                                         Dictionary<Guid, int> chunkPositions = new Dictionary<Guid, int>();
-                                        foreach(ChunkAssetEntry chunk in tocFile.TocChunks)
+                                        foreach (ChunkAssetEntry chunk in tocFile.TocChunks)
                                         {
                                             chunkPositions.Add(chunk.Id, Convert.ToInt32(writer_new_toc_file_mod_data.Position - position));
                                             writer_new_toc_file_mod_data.Write(chunk.Id);
@@ -601,7 +600,7 @@ namespace Madden21Plugin
                     writer_new_cas_file?.Close();
                 }
 
-                
+
             }
         }
 
@@ -629,9 +628,9 @@ namespace Madden21Plugin
             string path = lastCas.GetValue<string>("path");
 
             string text = ModExecuter.fs.BasePath;
-            if(path.Contains("/native_data/"))
+            if (path.Contains("/native_data/"))
                 text += path.Replace("/native_data/", $"{ModDirectory}\\", StringComparison.OrdinalIgnoreCase);
-            if(path.Contains("/native_patch/"))
+            if (path.Contains("/native_patch/"))
                 text += path.Replace("/native_patch/", $"{ModDirectory}\\", StringComparison.OrdinalIgnoreCase);
             text = text.Replace("/", "\\");
 
@@ -640,37 +639,37 @@ namespace Madden21Plugin
             return nw;
         }
 
-            private uint HashString(string strToHash, uint initial = 0u)
+        private uint HashString(string strToHash, uint initial = 0u)
+        {
+            uint num = 2166136261u;
+            if (initial != 0)
             {
-                uint num = 2166136261u;
-                if (initial != 0)
-                {
-                    num = initial;
-                }
-                for (int i = 0; i < strToHash.Length; i++)
-                {
-                    num = (strToHash[i] ^ (16777619 * num));
-                }
-                return num;
+                num = initial;
             }
-
-            private static uint HashData(byte[] b, uint initial = 0u)
+            for (int i = 0; i < strToHash.Length; i++)
             {
-                uint num = (uint)((sbyte)b[0] ^ 0x50C5D1F);
-                int num2 = 1;
-                if (initial != 0)
-                {
-                    num = initial;
-                    num2 = 0;
-                }
-                for (int i = num2; i < b.Length; i++)
-                {
-                    num = (uint)((int)(sbyte)b[i] ^ (int)(16777619 * num));
-                }
-                return num;
+                num = (strToHash[i] ^ (16777619 * num));
             }
+            return num;
+        }
 
-           
+        private static uint HashData(byte[] b, uint initial = 0u)
+        {
+            uint num = (uint)((sbyte)b[0] ^ 0x50C5D1F);
+            int num2 = 1;
+            if (initial != 0)
+            {
+                num = initial;
+                num2 = 0;
+            }
+            for (int i = num2; i < b.Length; i++)
+            {
+                num = (uint)((sbyte)b[i] ^ (int)(16777619 * num));
+            }
+            return num;
+        }
+
+
 
     }
 }

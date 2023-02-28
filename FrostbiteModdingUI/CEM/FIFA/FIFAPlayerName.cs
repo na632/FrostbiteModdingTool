@@ -1,12 +1,9 @@
 ﻿using CsvHelper;
-using FrostySdk;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using v2k4FIFAModding.Career.CME.FIFA;
 using v2k4FIFAModdingCL;
 
@@ -27,9 +24,9 @@ namespace CareerExpansionMod.CEM.FIFA
             var pnames = new List<FIFAPlayerName>();
 
             var dlllocation = AppContext.BaseDirectory;
-            
+
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
-            if(GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
+            if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                 fulllocation = dlllocation + "\\CEM\\Data\\playernames_f21.csv";
 
 

@@ -1,25 +1,14 @@
-﻿using FIFAModdingUI;
-using FMT;
+﻿using FMT;
 using FrostbiteModdingUI.Models;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using v2k4FIFAModdingCL;
 
 namespace FrostbiteModdingUI.Windows
@@ -64,23 +53,23 @@ namespace FrostbiteModdingUI.Windows
             // Create the Profiles Directory if it doesn't already exist
             Directory.CreateDirectory(App.ApplicationDirectory + "\\Mods\\Profiles\\");
 
-           
+
 
             Loaded += FindGameEXEWindow_Loaded;
 
 
             List<string> lastLocationPaths = new List<string>();
-            foreach(var dir in Directory.GetDirectories(modProfileDirectory))
+            foreach (var dir in Directory.GetDirectories(modProfileDirectory))
             {
                 lastLocationPaths.AddRange(
                 Directory.GetFiles(dir)
                 .Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList());
             }
 
-            var lstOfLocations = lastLocationPaths.Select(x 
-                => 
+            var lstOfLocations = lastLocationPaths.Select(x
+                =>
                 new FileInfo(File.ReadAllText(x))
-                ).Where(x=>x.Exists).ToList();
+                ).Where(x => x.Exists).ToList();
             lv.ItemsSource = lstOfLocations;
         }
 

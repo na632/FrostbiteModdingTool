@@ -8,14 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using v2k4FIFAModding;
 
 namespace FIFAModdingUI.Windows
 {
@@ -39,7 +31,7 @@ namespace FIFAModdingUI.Windows
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-                if(result == System.Windows.Forms.DialogResult.OK)
+                if (result == System.Windows.Forms.DialogResult.OK)
                 {
                     txtLegacyDirectory.Text = dialog.SelectedPath;
                     var allFiles = Directory.GetFiles(dialog.SelectedPath, "*.*", SearchOption.AllDirectories);
@@ -61,7 +53,7 @@ namespace FIFAModdingUI.Windows
                 }
                 baseDir.Delete(true);
             }
-            catch(Exception)
+            catch (Exception)
             {
 
             }
@@ -82,7 +74,7 @@ namespace FIFAModdingUI.Windows
 
 
                 bool encryptFiles = chkEncryptFiles.IsChecked.HasValue
-                            && chkEncryptFiles.IsChecked.Value; 
+                            && chkEncryptFiles.IsChecked.Value;
 
                 var allFiles = Directory.GetFiles("TEMP", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
                 Task[] tasks = new Task[allFiles.Count()];
@@ -91,45 +83,45 @@ namespace FIFAModdingUI.Windows
                 {
                     //tasks[index] = Task.Run(() =>
                     //{
-                        StringBuilder sbFinalResult = new StringBuilder();
+                    StringBuilder sbFinalResult = new StringBuilder();
 
-                        var encrypt = !file.Contains(".dds")
-                            && !file.Contains(".db")
-                           && encryptFiles;
+                    var encrypt = !file.Contains(".dds")
+                        && !file.Contains(".db")
+                       && encryptFiles;
 
-                        if (encrypt)
+                    if (encrypt)
+                    {
+                        var splitExtension = file.Split('.');
+                        if (splitExtension[splitExtension.Length - 1] != "mod")
+                            splitExtension[splitExtension.Length - 1] = "mod";
+
+                        foreach (var str in splitExtension)
                         {
-                            var splitExtension = file.Split('.');
-                            if (splitExtension[splitExtension.Length - 1] != "mod")
-                                splitExtension[splitExtension.Length - 1] = "mod";
-
-                            foreach (var str in splitExtension)
+                            if (str == "mod")
                             {
-                                if (str == "mod")
-                                {
-                                    sbFinalResult.Append(".mod");
-                                }
-                                else
-                                {
-                                    sbFinalResult.Append(str);
-                                }
+                                sbFinalResult.Append(".mod");
+                            }
+                            else
+                            {
+                                sbFinalResult.Append(str);
                             }
                         }
-                        else
-                        {
-                            sbFinalResult.Append(file);
-                        }
+                    }
+                    else
+                    {
+                        sbFinalResult.Append(file);
+                    }
 
-                        //if (encrypt)
-                        //{
-                        //    Dispatcher.Invoke(() => {
-                        //        txtSaveFileStatus.Text = "Encrypting " + file;
-                        //    });
-                        //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                        //    File.Delete(file);
-                        //}
+                    //if (encrypt)
+                    //{
+                    //    Dispatcher.Invoke(() => {
+                    //        txtSaveFileStatus.Text = "Encrypting " + file;
+                    //    });
+                    //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                    //    File.Delete(file);
+                    //}
 
-                        listOfCompilableFiles.Add(sbFinalResult.ToString());
+                    listOfCompilableFiles.Add(sbFinalResult.ToString());
                     //});
                     //index++;
                 }

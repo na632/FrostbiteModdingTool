@@ -1,8 +1,12 @@
-using FrostbiteSdk;
+using CSharpImageLibrary;
+using FMT.FileTools;
 using Frostbite.FileManagers;
+using Frostbite.Textures;
+using FrostbiteSdk;
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using FrostySdk.Ebx;
+using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
@@ -10,7 +14,7 @@ using FrostySdk.IO;
 using FrostySdk.Resources;
 using Newtonsoft.Json;
 using System;
-using System.CodeDom;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,417 +22,411 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Frostbite.Textures;
-using System.Collections;
-using FrostySdk.Frostbite;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using FMT.FileTools;
-using CSharpImageLibrary;
 
 namespace FrostySdk.Managers
 {
 
 
-	public class BinarySbDataHelper
-	{
-		protected Dictionary<string, byte[]> ebxDataFiles = new Dictionary<string, byte[]>();
+    public class BinarySbDataHelper
+    {
+        protected Dictionary<string, byte[]> ebxDataFiles = new Dictionary<string, byte[]>();
 
-		protected Dictionary<string, byte[]> resDataFiles = new Dictionary<string, byte[]>();
+        protected Dictionary<string, byte[]> resDataFiles = new Dictionary<string, byte[]>();
 
-		protected Dictionary<string, byte[]> chunkDataFiles = new Dictionary<string, byte[]>();
+        protected Dictionary<string, byte[]> chunkDataFiles = new Dictionary<string, byte[]>();
 
-		private AssetManager am;
+        private AssetManager am;
 
-		public BinarySbDataHelper(AssetManager inParent)
-		{
-			am = inParent;
-		}
+        public BinarySbDataHelper(AssetManager inParent)
+        {
+            am = inParent;
+        }
 
-		public void FilterAndAddBundleData(DbObject baseList, DbObject deltaList)
-		{
-			FilterBinaryBundleData(baseList, deltaList, "ebx", ebxDataFiles);
-			FilterBinaryBundleData(baseList, deltaList, "res", resDataFiles);
-			FilterBinaryBundleData(baseList, deltaList, "chunks", chunkDataFiles);
-		}
+        public void FilterAndAddBundleData(DbObject baseList, DbObject deltaList)
+        {
+            FilterBinaryBundleData(baseList, deltaList, "ebx", ebxDataFiles);
+            FilterBinaryBundleData(baseList, deltaList, "res", resDataFiles);
+            FilterBinaryBundleData(baseList, deltaList, "chunks", chunkDataFiles);
+        }
 
-		public void RemoveEbxData(string name)
-		{
-			ebxDataFiles.Remove(name);
-		}
+        public void RemoveEbxData(string name)
+        {
+            ebxDataFiles.Remove(name);
+        }
 
-		public void RemoveResData(string name)
-		{
-			resDataFiles.Remove(name);
-		}
+        public void RemoveResData(string name)
+        {
+            resDataFiles.Remove(name);
+        }
 
-		public void RemoveChunkData(string name)
-		{
-			chunkDataFiles.Remove(name);
-		}
+        public void RemoveChunkData(string name)
+        {
+            chunkDataFiles.Remove(name);
+        }
 
-		//public void WriteToCache(AssetManager am)
-		//{
-		//	if (ebxDataFiles.Count + resDataFiles.Count + chunkDataFiles.Count != 0)
-		//	{
-		//		using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(am.fs.CacheName + "_sbdata.cas", FileMode.Create)))
-		//		{
-		//			foreach (KeyValuePair<string, byte[]> ebxDataFile in ebxDataFiles)
-		//			{
-		//				am.EbxList[ebxDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-		//				binaryWriter.Write(ebxDataFile.Value);
-		//			}
-		//			foreach (KeyValuePair<string, byte[]> resDataFile in resDataFiles)
-		//			{
-		//				am.resList[resDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-		//				binaryWriter.Write(resDataFile.Value);
-		//			}
-		//			foreach (KeyValuePair<string, byte[]> chunkDataFile in chunkDataFiles)
-		//			{
-		//				Guid key = new Guid(chunkDataFile.Key);
-		//				am.chunkList[key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-		//				binaryWriter.Write(chunkDataFile.Value);
-		//			}
-		//		}
-		//		ebxDataFiles.Clear();
-		//		resDataFiles.Clear();
-		//		chunkDataFiles.Clear();
-		//	}
-		//}
+        //public void WriteToCache(AssetManager am)
+        //{
+        //	if (ebxDataFiles.Count + resDataFiles.Count + chunkDataFiles.Count != 0)
+        //	{
+        //		using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(am.fs.CacheName + "_sbdata.cas", FileMode.Create)))
+        //		{
+        //			foreach (KeyValuePair<string, byte[]> ebxDataFile in ebxDataFiles)
+        //			{
+        //				am.EbxList[ebxDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
+        //				binaryWriter.Write(ebxDataFile.Value);
+        //			}
+        //			foreach (KeyValuePair<string, byte[]> resDataFile in resDataFiles)
+        //			{
+        //				am.resList[resDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
+        //				binaryWriter.Write(resDataFile.Value);
+        //			}
+        //			foreach (KeyValuePair<string, byte[]> chunkDataFile in chunkDataFiles)
+        //			{
+        //				Guid key = new Guid(chunkDataFile.Key);
+        //				am.chunkList[key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
+        //				binaryWriter.Write(chunkDataFile.Value);
+        //			}
+        //		}
+        //		ebxDataFiles.Clear();
+        //		resDataFiles.Clear();
+        //		chunkDataFiles.Clear();
+        //	}
+        //}
 
-		private void FilterBinaryBundleData(DbObject baseList, DbObject deltaList, string listName, Dictionary<string, byte[]> dataFiles)
-		{
-			foreach (DbObject item in deltaList.GetValue<DbObject>(listName))
-			{
+        private void FilterBinaryBundleData(DbObject baseList, DbObject deltaList, string listName, Dictionary<string, byte[]> dataFiles)
+        {
+            foreach (DbObject item in deltaList.GetValue<DbObject>(listName))
+            {
                 FMT.FileTools.Sha1 value = item.GetValue<FMT.FileTools.Sha1>("sha1");
-				string text = item.GetValue<string>("name");
-				if (text == null)
-				{
-					text = item.GetValue<Guid>("id").ToString();
-				}
-				if (!dataFiles.ContainsKey(text))
-				{
-					bool flag = false;
-					if (baseList != null)
-					{
-						foreach (DbObject item2 in baseList.GetValue<DbObject>(listName))
-						{
-							if (item2.GetValue<FMT.FileTools.Sha1>("sha1") == value)
-							{
-								item.SetValue("size", item2.GetValue("size", 0L));
-								item.SetValue("originalSize", item2.GetValue("originalSize", 0L));
-								item.SetValue("offset", item2.GetValue("offset", 0L));
-								item.RemoveValue("data");
-								flag = true;
-								break;
-							}
-						}
-					}
-					if (!flag)
-					{
-						byte[] array = Utils.CompressFile(item.GetValue<byte[]>("data"));
-						dataFiles.Add(text, array);
-						item.SetValue("size", array.Length);
-						item.AddValue("cache", true);
-						item.RemoveValue("sb");
-					}
-				}
-			}
-		}
-	}
+                string text = item.GetValue<string>("name");
+                if (text == null)
+                {
+                    text = item.GetValue<Guid>("id").ToString();
+                }
+                if (!dataFiles.ContainsKey(text))
+                {
+                    bool flag = false;
+                    if (baseList != null)
+                    {
+                        foreach (DbObject item2 in baseList.GetValue<DbObject>(listName))
+                        {
+                            if (item2.GetValue<FMT.FileTools.Sha1>("sha1") == value)
+                            {
+                                item.SetValue("size", item2.GetValue("size", 0L));
+                                item.SetValue("originalSize", item2.GetValue("originalSize", 0L));
+                                item.SetValue("offset", item2.GetValue("offset", 0L));
+                                item.RemoveValue("data");
+                                flag = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!flag)
+                    {
+                        byte[] array = Utils.CompressFile(item.GetValue<byte[]>("data"));
+                        dataFiles.Add(text, array);
+                        item.SetValue("size", array.Length);
+                        item.AddValue("cache", true);
+                        item.RemoveValue("sb");
+                    }
+                }
+            }
+        }
+    }
 
 
-	public class AssetManager : IDisposable
-	{
-		private static AssetManager _Instance;
-        public static AssetManager Instance 
-		{ 
-			get 
-			{ 
-				if(_Instance == null)
+    public class AssetManager : IDisposable
+    {
+        private static AssetManager _Instance;
+        public static AssetManager Instance
+        {
+            get
+            {
+                if (_Instance == null)
                 {
                 }
-				return _Instance;
-			
-			} 
-			set 
-			{ 
-				_Instance = value; 
-			} 
-		}
+                return _Instance;
 
-		public Dictionary<int, string> ModCASFiles = new Dictionary<int, string>();
+            }
+            set
+            {
+                _Instance = value;
+            }
+        }
 
-
-		internal class FifaAssetLoader : IAssetLoader
-		{
-			internal struct BundleFileInfo
-			{
-				public int Index;
-
-				public int Offset;
-
-				public int Size;
-
-				public BundleFileInfo(int index, int offset, int size)
-				{
-					Index = index;
-					Offset = offset;
-					Size = size;
-				}
-			}
-
-			public void Load(AssetManager parent, BinarySbDataHelper helper)
-			{
-				byte[] key = KeyManager.Instance.GetKey("Key2");
-				foreach (Catalog item2 in parent.fs.EnumerateCatalogInfos())
-				{
-					foreach (string sbName in item2.SuperBundles.Keys)
-					{
-						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-						int num = -1;
-						if (superBundleEntry != null)
-						{
-							num = parent.superBundles.IndexOf(superBundleEntry);
-						}
-						else
-						{
-							parent.superBundles.Add(new SuperBundleEntry
-							{
-								Name = sbName
-							});
-							num = parent.superBundles.Count - 1;
-						}
-						parent.WriteToLog($"Loading data ({sbName})");
-						parent.superBundles.Add(new SuperBundleEntry
-						{
-							Name = sbName
-						});
-						string arg = sbName;
-						if (item2.SuperBundles[sbName])
-						{
-							arg = sbName.Replace("win32", item2.Name);
-						}
-
-						string resolvedTocPath = parent.fs.ResolvePath($"{arg}.toc");
-						if (string.IsNullOrEmpty(resolvedTocPath))
-							continue;
-
-						{
-							int num2 = 0;
-							int num3 = 0;
-							byte[] array = null;
-							using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(resolvedTocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
-							{
-								uint num4 = nativeReader.ReadUInt();
-								num2 = nativeReader.ReadInt() - 12;
-								num3 = nativeReader.ReadInt() - 12;
-								array = nativeReader.ReadToEnd();
-								if (num4 == 3286619587u)
-								{
-									using (Aes aes = Aes.Create())
-									{
-										aes.Key = key;
-										aes.IV = key;
-										aes.Padding = PaddingMode.None;
-										ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-										using (MemoryStream stream = new MemoryStream(array))
-										{
-											using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
-											{
-												cryptoStream.Read(array, 0, array.Length);
-											}
-										}
-									}
-								}
-							}
-							if (array.Length != 0)
-							{
-								using (NativeReader nativeReader2 = new NativeReader(new MemoryStream(array)))
-								{
-									List<int> list = new List<int>();
-									if (num2 > 0)
-									{
-										nativeReader2.Position = num2;
-										int numberOfBundles = nativeReader2.ReadInt();
-										for (int i = 0; i < numberOfBundles; i++)
-										{
-											list.Add(nativeReader2.ReadInt());
-										}
-										DateTime lastLogTime = DateTime.Now;
-
-										for (int j = 0; j < numberOfBundles; j++)
-										{
-											if (lastLogTime.AddSeconds(15) < DateTime.Now)
-											{
-												var percentDone = Math.Round((double)j / (double)numberOfBundles * 100.0);
-												parent.Logger.Log($"{arg} Progress: {percentDone}");
-												lastLogTime = DateTime.Now;
-											}
+        public Dictionary<int, string> ModCASFiles = new Dictionary<int, string>();
 
 
-											int num6 = nativeReader2.ReadInt() - 12;
-											long position = nativeReader2.Position;
-											nativeReader2.Position = num6;
-											int num7 = nativeReader2.ReadInt() - 1;
-											List<BundleFileInfo> list2 = new List<BundleFileInfo>();
-											MemoryStream memoryStream = new MemoryStream();
-											int num8;
-											do
-											{
-												num8 = nativeReader2.ReadInt();
-												int num9 = nativeReader2.ReadInt();
-												int num10 = nativeReader2.ReadInt();
-												using (NativeReader nativeReader3 = new NativeReader(new FileStream(parent.fs.ResolvePath(parent.fs.GetFilePath(num8 & int.MaxValue)), FileMode.Open, FileAccess.Read)))
-												{
-													nativeReader3.Position = num9;
-													memoryStream.Write(nativeReader3.ReadBytes(num10), 0, num10);
-												}
-												list2.Add(new BundleFileInfo(num8 & int.MaxValue, num9, num10));
-											}
-											while ((num8 & 2147483648u) != 0L);
-											nativeReader2.Position = num7 - 12;
-											int num11 = 0;
-											string text2 = "";
-											do
-											{
-												string str = nativeReader2.ReadNullTerminatedString();
-												num11 = nativeReader2.ReadInt() - 1;
-												text2 += str;
-												if (num11 != -1)
-												{
-													nativeReader2.Position = num11 - 12;
-												}
-											}
-											while (num11 != -1);
-											text2 = Utils.ReverseString(text2);
-											nativeReader2.Position = position;
-											BundleEntry item = new BundleEntry
-											{
-												Name = text2,
-												SuperBundleId = num
-											};
-											parent.Bundles.Add(item);
-											BinarySbReader binarySbReader = null;
-											if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-												binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
-											else
-												binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator());
+        internal class FifaAssetLoader : IAssetLoader
+        {
+            internal struct BundleFileInfo
+            {
+                public int Index;
 
-											using (binarySbReader)
-											{
-												DbObject dbObject = binarySbReader.ReadDbObject();
-												BundleFileInfo bundleFileInfo = list2[0];
-												long offset = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L) + 4);
-												long currentSize = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L) + 4);
-												int num14 = 0;
-												foreach (DbObject item3 in dbObject.GetValue<DbObject>("ebx"))
-												{
-													if (currentSize == 0L)
-													{
-														bundleFileInfo = list2[++num14];
-														currentSize = bundleFileInfo.Size;
-														offset = bundleFileInfo.Offset;
-													}
-													int value = item3.GetValue("size", 0);
-													item3.SetValue("offset", offset);
-													item3.SetValue("cas", bundleFileInfo.Index);
-													offset += value;
-													currentSize -= value;
-												}
-												foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
-												{
-													if (currentSize == 0L)
-													{
-														bundleFileInfo = list2[++num14];
-														currentSize = bundleFileInfo.Size;
-														offset = bundleFileInfo.Offset;
-													}
-													int value2 = item4.GetValue("size", 0);
-													item4.SetValue("offset", offset);
-													item4.SetValue("cas", bundleFileInfo.Index);
-													offset += value2;
-													currentSize -= value2;
-												}
-												foreach (DbObject item5 in dbObject.GetValue<DbObject>("chunks"))
-												{
-													if (currentSize == 0L)
-													{
-														bundleFileInfo = list2[++num14];
-														currentSize = bundleFileInfo.Size;
-														offset = bundleFileInfo.Offset;
-													}
-													int value3 = item5.GetValue("size", 0);
-													item5.SetValue("offset", offset);
-													item5.SetValue("cas", bundleFileInfo.Index);
-													offset += value3;
-													currentSize -= value3;
-												}
-												parent.ProcessBundleEbx(dbObject, parent.Bundles.Count - 1, helper);
-												parent.ProcessBundleRes(dbObject, parent.Bundles.Count - 1, helper);
-												parent.ProcessBundleChunks(dbObject, parent.Bundles.Count - 1, helper);
-											}
-										}
-									}
-									if (num3 > 0)
-									{
-										nativeReader2.Position = num3;
-										int num15 = nativeReader2.ReadInt();
-										list = new List<int>();
-										for (int k = 0; k < num15; k++)
-										{
-											list.Add(nativeReader2.ReadInt());
-										}
-										for (int l = 0; l < num15; l++)
-										{
-											int num16 = nativeReader2.ReadInt();
-											long position2 = nativeReader2.Position;
-											nativeReader2.Position = num16 - 12;
-											Guid guid = nativeReader2.ReadGuid();
-											int index = nativeReader2.ReadInt();
-											int offset = nativeReader2.ReadInt();
-											int num18 = nativeReader2.ReadInt();
-											if (!parent.Chunks.ContainsKey(guid))
-											{
-												//parent.chunkList.Add(guid, new ChunkAssetEntry());
-												parent.Chunks.TryAdd(guid, new ChunkAssetEntry());
-											}
-											ChunkAssetEntry chunkAssetEntry = parent.Chunks[guid];
-											chunkAssetEntry.Id = guid;
-											chunkAssetEntry.Size = num18;
-											chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-											chunkAssetEntry.ExtraData = new AssetExtraData();
-											chunkAssetEntry.ExtraData.CasPath = parent.fs.GetFilePath(index);
-											chunkAssetEntry.ExtraData.DataOffset = (uint)offset;
-											parent.Chunks[guid].IsTocChunk = true;
-											nativeReader2.Position = position2;
-										}
-									}
-								}
-							}
-						}
-						num++;
-					}
-				}
-			}
-		}
+                public int Offset;
 
-		private const ulong CacheMagic = 144213406785688134uL;
+                public int Size;
 
-		private const uint CacheVersion = 2u;
+                public BundleFileInfo(int index, int offset, int size)
+                {
+                    Index = index;
+                    Offset = offset;
+                    Size = size;
+                }
+            }
 
-		public FileSystem fs = FileSystem.Instance;
+            public void Load(AssetManager parent, BinarySbDataHelper helper)
+            {
+                byte[] key = KeyManager.Instance.GetKey("Key2");
+                foreach (Catalog item2 in parent.fs.EnumerateCatalogInfos())
+                {
+                    foreach (string sbName in item2.SuperBundles.Keys)
+                    {
+                        SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
+                        int num = -1;
+                        if (superBundleEntry != null)
+                        {
+                            num = parent.superBundles.IndexOf(superBundleEntry);
+                        }
+                        else
+                        {
+                            parent.superBundles.Add(new SuperBundleEntry
+                            {
+                                Name = sbName
+                            });
+                            num = parent.superBundles.Count - 1;
+                        }
+                        parent.WriteToLog($"Loading data ({sbName})");
+                        parent.superBundles.Add(new SuperBundleEntry
+                        {
+                            Name = sbName
+                        });
+                        string arg = sbName;
+                        if (item2.SuperBundles[sbName])
+                        {
+                            arg = sbName.Replace("win32", item2.Name);
+                        }
 
-		public FileSystem FileSystem => fs;
+                        string resolvedTocPath = parent.fs.ResolvePath($"{arg}.toc");
+                        if (string.IsNullOrEmpty(resolvedTocPath))
+                            continue;
 
-		public ILogger Logger { get; private set; }
+                        {
+                            int num2 = 0;
+                            int num3 = 0;
+                            byte[] array = null;
+                            using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(resolvedTocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
+                            {
+                                uint num4 = nativeReader.ReadUInt();
+                                num2 = nativeReader.ReadInt() - 12;
+                                num3 = nativeReader.ReadInt() - 12;
+                                array = nativeReader.ReadToEnd();
+                                if (num4 == 3286619587u)
+                                {
+                                    using (Aes aes = Aes.Create())
+                                    {
+                                        aes.Key = key;
+                                        aes.IV = key;
+                                        aes.Padding = PaddingMode.None;
+                                        ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
+                                        using (MemoryStream stream = new MemoryStream(array))
+                                        {
+                                            using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
+                                            {
+                                                cryptoStream.Read(array, 0, array.Length);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (array.Length != 0)
+                            {
+                                using (NativeReader nativeReader2 = new NativeReader(new MemoryStream(array)))
+                                {
+                                    List<int> list = new List<int>();
+                                    if (num2 > 0)
+                                    {
+                                        nativeReader2.Position = num2;
+                                        int numberOfBundles = nativeReader2.ReadInt();
+                                        for (int i = 0; i < numberOfBundles; i++)
+                                        {
+                                            list.Add(nativeReader2.ReadInt());
+                                        }
+                                        DateTime lastLogTime = DateTime.Now;
 
-		public List<SuperBundleEntry> superBundles { get; } = new List<SuperBundleEntry>(500);
+                                        for (int j = 0; j < numberOfBundles; j++)
+                                        {
+                                            if (lastLogTime.AddSeconds(15) < DateTime.Now)
+                                            {
+                                                var percentDone = Math.Round(j / (double)numberOfBundles * 100.0);
+                                                parent.Logger.Log($"{arg} Progress: {percentDone}");
+                                                lastLogTime = DateTime.Now;
+                                            }
 
-		public List<BundleEntry> Bundles { get; } = new List<BundleEntry>(350000);
+
+                                            int num6 = nativeReader2.ReadInt() - 12;
+                                            long position = nativeReader2.Position;
+                                            nativeReader2.Position = num6;
+                                            int num7 = nativeReader2.ReadInt() - 1;
+                                            List<BundleFileInfo> list2 = new List<BundleFileInfo>();
+                                            MemoryStream memoryStream = new MemoryStream();
+                                            int num8;
+                                            do
+                                            {
+                                                num8 = nativeReader2.ReadInt();
+                                                int num9 = nativeReader2.ReadInt();
+                                                int num10 = nativeReader2.ReadInt();
+                                                using (NativeReader nativeReader3 = new NativeReader(new FileStream(parent.fs.ResolvePath(parent.fs.GetFilePath(num8 & int.MaxValue)), FileMode.Open, FileAccess.Read)))
+                                                {
+                                                    nativeReader3.Position = num9;
+                                                    memoryStream.Write(nativeReader3.ReadBytes(num10), 0, num10);
+                                                }
+                                                list2.Add(new BundleFileInfo(num8 & int.MaxValue, num9, num10));
+                                            }
+                                            while ((num8 & 2147483648u) != 0L);
+                                            nativeReader2.Position = num7 - 12;
+                                            int num11 = 0;
+                                            string text2 = "";
+                                            do
+                                            {
+                                                string str = nativeReader2.ReadNullTerminatedString();
+                                                num11 = nativeReader2.ReadInt() - 1;
+                                                text2 += str;
+                                                if (num11 != -1)
+                                                {
+                                                    nativeReader2.Position = num11 - 12;
+                                                }
+                                            }
+                                            while (num11 != -1);
+                                            text2 = Utils.ReverseString(text2);
+                                            nativeReader2.Position = position;
+                                            BundleEntry item = new BundleEntry
+                                            {
+                                                Name = text2,
+                                                SuperBundleId = num
+                                            };
+                                            parent.Bundles.Add(item);
+                                            BinarySbReader binarySbReader = null;
+                                            if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
+                                                binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
+                                            else
+                                                binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator());
+
+                                            using (binarySbReader)
+                                            {
+                                                DbObject dbObject = binarySbReader.ReadDbObject();
+                                                BundleFileInfo bundleFileInfo = list2[0];
+                                                long offset = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L) + 4);
+                                                long currentSize = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L) + 4);
+                                                int num14 = 0;
+                                                foreach (DbObject item3 in dbObject.GetValue<DbObject>("ebx"))
+                                                {
+                                                    if (currentSize == 0L)
+                                                    {
+                                                        bundleFileInfo = list2[++num14];
+                                                        currentSize = bundleFileInfo.Size;
+                                                        offset = bundleFileInfo.Offset;
+                                                    }
+                                                    int value = item3.GetValue("size", 0);
+                                                    item3.SetValue("offset", offset);
+                                                    item3.SetValue("cas", bundleFileInfo.Index);
+                                                    offset += value;
+                                                    currentSize -= value;
+                                                }
+                                                foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
+                                                {
+                                                    if (currentSize == 0L)
+                                                    {
+                                                        bundleFileInfo = list2[++num14];
+                                                        currentSize = bundleFileInfo.Size;
+                                                        offset = bundleFileInfo.Offset;
+                                                    }
+                                                    int value2 = item4.GetValue("size", 0);
+                                                    item4.SetValue("offset", offset);
+                                                    item4.SetValue("cas", bundleFileInfo.Index);
+                                                    offset += value2;
+                                                    currentSize -= value2;
+                                                }
+                                                foreach (DbObject item5 in dbObject.GetValue<DbObject>("chunks"))
+                                                {
+                                                    if (currentSize == 0L)
+                                                    {
+                                                        bundleFileInfo = list2[++num14];
+                                                        currentSize = bundleFileInfo.Size;
+                                                        offset = bundleFileInfo.Offset;
+                                                    }
+                                                    int value3 = item5.GetValue("size", 0);
+                                                    item5.SetValue("offset", offset);
+                                                    item5.SetValue("cas", bundleFileInfo.Index);
+                                                    offset += value3;
+                                                    currentSize -= value3;
+                                                }
+                                                parent.ProcessBundleEbx(dbObject, parent.Bundles.Count - 1, helper);
+                                                parent.ProcessBundleRes(dbObject, parent.Bundles.Count - 1, helper);
+                                                parent.ProcessBundleChunks(dbObject, parent.Bundles.Count - 1, helper);
+                                            }
+                                        }
+                                    }
+                                    if (num3 > 0)
+                                    {
+                                        nativeReader2.Position = num3;
+                                        int num15 = nativeReader2.ReadInt();
+                                        list = new List<int>();
+                                        for (int k = 0; k < num15; k++)
+                                        {
+                                            list.Add(nativeReader2.ReadInt());
+                                        }
+                                        for (int l = 0; l < num15; l++)
+                                        {
+                                            int num16 = nativeReader2.ReadInt();
+                                            long position2 = nativeReader2.Position;
+                                            nativeReader2.Position = num16 - 12;
+                                            Guid guid = nativeReader2.ReadGuid();
+                                            int index = nativeReader2.ReadInt();
+                                            int offset = nativeReader2.ReadInt();
+                                            int num18 = nativeReader2.ReadInt();
+                                            if (!parent.Chunks.ContainsKey(guid))
+                                            {
+                                                //parent.chunkList.Add(guid, new ChunkAssetEntry());
+                                                parent.Chunks.TryAdd(guid, new ChunkAssetEntry());
+                                            }
+                                            ChunkAssetEntry chunkAssetEntry = parent.Chunks[guid];
+                                            chunkAssetEntry.Id = guid;
+                                            chunkAssetEntry.Size = num18;
+                                            chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                                            chunkAssetEntry.ExtraData = new AssetExtraData();
+                                            chunkAssetEntry.ExtraData.CasPath = parent.fs.GetFilePath(index);
+                                            chunkAssetEntry.ExtraData.DataOffset = (uint)offset;
+                                            parent.Chunks[guid].IsTocChunk = true;
+                                            nativeReader2.Position = position2;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        num++;
+                    }
+                }
+            }
+        }
+
+        private const ulong CacheMagic = 144213406785688134uL;
+
+        private const uint CacheVersion = 2u;
+
+        public FileSystem fs = FileSystem.Instance;
+
+        public FileSystem FileSystem => fs;
+
+        public ILogger Logger { get; private set; }
+
+        public List<SuperBundleEntry> superBundles { get; } = new List<SuperBundleEntry>(500);
+
+        public List<BundleEntry> Bundles { get; } = new List<BundleEntry>(350000);
 
         public ConcurrentDictionary<string, EbxAssetEntry> EBX { get; } = new ConcurrentDictionary<string, EbxAssetEntry>(4, 500000, StringComparer.OrdinalIgnoreCase);
 
@@ -440,30 +438,30 @@ namespace FrostySdk.Managers
 
         public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; } = new ConcurrentDictionary<ulong, ResAssetEntry>();
 
-		public IEnumerable<IAssetEntry> ModifiedEntries 
-		{ 
-			get 
-			{
-				var e =	EBX.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
-				var r =	RES.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
-				var c = Chunks.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
-				//var custom = EBX.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
-				//return e.Union(r).Union(c).Union(custom);
-				return e.Union(r).Union(c);
+        public IEnumerable<IAssetEntry> ModifiedEntries
+        {
+            get
+            {
+                var e = EBX.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+                var r = RES.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+                var c = Chunks.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+                //var custom = EBX.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+                //return e.Union(r).Union(c).Union(custom);
+                return e.Union(r).Union(c);
 
-            } 
-		}
+            }
+        }
 
-		public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; } = new Dictionary<string, ICustomAssetManager>(1);
+        public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; } = new Dictionary<string, ICustomAssetManager>(1);
 
-		public List<EmbeddedFileEntry> EmbeddedFileEntries { get; } = new List<EmbeddedFileEntry>();
+        public List<EmbeddedFileEntry> EmbeddedFileEntries { get; } = new List<EmbeddedFileEntry>();
 
-		public LocaleINIMod LocaleINIMod;
+        public LocaleINIMod LocaleINIMod;
 
-		public AssetManager()
-		{
-			if (Instance != null)
-				throw new Exception("There can only be one instance of the AssetManager");
+        public AssetManager()
+        {
+            if (Instance != null)
+                throw new Exception("There can only be one instance of the AssetManager");
 
             Instance = this;
 
@@ -476,197 +474,197 @@ namespace FrostySdk.Managers
         }
 
         public AssetManager(in FileSystem inFs)
-		{
-			fs = inFs;
+        {
+            fs = inFs;
 
             Instance = this;
 
-			LocaleINIMod = new LocaleINIMod();
+            LocaleINIMod = new LocaleINIMod();
         }
 
         // To detect redundant calls
         private bool _disposed = false;
 
-		~AssetManager() => Dispose(false);
+        ~AssetManager() => Dispose(false);
 
-		public void Dispose()
-		{
-			// Dispose of unmanaged resources.
-			Dispose(true);
-			// Suppress finalization.
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (_disposed)
-			{
-				return;
-			}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
 
-			// Managed Resources
-			if (disposing)
-			{
-				CustomAssetManagers.Clear();
-				ChunkFileManager.Instance = null;
+            // Managed Resources
+            if (disposing)
+            {
+                CustomAssetManagers.Clear();
+                ChunkFileManager.Instance = null;
                 //foreach (var cam in CustomAssetManagers)
                 //{
                 //	cam.Value.Reset();
                 //}
                 Bundles.Clear();
-				//Bundles = null;
-				EBX.Clear();
-				//EBX = null;
-				RES.Clear();
-				//RES = null;
-				resRidList.Clear();
-				//resRidList = null;
-				Chunks.Clear();
-				//Chunks = null;
+                //Bundles = null;
+                EBX.Clear();
+                //EBX = null;
+                RES.Clear();
+                //RES = null;
+                resRidList.Clear();
+                //resRidList = null;
+                Chunks.Clear();
+                //Chunks = null;
 
-				TypeLibrary.ExistingAssembly = null;
-				//ResourceManager.Dispose();
-				Instance = null;
-			}
-		}
+                TypeLibrary.ExistingAssembly = null;
+                //ResourceManager.Dispose();
+                Instance = null;
+            }
+        }
 
-		//public void RegisterCustomAssetManager(string type, Type managerType)
-		//{
-		//	CustomAssetManagers.Add(type, (ICustomAssetManager)Activator.CreateInstance(managerType));
-		//}
+        //public void RegisterCustomAssetManager(string type, Type managerType)
+        //{
+        //	CustomAssetManagers.Add(type, (ICustomAssetManager)Activator.CreateInstance(managerType));
+        //}
 
         public void RegisterLegacyAssetManager()
         {
-			if (!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
-			{
-				throw new Exception("Plugins could not be initialised!");
-			}
-
-			if (!string.IsNullOrEmpty(ProfileManager.LegacyFileManager))
+            if (!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
             {
-				ICustomAssetManager cam;
-				cam = (ICustomAssetManager)LoadTypeFromPlugin(ProfileManager.LegacyFileManager);
-				if(cam == null)
-					cam = (ICustomAssetManager)LoadTypeByName(ProfileManager.LegacyFileManager);
-
-
-				if(cam != null)
-					CustomAssetManagers.Add("legacy", cam);
-
-			}
-			//else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsFIFA21DataVersion())
-			//{
-			//	CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
-			//}
-			//else
-			//{
-			//	CustomAssetManagers.Add("legacy", new ChunkFileManager(this));
-			//}
-			
-        }
-
-		static bool PluginsInitialised { get; set; }
-
-		private static List<string> PluginAssemblies = new List<string>();
-
-		public static bool InitialisePlugins()
-        {
-			if (PluginsInitialised)
-				return true;
-
-			if (ProfileManager.DoesNotUsePlugin)
-			{
-				FileLogger.WriteLine($"{ProfileManager.ProfileName} does not use a Plugin.");
-				return false;
-			}
-
-			var pluginsPath = Path.Combine(AppContext.BaseDirectory, "Plugins");
-			if (!Directory.Exists(pluginsPath))
-			{
-				var pluginsDirectoryDoesntExistErrorMessage = $"Plugins Directory does not exist. Please reinstall FMT.";
-                FileLogger.WriteLine(pluginsDirectoryDoesntExistErrorMessage);
-				throw new Exception(pluginsDirectoryDoesntExistErrorMessage);
+                throw new Exception("Plugins could not be initialised!");
             }
 
-			var pluginAssemblies = Directory.EnumerateFiles(pluginsPath)
-				.Select(x => new FileInfo(x))
-				.Where(x => x.Extension.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(ProfileManager.LegacyFileManager))
+            {
+                ICustomAssetManager cam;
+                cam = (ICustomAssetManager)LoadTypeFromPlugin(ProfileManager.LegacyFileManager);
+                if (cam == null)
+                    cam = (ICustomAssetManager)LoadTypeByName(ProfileManager.LegacyFileManager);
 
-			if (!pluginAssemblies.Any())
-			{
-				var pluginAssembliesDontExistErrorMessage = $"No Plugins in {pluginsPath} found. Please reinstall FMT.";
+
+                if (cam != null)
+                    CustomAssetManagers.Add("legacy", cam);
+
+            }
+            //else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsFIFA21DataVersion())
+            //{
+            //	CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
+            //}
+            //else
+            //{
+            //	CustomAssetManagers.Add("legacy", new ChunkFileManager(this));
+            //}
+
+        }
+
+        static bool PluginsInitialised { get; set; }
+
+        private static List<string> PluginAssemblies = new List<string>();
+
+        public static bool InitialisePlugins()
+        {
+            if (PluginsInitialised)
+                return true;
+
+            if (ProfileManager.DoesNotUsePlugin)
+            {
+                FileLogger.WriteLine($"{ProfileManager.ProfileName} does not use a Plugin.");
+                return false;
+            }
+
+            var pluginsPath = Path.Combine(AppContext.BaseDirectory, "Plugins");
+            if (!Directory.Exists(pluginsPath))
+            {
+                var pluginsDirectoryDoesntExistErrorMessage = $"Plugins Directory does not exist. Please reinstall FMT.";
+                FileLogger.WriteLine(pluginsDirectoryDoesntExistErrorMessage);
+                throw new Exception(pluginsDirectoryDoesntExistErrorMessage);
+            }
+
+            var pluginAssemblies = Directory.EnumerateFiles(pluginsPath)
+                .Select(x => new FileInfo(x))
+                .Where(x => x.Extension.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
+
+            if (!pluginAssemblies.Any())
+            {
+                var pluginAssembliesDontExistErrorMessage = $"No Plugins in {pluginsPath} found. Please reinstall FMT.";
                 FileLogger.WriteLine(pluginAssembliesDontExistErrorMessage);
                 throw new Exception(pluginAssembliesDontExistErrorMessage);
             }
 
             foreach (var fiPlugin in pluginAssemblies)
-			{
-				if (fiPlugin.Name.Contains(ProfileManager.ProfileName.Replace(" ",""), StringComparison.OrdinalIgnoreCase))
-				{
+            {
+                if (fiPlugin.Name.Contains(ProfileManager.ProfileName.Replace(" ", ""), StringComparison.OrdinalIgnoreCase))
+                {
                     if (Assembly.UnsafeLoadFrom(fiPlugin.FullName) != null)
                     {
-						if (!PluginAssemblies.Contains(fiPlugin.FullName))
-							PluginAssemblies.Add(fiPlugin.FullName);
+                        if (!PluginAssemblies.Contains(fiPlugin.FullName))
+                            PluginAssemblies.Add(fiPlugin.FullName);
 
-						PluginsInitialised = true;
+                        PluginsInitialised = true;
 
                         return true;
-					}
-				}
-			}
+                    }
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		public static bool CacheUpdate = false;
+        public static bool CacheUpdate = false;
 
-		public object LoadTypeFromPlugin(string className, params object[] args)
-		{
-			if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
-			{
-				var t = CachedTypes[className];
-				return Activator.CreateInstance(type: t, args: args);
-			}
+        public object LoadTypeFromPlugin(string className, params object[] args)
+        {
+            if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
+            {
+                var t = CachedTypes[className];
+                return Activator.CreateInstance(type: t, args: args);
+            }
 
-			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
-				//.Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
-				.Where(x => x.FullName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)))
-			{
-				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
-				if (t != null)
-				{
-					CachedTypes.Add(className, t);
-					return Activator.CreateInstance(t, args: args);
-				}
-			}
-			return null;
-		}
-		public static object LoadTypeFromPlugin2(string className, params object[] args)
-		{
-			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
-				//.Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
-				.Where(x => x.FullName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)))
-			{
-				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
-				if (t != null)
-				{
-					return Activator.CreateInstance(t, args: args);
-				}
-			}
-			return null;
-		}
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
+                //.Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
+                .Where(x => x.FullName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)))
+            {
+                var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
+                if (t != null)
+                {
+                    CachedTypes.Add(className, t);
+                    return Activator.CreateInstance(t, args: args);
+                }
+            }
+            return null;
+        }
+        public static object LoadTypeFromPlugin2(string className, params object[] args)
+        {
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
+                //.Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
+                .Where(x => x.FullName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)))
+            {
+                var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
+                if (t != null)
+                {
+                    return Activator.CreateInstance(t, args: args);
+                }
+            }
+            return null;
+        }
 
-		public Dictionary<string,Type> CachedTypes = new Dictionary<string,Type>();
+        public Dictionary<string, Type> CachedTypes = new Dictionary<string, Type>();
 
-		public object LoadTypeByName(string className, params object[] args)
-		{
-			if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
-			{
-				var cachedType = CachedTypes[className];
-				return Activator.CreateInstance(type: cachedType, args: args);
-			}
+        public object LoadTypeByName(string className, params object[] args)
+        {
+            if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
+            {
+                var cachedType = CachedTypes[className];
+                return Activator.CreateInstance(type: cachedType, args: args);
+            }
 
-			IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             var assembly = currentAssemblies.FirstOrDefault(x => x.GetTypes().Any(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase)));
             var t = assembly.GetTypes().FirstOrDefault(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase));
             if (t != null)
@@ -674,17 +672,17 @@ namespace FrostySdk.Managers
                 CachedTypes.Add(className, t);
                 return Activator.CreateInstance(type: t, args: args);
             }
-            
-			throw new ArgumentNullException("Unable to find Class");
-		}
+
+            throw new ArgumentNullException("Unable to find Class");
+        }
 
 
-		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
-		{
-			if (Logger == null)
-				Logger = new NullLogger();
+        public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
+        {
+            if (Logger == null)
+                Logger = new NullLogger();
 
-			DateTime dtAtStart = DateTime.Now;
+            DateTime dtAtStart = DateTime.Now;
 
             if (!ProfileManager.LoadedProfile.CanUseModData)
             {
@@ -693,21 +691,21 @@ namespace FrostySdk.Managers
             }
 
             Logger.Log("Initialising Plugins");
-			if(!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
+            if (!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
             {
-				throw new Exception("Plugins could not be initialised!");
-            }				
-			TypeLibrary.Initialize(additionalStartup || TypeLibrary.RequestLoadSDK);
-			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfileManager.SDKFilename + ".dll"))
-			{
-				Logger.Log($"Plugins and SDK {"SDK/" + ProfileManager.SDKFilename + ".dll"} Initialised");
-			}
+                throw new Exception("Plugins could not be initialised!");
+            }
+            TypeLibrary.Initialize(additionalStartup || TypeLibrary.RequestLoadSDK);
+            if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfileManager.SDKFilename + ".dll"))
+            {
+                Logger.Log($"Plugins and SDK {"SDK/" + ProfileManager.SDKFilename + ".dll"} Initialised");
+            }
 
 
-			//if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
-			//{
-			//	return;
-			//}
+            //if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
+            //{
+            //	return;
+            //}
             List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
             if (!CacheRead(out prePatchCache))
             {
@@ -731,104 +729,104 @@ namespace FrostySdk.Managers
             }
             DoEbxIndexing();
 
-			// Load these when you need them!
-   //         foreach (ICustomAssetManager value in CustomAssetManagers.Values)
-			//{
-			//	value.Initialize(logger);
-			//}
-			
-			TimeSpan timeSpan = DateTime.Now - dtAtStart;
-			Logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
+            // Load these when you need them!
+            //         foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+            //{
+            //	value.Initialize(logger);
+            //}
 
-			if(AssetManagerInitialised != null)
+            TimeSpan timeSpan = DateTime.Now - dtAtStart;
+            Logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
+
+            if (AssetManagerInitialised != null)
             {
-				AssetManagerInitialised(null);
+                AssetManagerInitialised(null);
             }
 
-			_ = EBX;
-			_ = RES;
-			_ = Chunks;
+            _ = EBX;
+            _ = RES;
+            _ = Chunks;
         }
 
-		public delegate void AssetManagerModifiedHandler(IAssetEntry modifiedAsset);
+        public delegate void AssetManagerModifiedHandler(IAssetEntry modifiedAsset);
 
-		public static event AssetManagerModifiedHandler AssetManagerInitialised;
+        public static event AssetManagerModifiedHandler AssetManagerInitialised;
 
-		public static event AssetManagerModifiedHandler AssetManagerModified;
+        public static event AssetManagerModifiedHandler AssetManagerModified;
 
 
-		private List<Type> AllSdkAssemblyTypes { get; set; }
+        private List<Type> AllSdkAssemblyTypes { get; set; }
 
-		private List<EbxAssetEntry> _EbxItemsWithNoType;
-		private List<EbxAssetEntry> EbxItemsWithNoType
-		{
-			get
-			{
-				if(_EbxItemsWithNoType == null)
-					_EbxItemsWithNoType = EBX.Values.Where(
-						x => string.IsNullOrEmpty(x.Type)
-						|| x.Type == "UnknownType"
-					).OrderBy(x=>x.ExtraData.CasPath).ToList();
+        private List<EbxAssetEntry> _EbxItemsWithNoType;
+        private List<EbxAssetEntry> EbxItemsWithNoType
+        {
+            get
+            {
+                if (_EbxItemsWithNoType == null)
+                    _EbxItemsWithNoType = EBX.Values.Where(
+                        x => string.IsNullOrEmpty(x.Type)
+                        || x.Type == "UnknownType"
+                    ).OrderBy(x => x.ExtraData.CasPath).ToList();
 
-				return _EbxItemsWithNoType;
-			}
+                return _EbxItemsWithNoType;
+            }
 
-		}
+        }
 
         public bool ForceChunkRemoval { get; set; }
 
 
-		public Type EbxReaderType { get; set; }
-		//public EbxReader EbxReaderInstance { get; set; }
+        public Type EbxReaderType { get; set; }
+        //public EbxReader EbxReaderInstance { get; set; }
 
         public void UpdateEbxListItem(EbxAssetEntry ebx)
         {
-			
 
 
-			if (string.IsNullOrEmpty(ebx.Type))
-			{
-				using (Stream ebxStream = GetEbxStream(ebx))
-				{
-					if (ebxStream != null && ebxStream.Length > 0)
-					{
-						
-						if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
-						{
-							if (EbxReaderType == null)
-							{
-        //                        EbxReaderInstance = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
-								//EbxReaderType = EbxReaderInstance.GetType();
-							}
-							ebxStream.Position = 0;
+
+            if (string.IsNullOrEmpty(ebx.Type))
+            {
+                using (Stream ebxStream = GetEbxStream(ebx))
+                {
+                    if (ebxStream != null && ebxStream.Length > 0)
+                    {
+
+                        if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
+                        {
+                            if (EbxReaderType == null)
+                            {
+                                //                        EbxReaderInstance = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
+                                //EbxReaderType = EbxReaderInstance.GetType();
+                            }
+                            ebxStream.Position = 0;
                             //EbxReaderInstance = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
                             //EbxReaderInstance.Position = 0;
                             var readerInst = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
                             try
-							{
-								//EbxReaderInstance.InitialRead(ebxStream, false);
+                            {
+                                //EbxReaderInstance.InitialRead(ebxStream, false);
                                 EBX[ebx.Name].Type = readerInst.RootType;
-								if(EBX[ebx.Name].Type != "NewWaveAsset")
-								{
+                                if (EBX[ebx.Name].Type != "NewWaveAsset")
+                                {
 
-								}
-								EBX[ebx.Name].Id = readerInst.FileGuid;
-							}
-							catch (Exception)
-							{
+                                }
+                                EBX[ebx.Name].Id = readerInst.FileGuid;
+                            }
+                            catch (Exception)
+                            {
 
-							}
-						}
-						else
-						{
-							throw new ArgumentNullException("EbxReader is not set against the Profile.");
-							//ebxReader = new EbxReaderV3(ebxStream, true);
-							//EBX[ebx.Name].Type = ebxReader.RootType;
-							//EBX[ebx.Name].Id = ebxReader.FileGuid;
-						}
-						return;
-					}
-				}
+                            }
+                        }
+                        else
+                        {
+                            throw new ArgumentNullException("EbxReader is not set against the Profile.");
+                            //ebxReader = new EbxReaderV3(ebxStream, true);
+                            //EBX[ebx.Name].Type = ebxReader.RootType;
+                            //EBX[ebx.Name].Id = ebxReader.FileGuid;
+                        }
+                        return;
+                    }
+                }
             }
 
             if (string.IsNullOrEmpty(ebx.Type))
@@ -837,22 +835,22 @@ namespace FrostySdk.Managers
             }
         }
 
-		
 
-		public void DoEbxIndexing()
-		{
-			if (TypeLibrary.ExistingAssembly == null)
-			{
-				WriteToLog($"Unable to index data until SDK exists");
-				return;
-			}
 
-			if (AllSdkAssemblyTypes == null)
-				AllSdkAssemblyTypes = TypeLibrary.ExistingAssembly.GetTypes().ToList();
+        public void DoEbxIndexing()
+        {
+            if (TypeLibrary.ExistingAssembly == null)
+            {
+                WriteToLog($"Unable to index data until SDK exists");
+                return;
+            }
 
-			//ResourceManager.UseLastCasPath = true;
+            if (AllSdkAssemblyTypes == null)
+                AllSdkAssemblyTypes = TypeLibrary.ExistingAssembly.GetTypes().ToList();
 
-			var ebxListValues = EBX.Values.ToList();
+            //ResourceManager.UseLastCasPath = true;
+
+            var ebxListValues = EBX.Values.ToList();
             //if (ProfilesLibrary.IsMadden21DataVersion()
             //    || ProfilesLibrary.IsFIFA21DataVersion()
             //    || ProfilesLibrary.IsFIFA20DataVersion()
@@ -860,199 +858,199 @@ namespace FrostySdk.Managers
             //    )
             //{
 
-				int ebxProgress = 0;
+            int ebxProgress = 0;
 
-				var count = EbxItemsWithNoType.Count;
-				if (count > 0)
-				{
-					WriteToLog($"Initial load - Indexing data - This will take some time");
+            var count = EbxItemsWithNoType.Count;
+            if (count > 0)
+            {
+                WriteToLog($"Initial load - Indexing data - This will take some time");
 
-					EbxItemsWithNoType.ForEach(x =>
-					{
-						UpdateEbxListItem(x);
-						ebxProgress++;
-						WriteToLog($"Initial load - Indexing data ({Math.Round(((double)ebxProgress / (double)count * 100.0), 1)}%)");
-					});
+                EbxItemsWithNoType.ForEach(x =>
+                {
+                    UpdateEbxListItem(x);
+                    ebxProgress++;
+                    WriteToLog($"Initial load - Indexing data ({Math.Round((ebxProgress / (double)count * 100.0), 1)}%)");
+                });
 
-					CacheWrite();
-					WriteToLog("Initial load - Indexing complete");
+                CacheWrite();
+                WriteToLog("Initial load - Indexing complete");
 
-				}
+            }
 
             //}
 
-			AssetManager.UseLastCasPath = false;
+            AssetManager.UseLastCasPath = false;
 
-		}
-
-		public uint GetModifiedCount()
-		{
-			uint num = (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.IsModified);
-			uint num2 = (uint)RES.Values.Count((ResAssetEntry entry) => entry.IsModified);
-			uint num3 = (uint)Chunks.Values.Count((ChunkAssetEntry entry) => entry.IsModified);
-			uint num4 = 0u;
-			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
-			{
-				num4 = (uint)((int)num4 + value.EnumerateAssets(modifiedOnly: true).Count());
-			}
-			return num + num2 + num3 + num4;
-		}
-
-		public uint GetDirtyCount()
-		{
-			uint num = (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.IsDirty);
-			uint num2 = (uint)RES.Values.Count((ResAssetEntry entry) => entry.IsDirty);
-			uint num3 = (uint)Chunks.Values.Count((ChunkAssetEntry entry) => entry.IsDirty);
-			uint num4 = 0u;
-			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
-			{
-				num4 = (uint)((int)num4 + value.EnumerateAssets(modifiedOnly: true).Count((AssetEntry a) => a.IsDirty));
-			}
-			return num + num2 + num3 + num4;
-		}
-
-		public uint GetEbxCount(string ebxType)
-		{
-			return (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.Type != null && entry.Type.Equals(ebxType));
-		}
-
-		public uint GetEbxCount()
-		{
-			return (uint)EBX.Count;
-		}
-
-		public uint GetResCount(uint resType)
-		{
-			return (uint)RES.Values.Count((ResAssetEntry entry) => entry.ResType == resType);
-		}
-
-		public uint GetEmbeddedCount(uint resType)
-		{
-			return (uint)EmbeddedFileEntries.Count();
-		}
-
-		public Task ResetAsync()
-        {
-			return Task.Run(() => { Reset(); });
         }
 
-		public void Reset()
-		{
-			List<EbxAssetEntry> list = EBX.Values.ToList();
-			List<ResAssetEntry> list2 = RES.Values.ToList();
-			List<ChunkAssetEntry> list3 = Chunks.Values.ToList();
-			foreach (EbxAssetEntry item in list)
-			{
-				RevertAsset(item, dataOnly: false, suppressOnModify: false);
-			}
-			foreach (ResAssetEntry item2 in list2)
-			{
-				RevertAsset(item2, dataOnly: false, suppressOnModify: false);
-			}
-			foreach (ChunkAssetEntry item3 in list3)
-			{
-				RevertAsset(item3, dataOnly: false, suppressOnModify: false);
-			}
-			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
-			{
-				foreach (AssetEntry item4 in value.EnumerateAssets(modifiedOnly: true))
-				{
-					RevertAsset(item4, dataOnly: false, suppressOnModify: false);
-				}
-			}
-			EmbeddedFileEntries.Clear();// = new List<EmbeddedFileEntry>();
-
-			ChunkFileManager2022.CleanUpChunks(true);
-			LocaleINIMod = new LocaleINIMod();
-
-		}
-
-		public void FullReset()
+        public uint GetModifiedCount()
         {
-			EBX.Clear();
-			RES.Clear();
-			resRidList.Clear();
-			Chunks.Clear();
+            uint num = (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.IsModified);
+            uint num2 = (uint)RES.Values.Count((ResAssetEntry entry) => entry.IsModified);
+            uint num3 = (uint)Chunks.Values.Count((ChunkAssetEntry entry) => entry.IsModified);
+            uint num4 = 0u;
+            foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+            {
+                num4 = (uint)((int)num4 + value.EnumerateAssets(modifiedOnly: true).Count());
+            }
+            return num + num2 + num3 + num4;
+        }
 
-			var lam = GetLegacyAssetManager() as ChunkFileManager2022;
-			if (lam != null)
-			{
-				lam.LegacyEntries.Clear();
-				lam.ChunkBatches.Clear();
-				lam.ModifiedChunks.Clear();
-			}
-		}
+        public uint GetDirtyCount()
+        {
+            uint num = (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.IsDirty);
+            uint num2 = (uint)RES.Values.Count((ResAssetEntry entry) => entry.IsDirty);
+            uint num3 = (uint)Chunks.Values.Count((ChunkAssetEntry entry) => entry.IsDirty);
+            uint num4 = 0u;
+            foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+            {
+                num4 = (uint)((int)num4 + value.EnumerateAssets(modifiedOnly: true).Count((AssetEntry a) => a.IsDirty));
+            }
+            return num + num2 + num3 + num4;
+        }
 
-		public void RevertAsset(IAssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
-		{
-			if (!entry.IsModified)
-			{
-				return;
-			}
+        public uint GetEbxCount(string ebxType)
+        {
+            return (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.Type != null && entry.Type.Equals(ebxType));
+        }
 
-			if(entry is EbxAssetEntry || entry is LegacyFileEntry)
-			{
+        public uint GetEbxCount()
+        {
+            return (uint)EBX.Count;
+        }
+
+        public uint GetResCount(uint resType)
+        {
+            return (uint)RES.Values.Count((ResAssetEntry entry) => entry.ResType == resType);
+        }
+
+        public uint GetEmbeddedCount(uint resType)
+        {
+            return (uint)EmbeddedFileEntries.Count();
+        }
+
+        public Task ResetAsync()
+        {
+            return Task.Run(() => { Reset(); });
+        }
+
+        public void Reset()
+        {
+            List<EbxAssetEntry> list = EBX.Values.ToList();
+            List<ResAssetEntry> list2 = RES.Values.ToList();
+            List<ChunkAssetEntry> list3 = Chunks.Values.ToList();
+            foreach (EbxAssetEntry item in list)
+            {
+                RevertAsset(item, dataOnly: false, suppressOnModify: false);
+            }
+            foreach (ResAssetEntry item2 in list2)
+            {
+                RevertAsset(item2, dataOnly: false, suppressOnModify: false);
+            }
+            foreach (ChunkAssetEntry item3 in list3)
+            {
+                RevertAsset(item3, dataOnly: false, suppressOnModify: false);
+            }
+            foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+            {
+                foreach (AssetEntry item4 in value.EnumerateAssets(modifiedOnly: true))
+                {
+                    RevertAsset(item4, dataOnly: false, suppressOnModify: false);
+                }
+            }
+            EmbeddedFileEntries.Clear();// = new List<EmbeddedFileEntry>();
+
+            ChunkFileManager2022.CleanUpChunks(true);
+            LocaleINIMod = new LocaleINIMod();
+
+        }
+
+        public void FullReset()
+        {
+            EBX.Clear();
+            RES.Clear();
+            resRidList.Clear();
+            Chunks.Clear();
+
+            var lam = GetLegacyAssetManager() as ChunkFileManager2022;
+            if (lam != null)
+            {
+                lam.LegacyEntries.Clear();
+                lam.ChunkBatches.Clear();
+                lam.ModifiedChunks.Clear();
+            }
+        }
+
+        public void RevertAsset(IAssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
+        {
+            if (!entry.IsModified)
+            {
+                return;
+            }
+
+            if (entry is EbxAssetEntry || entry is LegacyFileEntry)
+            {
                 if (AssetManagerModified != null)
                     AssetManagerModified(entry);
             }
 
             if (entry is AssetEntry assetEntry)
-			{
+            {
 
-				foreach (AssetEntry linkedAsset in assetEntry.LinkedAssets)
-				{
-					RevertAsset(linkedAsset, dataOnly, suppressOnModify);
-				}
+                foreach (AssetEntry linkedAsset in assetEntry.LinkedAssets)
+                {
+                    RevertAsset(linkedAsset, dataOnly, suppressOnModify);
+                }
 
                 assetEntry.ClearModifications();
-				if (dataOnly)
-				{
-					return;
-				}
+                if (dataOnly)
+                {
+                    return;
+                }
                 assetEntry.LinkedAssets.Clear();
                 assetEntry.AddBundles.Clear();
                 assetEntry.RemBundles.Clear();
 
-				var chunkFileManager = GetLegacyAssetManager() as IChunkFileManager;
-				if (chunkFileManager != null)
-				{
+                var chunkFileManager = GetLegacyAssetManager() as IChunkFileManager;
+                if (chunkFileManager != null)
+                {
                     chunkFileManager.RevertAsset(assetEntry);
-				}
+                }
 
                 assetEntry.IsDirty = false;
-				if (!assetEntry.IsAdded && !suppressOnModify)
-				{
+                if (!assetEntry.IsAdded && !suppressOnModify)
+                {
                     assetEntry.OnModified();
-				}
-			}
-		}
-
-		public ICustomAssetManager GetLegacyAssetManager()
-        {
-			return CustomAssetManagers["legacy"];
+                }
+            }
         }
 
-		public void AddEmbeddedFile(EmbeddedFileEntry entry)
+        public ICustomAssetManager GetLegacyAssetManager()
         {
-			if (EmbeddedFileEntries.Contains(entry))
-				EmbeddedFileEntries.Remove(entry);
-
-			EmbeddedFileEntries.Add(entry);
+            return CustomAssetManagers["legacy"];
         }
 
-		
-		/// <summary>
-		/// Attempts to Add an EBX to the EBX List. You must add the patch versions first before the base data!
-		/// </summary>
-		/// <param name="entry"></param>
-		/// <returns></returns>
-		public bool AddEbx(EbxAssetEntry entry)
-		{
-			bool result = EBX.TryAdd(entry.Name.ToLower(), entry);
-			if (!result)
-			{
-				// If it already exists, then add bundles to the entry
-				var existingEbxEntry = (EbxAssetEntry)AssetManager.Instance.EBX[entry.Name].Clone();
+        public void AddEmbeddedFile(EmbeddedFileEntry entry)
+        {
+            if (EmbeddedFileEntries.Contains(entry))
+                EmbeddedFileEntries.Remove(entry);
+
+            EmbeddedFileEntries.Add(entry);
+        }
+
+
+        /// <summary>
+        /// Attempts to Add an EBX to the EBX List. You must add the patch versions first before the base data!
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        public bool AddEbx(EbxAssetEntry entry)
+        {
+            bool result = EBX.TryAdd(entry.Name.ToLower(), entry);
+            if (!result)
+            {
+                // If it already exists, then add bundles to the entry
+                var existingEbxEntry = (EbxAssetEntry)AssetManager.Instance.EBX[entry.Name].Clone();
 
                 foreach (var bundle in entry.Bundles.Where(x => !existingEbxEntry.Bundles.Contains(x)))
                     existingEbxEntry.Bundles.Add(bundle);
@@ -1060,22 +1058,22 @@ namespace FrostySdk.Managers
                 foreach (var bundle in existingEbxEntry.Bundles.Where(x => !entry.Bundles.Contains(x)))
                     entry.Bundles.Add(bundle);
 
-				// Always overwrite if the new item is a patch version
-				if (!existingEbxEntry.ExtraData.IsPatch && entry.ExtraData.IsPatch)
-					EBX[entry.Name] = entry;
+                // Always overwrite if the new item is a patch version
+                if (!existingEbxEntry.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+                    EBX[entry.Name] = entry;
 
-				//if (ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA22) 
-				//	|| ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
-				//{
-				//	// Add it anyway and link to the other one?
-				//	entry.Name = $"{entry.Name}-FMTOther-{entry.ExtraData.IsPatch.ToString()}-{entry.ExtraData.Cas}-{entry.ExtraData.Catalog}";
+                //if (ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA22) 
+                //	|| ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+                //{
+                //	// Add it anyway and link to the other one?
+                //	entry.Name = $"{entry.Name}-FMTOther-{entry.ExtraData.IsPatch.ToString()}-{entry.ExtraData.Cas}-{entry.ExtraData.Catalog}";
 
-				//	if (EBX.TryAdd(entry.Name, entry))
-				//		existingEbxEntry.LinkAsset(entry);
-				//}
-			}
+                //	if (EBX.TryAdd(entry.Name, entry))
+                //		existingEbxEntry.LinkAsset(entry);
+                //}
+            }
             return result;
-		}
+        }
 
         /// <summary>
         /// Attempts to Add an RES to the RES List. You must add the patch versions first before the base data!
@@ -1112,141 +1110,141 @@ namespace FrostySdk.Managers
         /// <returns></returns>
         public void AddChunk(ChunkAssetEntry entry)
         {
-			if (!Chunks.TryAdd(entry.Id, entry))
-			{
-				// If it already exists, then add bundles to the entry
-				var existingChunk = (ChunkAssetEntry)Chunks[entry.Id].Clone();
+            if (!Chunks.TryAdd(entry.Id, entry))
+            {
+                // If it already exists, then add bundles to the entry
+                var existingChunk = (ChunkAssetEntry)Chunks[entry.Id].Clone();
 
-				foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
-					existingChunk.Bundles.Add(bundle);
+                foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
+                    existingChunk.Bundles.Add(bundle);
 
-				foreach (var bundle in existingChunk.Bundles.Where(x => !entry.Bundles.Contains(x)))
-					entry.Bundles.Add(bundle);
+                foreach (var bundle in existingChunk.Bundles.Where(x => !entry.Bundles.Contains(x)))
+                    entry.Bundles.Add(bundle);
 
-				// Always overwrite if the new item is a patch version
-				if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
-					Chunks[entry.Id] = entry;
-			}
+                // Always overwrite if the new item is a patch version
+                if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+                    Chunks[entry.Id] = entry;
+            }
 
-			if (entry.IsTocChunk)
-			{
-				var hashedId = Fnv1a.HashString(entry.Id.ToString());
+            if (entry.IsTocChunk)
+            {
+                var hashedId = Fnv1a.HashString(entry.Id.ToString());
 
-				if (!SuperBundleChunks.TryAdd(hashedId, entry))
-				{
-					// If it already exists, then add bundles to the entry
-					var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
+                if (!SuperBundleChunks.TryAdd(hashedId, entry))
+                {
+                    // If it already exists, then add bundles to the entry
+                    var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
 
-					foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
-						existingChunk.Bundles.Add(bundle);
+                    foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
+                        existingChunk.Bundles.Add(bundle);
 
-					foreach (var bundle in existingChunk.Bundles)
-						entry.Bundles.Add(bundle);
+                    foreach (var bundle in existingChunk.Bundles)
+                        entry.Bundles.Add(bundle);
 
-					// Always overwrite if the new item is a patch version
-					if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
-						SuperBundleChunks[hashedId] = entry;
-				}
-			}
+                    // Always overwrite if the new item is a patch version
+                    if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+                        SuperBundleChunks[hashedId] = entry;
+                }
+            }
 
-		}
+        }
 
         public BundleEntry AddBundle(string name, BundleType type, int sbIndex)
-		{
-			int num = Bundles.FindIndex((BundleEntry be) => be.Name == name);
-			if (num != -1)
-			{
-				return Bundles[num];
-			}
-			BundleEntry bundleEntry = new BundleEntry();
-			bundleEntry.Name = name;
-			bundleEntry.SuperBundleId = sbIndex;
-			bundleEntry.Type = type;
-			bundleEntry.Added = true;
-			Bundles.Add(bundleEntry);
-			return bundleEntry;
-		}
+        {
+            int num = Bundles.FindIndex((BundleEntry be) => be.Name == name);
+            if (num != -1)
+            {
+                return Bundles[num];
+            }
+            BundleEntry bundleEntry = new BundleEntry();
+            bundleEntry.Name = name;
+            bundleEntry.SuperBundleId = sbIndex;
+            bundleEntry.Type = type;
+            bundleEntry.Added = true;
+            Bundles.Add(bundleEntry);
+            return bundleEntry;
+        }
 
-		public SuperBundleEntry AddSuperBundle(string name)
-		{
-			int num = superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(name));
-			if (num != -1)
-			{
-				return superBundles[num];
-			}
-			SuperBundleEntry superBundleEntry = new SuperBundleEntry();
-			superBundleEntry.Name = name;
-			superBundleEntry.Added = true;
-			superBundles.Add(superBundleEntry);
-			return superBundleEntry;
-		}
+        public SuperBundleEntry AddSuperBundle(string name)
+        {
+            int num = superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(name));
+            if (num != -1)
+            {
+                return superBundles[num];
+            }
+            SuperBundleEntry superBundleEntry = new SuperBundleEntry();
+            superBundleEntry.Name = name;
+            superBundleEntry.Added = true;
+            superBundles.Add(superBundleEntry);
+            return superBundleEntry;
+        }
 
 
 
-		public Guid AddChunk(byte[] buffer, Guid? overrideGuid = null, Texture texture = null, params int[] bundles)
-		{
-			ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-			CompressionType compressionOverride = (ProfileManager.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
-			chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-			chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
-			chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
-			chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
-			chunkAssetEntry.ModifiedEntry.FirstMip = -1;
-			chunkAssetEntry.AddBundles.AddRange(bundles);
-			if (texture != null)
-			{
-				chunkAssetEntry.ModifiedEntry.LogicalOffset = texture.LogicalOffset;
-				chunkAssetEntry.ModifiedEntry.LogicalSize = texture.LogicalSize;
-				chunkAssetEntry.ModifiedEntry.RangeStart = texture.RangeStart;
-				chunkAssetEntry.ModifiedEntry.RangeEnd = texture.RangeEnd;
-				chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
-			}
-			chunkAssetEntry.IsAdded = true;
-			chunkAssetEntry.IsDirty = true;
-			if (overrideGuid.HasValue)
-			{
-				chunkAssetEntry.Id = overrideGuid.Value;
-			}
-			else
-			{
-				byte[] array = Guid.NewGuid().ToByteArray();
-				array[15] |= 1;
-				chunkAssetEntry.Id = new Guid(array);
-			}
-			//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-			Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
-			return chunkAssetEntry.Id;
-		}
+        public Guid AddChunk(byte[] buffer, Guid? overrideGuid = null, Texture texture = null, params int[] bundles)
+        {
+            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+            CompressionType compressionOverride = (ProfileManager.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
+            chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+            chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
+            chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
+            chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
+            chunkAssetEntry.ModifiedEntry.FirstMip = -1;
+            chunkAssetEntry.AddBundles.AddRange(bundles);
+            if (texture != null)
+            {
+                chunkAssetEntry.ModifiedEntry.LogicalOffset = texture.LogicalOffset;
+                chunkAssetEntry.ModifiedEntry.LogicalSize = texture.LogicalSize;
+                chunkAssetEntry.ModifiedEntry.RangeStart = texture.RangeStart;
+                chunkAssetEntry.ModifiedEntry.RangeEnd = texture.RangeEnd;
+                chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
+            }
+            chunkAssetEntry.IsAdded = true;
+            chunkAssetEntry.IsDirty = true;
+            if (overrideGuid.HasValue)
+            {
+                chunkAssetEntry.Id = overrideGuid.Value;
+            }
+            else
+            {
+                byte[] array = Guid.NewGuid().ToByteArray();
+                array[15] |= 1;
+                chunkAssetEntry.Id = new Guid(array);
+            }
+            //chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
+            Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+            return chunkAssetEntry.Id;
+        }
 
-		public bool ModifyChunk(Guid chunkId
-			, byte[] buffer
-			, Texture texture = null
-			, CompressionType compressionOverride = CompressionType.Default
-			, bool addToChunkBundle = false)
-		{
-			if (!Chunks.ContainsKey(chunkId) && !SuperBundleChunks.ContainsKey(Fnv1a.HashString(chunkId.ToString())))
-			{
-				return false;
-			}
+        public bool ModifyChunk(Guid chunkId
+            , byte[] buffer
+            , Texture texture = null
+            , CompressionType compressionOverride = CompressionType.Default
+            , bool addToChunkBundle = false)
+        {
+            if (!Chunks.ContainsKey(chunkId) && !SuperBundleChunks.ContainsKey(Fnv1a.HashString(chunkId.ToString())))
+            {
+                return false;
+            }
 
-			if (Chunks.ContainsKey(chunkId))
-			{
-				ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
-				return ModifyChunk(chunkAssetEntry, buffer, texture, compressionOverride, addToChunkBundle);
-			}
+            if (Chunks.ContainsKey(chunkId))
+            {
+                ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
+                return ModifyChunk(chunkAssetEntry, buffer, texture, compressionOverride, addToChunkBundle);
+            }
 
-			throw new NotImplementedException("SuperBundleChunks has not been implemented!");
+            throw new NotImplementedException("SuperBundleChunks has not been implemented!");
         }
 
         public bool ModifyChunk(
-			ChunkAssetEntry chunkAssetEntry
+            ChunkAssetEntry chunkAssetEntry
             , byte[] buffer
             , Texture texture = null
-			, CompressionType compressionOverride = CompressionType.Default
+            , CompressionType compressionOverride = CompressionType.Default
             , bool addToChunkBundle = false)
         {
-			if(compressionOverride == CompressionType.Default)
-				compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Chunks);
+            if (compressionOverride == CompressionType.Default)
+                compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Chunks);
 
             if (chunkAssetEntry.ModifiedEntry == null)
             {
@@ -1271,501 +1269,501 @@ namespace FrostySdk.Managers
         }
 
         public void ModifyRes(ulong resRid, byte[] buffer, byte[] meta = null)
-		{
-			if (resRidList.ContainsKey(resRid))
-			{
-				ResAssetEntry resAssetEntry = resRidList[resRid];
-				//CompressionType compressionOverride = (ProfilesLibrary.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
-				CompressionType compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.RES);
-				//if (ProfilesLibrary.IsMadden21DataVersion()) compressionOverride = CompressionType.Oodle;
-				
+        {
+            if (resRidList.ContainsKey(resRid))
+            {
+                ResAssetEntry resAssetEntry = resRidList[resRid];
+                //CompressionType compressionOverride = (ProfilesLibrary.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
+                CompressionType compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.RES);
+                //if (ProfilesLibrary.IsMadden21DataVersion()) compressionOverride = CompressionType.Oodle;
 
-				if (resAssetEntry.ModifiedEntry == null)
-				{
-					resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-				}
-				resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer, null, (ResourceType)resAssetEntry.ResType, compressionOverride);
-				resAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
-				resAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(resAssetEntry.ModifiedEntry.Data);
-				if (meta != null)
-				{
-					resAssetEntry.ModifiedEntry.ResMeta = meta;
-				}
-				resAssetEntry.IsDirty = true;
-			}
-		}
 
-		public void ModifyRes(string resName, byte[] buffer, byte[] meta = null, CompressionType compressionOverride = CompressionType.Default)
-		{
-			if (RES.ContainsKey(resName))
-			{
-				ResAssetEntry resAssetEntry = RES[resName];
-				if(compressionOverride == CompressionType.Default)
+                if (resAssetEntry.ModifiedEntry == null)
                 {
-					compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.RES);
+                    resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+                }
+                resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer, null, (ResourceType)resAssetEntry.ResType, compressionOverride);
+                resAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
+                resAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(resAssetEntry.ModifiedEntry.Data);
+                if (meta != null)
+                {
+                    resAssetEntry.ModifiedEntry.ResMeta = meta;
+                }
+                resAssetEntry.IsDirty = true;
+            }
+        }
+
+        public void ModifyRes(string resName, byte[] buffer, byte[] meta = null, CompressionType compressionOverride = CompressionType.Default)
+        {
+            if (RES.ContainsKey(resName))
+            {
+                ResAssetEntry resAssetEntry = RES[resName];
+                if (compressionOverride == CompressionType.Default)
+                {
+                    compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.RES);
                 }
 
-				resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-				resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer, null, (ResourceType)resAssetEntry.ResType, compressionOverride);
-				resAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
-				resAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(resAssetEntry.ModifiedEntry.Data);
-				if (meta != null)
-				{
-					resAssetEntry.ModifiedEntry.ResMeta = meta;
-				}
-				resAssetEntry.IsDirty = true;
-			}
-		}
+                resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+                resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer, null, (ResourceType)resAssetEntry.ResType, compressionOverride);
+                resAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
+                resAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(resAssetEntry.ModifiedEntry.Data);
+                if (meta != null)
+                {
+                    resAssetEntry.ModifiedEntry.ResMeta = meta;
+                }
+                resAssetEntry.IsDirty = true;
+            }
+        }
 
-		//public void ModifyRes(string resName, Resource resource, byte[] meta = null)
-		//{
-		//	if (RES.ContainsKey(resName))
-		//	{
-		//		ResAssetEntry resAssetEntry = RES[resName];
-		//		if (resAssetEntry.ModifiedEntry == null)
-		//		{
-		//			resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-		//		}
-		//		resAssetEntry.ModifiedEntry.DataObject = resource.Save();
-		//		if (meta != null)
-		//		{
-		//			resAssetEntry.ModifiedEntry.ResMeta = meta;
-		//		}
-		//		resAssetEntry.IsDirty = true;
-		//	}
-		//}
+        //public void ModifyRes(string resName, Resource resource, byte[] meta = null)
+        //{
+        //	if (RES.ContainsKey(resName))
+        //	{
+        //		ResAssetEntry resAssetEntry = RES[resName];
+        //		if (resAssetEntry.ModifiedEntry == null)
+        //		{
+        //			resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+        //		}
+        //		resAssetEntry.ModifiedEntry.DataObject = resource.Save();
+        //		if (meta != null)
+        //		{
+        //			resAssetEntry.ModifiedEntry.ResMeta = meta;
+        //		}
+        //		resAssetEntry.IsDirty = true;
+        //	}
+        //}
 
-		public void ModifyEbx(string name, EbxAsset asset)
-		{
-			name = name.ToLower();
-			if (EBX.ContainsKey(name))
-			{
-				EbxAssetEntry ebxAssetEntry = EBX[name];
-				if (ebxAssetEntry.ModifiedEntry == null)
-				{
-					ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-				}
-				ebxAssetEntry.ModifiedEntry.Data = null;
+        public void ModifyEbx(string name, EbxAsset asset)
+        {
+            name = name.ToLower();
+            if (EBX.ContainsKey(name))
+            {
+                EbxAssetEntry ebxAssetEntry = EBX[name];
+                if (ebxAssetEntry.ModifiedEntry == null)
+                {
+                    ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+                }
+                ebxAssetEntry.ModifiedEntry.Data = null;
                 ((ModifiedAssetEntry)ebxAssetEntry.ModifiedEntry).DataObject = asset;
-				ebxAssetEntry.ModifiedEntry.OriginalSize = 0L;
-				ebxAssetEntry.ModifiedEntry.Sha1 = Sha1.Zero;
-				ebxAssetEntry.ModifiedEntry.IsTransientModified = asset.TransientEdit;
-				ebxAssetEntry.ModifiedEntry.DependentAssets.Clear();
-				ebxAssetEntry.ModifiedEntry.DependentAssets.AddRange(asset.Dependencies);
-				ebxAssetEntry.IsDirty = true;
-				ebxAssetEntry.IsBinary = false;
+                ebxAssetEntry.ModifiedEntry.OriginalSize = 0L;
+                ebxAssetEntry.ModifiedEntry.Sha1 = Sha1.Zero;
+                ebxAssetEntry.ModifiedEntry.IsTransientModified = asset.TransientEdit;
+                ebxAssetEntry.ModifiedEntry.DependentAssets.Clear();
+                ebxAssetEntry.ModifiedEntry.DependentAssets.AddRange(asset.Dependencies);
+                ebxAssetEntry.IsDirty = true;
+                ebxAssetEntry.IsBinary = false;
 
-				if (AssetManagerModified != null)
-					AssetManagerModified(ebxAssetEntry);
+                if (AssetManagerModified != null)
+                    AssetManagerModified(ebxAssetEntry);
 
             }
-		}
+        }
 
-		public void ModifyEbxBinary(string name, byte[] data)
-		{
-			name = name.ToLower();
-			if (EBX.ContainsKey(name))
-			{
-				var ebxEntry = EBX[name];
-				var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
-				var ebxAsset = GetEbxAssetFromStream(new MemoryStream(data), patch);
-				ModifyEbx(name, ebxAsset);
-			}
-		}
+        public void ModifyEbxBinary(string name, byte[] data)
+        {
+            name = name.ToLower();
+            if (EBX.ContainsKey(name))
+            {
+                var ebxEntry = EBX[name];
+                var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
+                var ebxAsset = GetEbxAssetFromStream(new MemoryStream(data), patch);
+                ModifyEbx(name, ebxAsset);
+            }
+        }
 
-		public void ModifyEbxJson(string name, string json)
-		{
-			name = name.ToLower();
-			if (EBX.ContainsKey(name))
-			{
-				var ebxEntry = EBX[name];
-				var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
-				var ebxAsset = GetEbx(ebxEntry);
-				if (ebxAsset != null)
-				{
+        public void ModifyEbxJson(string name, string json)
+        {
+            name = name.ToLower();
+            if (EBX.ContainsKey(name))
+            {
+                var ebxEntry = EBX[name];
+                var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
+                var ebxAsset = GetEbx(ebxEntry);
+                if (ebxAsset != null)
+                {
 
-					var rootObject = ebxAsset.RootObject;
-					ExpandoObject newObject = JsonConvert.DeserializeObject<ExpandoObject>(json);
-					RecursiveExpandoObjectToObject(rootObject, newObject);
+                    var rootObject = ebxAsset.RootObject;
+                    ExpandoObject newObject = JsonConvert.DeserializeObject<ExpandoObject>(json);
+                    RecursiveExpandoObjectToObject(rootObject, newObject);
 
-					ModifyEbx(name, ebxAsset);
+                    ModifyEbx(name, ebxAsset);
 
 
-				}
-			}
-		}
+                }
+            }
+        }
 
-		public void RecursiveExpandoObjectToObject(object rootObject, ExpandoObject newObject)
-		{
-			if (rootObject != null && newObject != null)
-			{
-				PropertyInfo[] properties = rootObject.GetType().GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-				foreach (KeyValuePair<string, object> kvp in newObject)
-				{
-					if (Utilities.PropertyExists(rootObject, kvp.Key))
-					{
-						try
-						{
-							var newValue = kvp.Value;
-							PropertyInfo propertyInfo = properties.FirstOrDefault(x => x.Name == kvp.Key);
-							if (kvp.Value is ExpandoObject)
-							{
-								var innerObj = propertyInfo?.GetValue(rootObject);
-								RecursiveExpandoObjectToObject(innerObj, (ExpandoObject)newValue);
-							}
-							else
-							{
-								if (newValue is List<object>)
-								{
-									var lst = (List<object>)newValue;
-									if (lst.Count > 0)
-									{
-										if (Single.TryParse(lst[0].ToString(), out float f))
-										{
-											var newList = new List<Single>();
-											foreach (var iO in lst)
-											{
-												newList.Add(Single.Parse(iO.ToString()));
-											}
-											newValue = newList;
-										}
-										else if (lst[0] is ExpandoObject)
-										{
-											Type propertyType = propertyInfo?.PropertyType;
-											var typeArg = propertyType.GenericTypeArguments[0];
-											var innerObjType = Activator.CreateInstance(typeArg);
-											Type listType = typeof(List<>).MakeGenericType(new[] { typeArg });
-											IList newList = (IList)Activator.CreateInstance(listType);
-											foreach (ExpandoObject iO in lst)
+        public void RecursiveExpandoObjectToObject(object rootObject, ExpandoObject newObject)
+        {
+            if (rootObject != null && newObject != null)
+            {
+                PropertyInfo[] properties = rootObject.GetType().GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+                foreach (KeyValuePair<string, object> kvp in newObject)
+                {
+                    if (Utilities.PropertyExists(rootObject, kvp.Key))
+                    {
+                        try
+                        {
+                            var newValue = kvp.Value;
+                            PropertyInfo propertyInfo = properties.FirstOrDefault(x => x.Name == kvp.Key);
+                            if (kvp.Value is ExpandoObject)
+                            {
+                                var innerObj = propertyInfo?.GetValue(rootObject);
+                                RecursiveExpandoObjectToObject(innerObj, (ExpandoObject)newValue);
+                            }
+                            else
+                            {
+                                if (newValue is List<object>)
+                                {
+                                    var lst = (List<object>)newValue;
+                                    if (lst.Count > 0)
+                                    {
+                                        if (Single.TryParse(lst[0].ToString(), out float f))
+                                        {
+                                            var newList = new List<Single>();
+                                            foreach (var iO in lst)
                                             {
-												RecursiveExpandoObjectToObject(innerObjType, iO);
-												newList.Add(innerObjType);
+                                                newList.Add(Single.Parse(iO.ToString()));
+                                            }
+                                            newValue = newList;
+                                        }
+                                        else if (lst[0] is ExpandoObject)
+                                        {
+                                            Type propertyType = propertyInfo?.PropertyType;
+                                            var typeArg = propertyType.GenericTypeArguments[0];
+                                            var innerObjType = Activator.CreateInstance(typeArg);
+                                            Type listType = typeof(List<>).MakeGenericType(new[] { typeArg });
+                                            IList newList = (IList)Activator.CreateInstance(listType);
+                                            foreach (ExpandoObject iO in lst)
+                                            {
+                                                RecursiveExpandoObjectToObject(innerObjType, iO);
+                                                newList.Add(innerObjType);
                                             }
                                             newValue = newList;
 
                                         }
-										else
+                                        else
                                         {
-											continue;
+                                            continue;
                                         }
-									}
-								}
-								else
-								{
-									if (newValue is Double)
-									{
-										newValue = Convert.ToSingle(newValue);
-									}
-								}
-								propertyInfo?.SetValue(rootObject, newValue);
-							}
-						}
-						catch
-						{
+                                    }
+                                }
+                                else
+                                {
+                                    if (newValue is Double)
+                                    {
+                                        newValue = Convert.ToSingle(newValue);
+                                    }
+                                }
+                                propertyInfo?.SetValue(rootObject, newValue);
+                            }
+                        }
+                        catch
+                        {
 
-						}
-					}
-				}
-			}
-		}
+                        }
+                    }
+                }
+            }
+        }
 
 
 
-		public void ModifyLegacyAsset(string name, byte[] data, bool rebuildChunk = true)
-		{
-			if (CustomAssetManagers.ContainsKey("legacy"))
-			{
-				CustomAssetManagers["legacy"].ModifyAsset(name, data, rebuildChunk);
+        public void ModifyLegacyAsset(string name, byte[] data, bool rebuildChunk = true)
+        {
+            if (CustomAssetManagers.ContainsKey("legacy"))
+            {
+                CustomAssetManagers["legacy"].ModifyAsset(name, data, rebuildChunk);
 
-				var assetEntry = CustomAssetManagers["legacy"].GetAssetEntry(name);
+                var assetEntry = CustomAssetManagers["legacy"].GetAssetEntry(name);
                 if (AssetManagerModified != null)
                 {
                     AssetManagerModified(assetEntry);
                 }
             }
 
-            
+
         }
 
-		public void ModifyLegacyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
-		{
-			var lm = CustomAssetManagers["legacy"] as ChunkFileManager2022;
-			if(lm != null)
+        public void ModifyLegacyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
+        {
+            var lm = CustomAssetManagers["legacy"] as ChunkFileManager2022;
+            if (lm != null)
             {
-				lm.ModifyAssets(data, true);
+                lm.ModifyAssets(data, true);
             }
-		}
+        }
 
-		public void ModifyCustomAsset(string type, string name, byte[] data)
-		{
-			if (CustomAssetManagers.ContainsKey(type))
-			{
-				CustomAssetManagers[type].ModifyAsset(name, data);
-			}
-		}
+        public void ModifyCustomAsset(string type, string name, byte[] data)
+        {
+            if (CustomAssetManagers.ContainsKey(type))
+            {
+                CustomAssetManagers[type].ModifyAsset(name, data);
+            }
+        }
 
-		public void DuplicateEntry(AssetEntry EntryToDuplicate, string NewEntryPath, bool IsLegacy)
-		{
-			if (EntryToDuplicate == null)
-				throw new ArgumentNullException("Entry to duplicate must be provided!");
+        public void DuplicateEntry(AssetEntry EntryToDuplicate, string NewEntryPath, bool IsLegacy)
+        {
+            if (EntryToDuplicate == null)
+                throw new ArgumentNullException("Entry to duplicate must be provided!");
 
-			if (IsLegacy)
-			{
-				LegacyFileEntry ae = JsonConvert.DeserializeObject<LegacyFileEntry>(JsonConvert.SerializeObject(EntryToDuplicate));
-				ae.Name = NewEntryPath;
-				ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
-				customAssetManager.DuplicateAsset(NewEntryPath, (LegacyFileEntry)EntryToDuplicate);
-			}
-			else
-			{
+            if (IsLegacy)
+            {
+                LegacyFileEntry ae = JsonConvert.DeserializeObject<LegacyFileEntry>(JsonConvert.SerializeObject(EntryToDuplicate));
+                ae.Name = NewEntryPath;
+                ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
+                customAssetManager.DuplicateAsset(NewEntryPath, (LegacyFileEntry)EntryToDuplicate);
+            }
+            else
+            {
 
-				EbxAssetEntry ae = EntryToDuplicate.Clone() as EbxAssetEntry;
-				var originalEbxData = AssetManager.Instance.GetEbx(ae);
+                EbxAssetEntry ae = EntryToDuplicate.Clone() as EbxAssetEntry;
+                var originalEbxData = AssetManager.Instance.GetEbx(ae);
 
-				ae.Name = NewEntryPath;
-				ae.DuplicatedFromName = EntryToDuplicate.Name;
-				ae.Sha1 = FMT.FileTools.Sha1.Create();
-				AssetManager.Instance.AddEbx(ae);
+                ae.Name = NewEntryPath;
+                ae.DuplicatedFromName = EntryToDuplicate.Name;
+                ae.Sha1 = FMT.FileTools.Sha1.Create();
+                AssetManager.Instance.AddEbx(ae);
 
-				// Check for "Resource" property
-				if (Utilities.PropertyExists(originalEbxData.RootObject, "Resource"))
-				{
-					var dynamicRO = (dynamic)originalEbxData.RootObject;
-					ResAssetEntry resAssetEntry = AssetManager.Instance.GetResEntry(((dynamic)originalEbxData.RootObject).Resource);
-					var rae = resAssetEntry.Clone() as ResAssetEntry;
-					rae.Name = NewEntryPath;
-					rae.ResRid = GetNextRID();
-					rae.Sha1 = FMT.FileTools.Sha1.Create();
-					rae.DuplicatedFromName = EntryToDuplicate.Name;
+                // Check for "Resource" property
+                if (Utilities.PropertyExists(originalEbxData.RootObject, "Resource"))
+                {
+                    var dynamicRO = (dynamic)originalEbxData.RootObject;
+                    ResAssetEntry resAssetEntry = AssetManager.Instance.GetResEntry(((dynamic)originalEbxData.RootObject).Resource);
+                    var rae = resAssetEntry.Clone() as ResAssetEntry;
+                    rae.Name = NewEntryPath;
+                    rae.ResRid = GetNextRID();
+                    rae.Sha1 = FMT.FileTools.Sha1.Create();
+                    rae.DuplicatedFromName = EntryToDuplicate.Name;
 
-					dynamicRO.Resource = new ResourceRef(rae.ResRid);
+                    dynamicRO.Resource = new ResourceRef(rae.ResRid);
 
-					if (ae.Type == "TextureAsset")
-					{
-						using (Texture textureAsset = new Texture(rae))
-						{
-							var cae = textureAsset.ChunkEntry.Clone() as ChunkAssetEntry;
-							cae.Id = AssetManager.Instance.GenerateChunkId(cae);
-							textureAsset.ChunkId = cae.Id;
-							var newTextureData = textureAsset.ToBytes();
-							rae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + EntryToDuplicate.Name, Data = Utils.CompressFile(newTextureData, textureAsset) };
-							cae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + textureAsset.ChunkEntry.Name, Data = Utils.CompressFile(AssetManager.Instance.GetChunkData(cae).ToArray()) };
-							cae.Sha1 = Sha1.Create();
-							cae.DuplicatedFromName = textureAsset.ChunkEntry.Name;
-							AssetManager.Instance.AddChunk(cae);
-						}
-					}
+                    if (ae.Type == "TextureAsset")
+                    {
+                        using (Texture textureAsset = new Texture(rae))
+                        {
+                            var cae = textureAsset.ChunkEntry.Clone() as ChunkAssetEntry;
+                            cae.Id = AssetManager.Instance.GenerateChunkId(cae);
+                            textureAsset.ChunkId = cae.Id;
+                            var newTextureData = textureAsset.ToBytes();
+                            rae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + EntryToDuplicate.Name, Data = Utils.CompressFile(newTextureData, textureAsset) };
+                            cae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + textureAsset.ChunkEntry.Name, Data = Utils.CompressFile(AssetManager.Instance.GetChunkData(cae).ToArray()) };
+                            cae.Sha1 = Sha1.Create();
+                            cae.DuplicatedFromName = textureAsset.ChunkEntry.Name;
+                            AssetManager.Instance.AddChunk(cae);
+                        }
+                    }
 
-					// Modify the newly Added EBX
-					AssetManager.Instance.ModifyEbx(NewEntryPath, originalEbxData);
-					ae.ModifiedEntry.UserData = "DUP;" + EntryToDuplicate.Name;
-					// Add the RESOURCE
-					AssetManager.Instance.AddRes(rae);
-				}
+                    // Modify the newly Added EBX
+                    AssetManager.Instance.ModifyEbx(NewEntryPath, originalEbxData);
+                    ae.ModifiedEntry.UserData = "DUP;" + EntryToDuplicate.Name;
+                    // Add the RESOURCE
+                    AssetManager.Instance.AddRes(rae);
+                }
 
 
-			}
-		}
+            }
+        }
 
-		public ulong GetNextRID()
-		{
-			return AssetManager.Instance.resRidList.Keys.Max() + 1;
-		}
+        public ulong GetNextRID()
+        {
+            return AssetManager.Instance.resRidList.Keys.Max() + 1;
+        }
 
-		public IEnumerable<SuperBundleEntry> EnumerateSuperBundles(bool modifiedOnly = false)
-		{
-			foreach (SuperBundleEntry superBundle in superBundles)
-			{
-				if (!modifiedOnly || superBundle.Added)
-				{
-					yield return superBundle;
-				}
-			}
-		}
+        public IEnumerable<SuperBundleEntry> EnumerateSuperBundles(bool modifiedOnly = false)
+        {
+            foreach (SuperBundleEntry superBundle in superBundles)
+            {
+                if (!modifiedOnly || superBundle.Added)
+                {
+                    yield return superBundle;
+                }
+            }
+        }
 
-		public IEnumerable<BundleEntry> EnumerateBundles(BundleType type = BundleType.None, bool modifiedOnly = false)
-		{
-			foreach (BundleEntry bundle in Bundles)
-			{
-				if ((type == BundleType.None || bundle.Type == type) && (!modifiedOnly || bundle.Added))
-				{
-					yield return bundle;
-				}
-			}
-		}
+        public IEnumerable<BundleEntry> EnumerateBundles(BundleType type = BundleType.None, bool modifiedOnly = false)
+        {
+            foreach (BundleEntry bundle in Bundles)
+            {
+                if ((type == BundleType.None || bundle.Type == type) && (!modifiedOnly || bundle.Added))
+                {
+                    yield return bundle;
+                }
+            }
+        }
 
-		public IEnumerable<EbxAssetEntry> EnumerateEbx(string type = "", bool modifiedOnly = false, bool includeLinked = false, bool includeHidden = true, string bundleSubPath = "")
-		{
-			List<int> list = new List<int>();
-			if (bundleSubPath != "")
-			{
-				bundleSubPath = bundleSubPath.ToLower();
-				for (int i = 0; i < Bundles.Count; i++)
-				{
-					if (Bundles[i].Name.Equals(bundleSubPath) || Bundles[i].Name.StartsWith(bundleSubPath + "/"))
-					{
-						list.Add(i);
-					}
-				}
-			}
+        public IEnumerable<EbxAssetEntry> EnumerateEbx(string type = "", bool modifiedOnly = false, bool includeLinked = false, bool includeHidden = true, string bundleSubPath = "")
+        {
+            List<int> list = new List<int>();
+            if (bundleSubPath != "")
+            {
+                bundleSubPath = bundleSubPath.ToLower();
+                for (int i = 0; i < Bundles.Count; i++)
+                {
+                    if (Bundles[i].Name.Equals(bundleSubPath) || Bundles[i].Name.StartsWith(bundleSubPath + "/"))
+                    {
+                        list.Add(i);
+                    }
+                }
+            }
 
-			return EnumerateEbx(type, modifiedOnly, includeLinked, includeHidden, list.ToArray());
-		}
+            return EnumerateEbx(type, modifiedOnly, includeLinked, includeHidden, list.ToArray());
+        }
 
-		protected IEnumerable<EbxAssetEntry> EnumerateEbx(string type, bool modifiedOnly, bool includeLinked, bool includeHidden, params int[] bundles)
-		{
-			//foreach (EbxAssetEntry value in EBX.Values)
-			//{
-			//	if (
-			//		(!modifiedOnly 
-			//		|| (
-			//			value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
-			//			)
-			//		) 
-			//		&& (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
-			//	{
-			//		yield return value;
-			//	}
-			//}
+        protected IEnumerable<EbxAssetEntry> EnumerateEbx(string type, bool modifiedOnly, bool includeLinked, bool includeHidden, params int[] bundles)
+        {
+            //foreach (EbxAssetEntry value in EBX.Values)
+            //{
+            //	if (
+            //		(!modifiedOnly 
+            //		|| (
+            //			value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
+            //			)
+            //		) 
+            //		&& (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
+            //	{
+            //		yield return value;
+            //	}
+            //}
 
 #if DEBUG
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 #endif
-			Span<EbxAssetEntry> ebxAssetEntries = CollectionsMarshal.AsSpan(EBX.Values.ToList());
-			EbxAssetEntry[] assetEntriesArray = new EbxAssetEntry[ebxAssetEntries.Length];
-			for (var i = 0; i < ebxAssetEntries.Length; i++)
-			{
-				var value = ebxAssetEntries[i];
-				if (
-					(!modifiedOnly
-					|| (
-						value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
-						)
-					)
-					&& (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
-				{
-					assetEntriesArray[i] = value;
-				}
-			}
+            Span<EbxAssetEntry> ebxAssetEntries = CollectionsMarshal.AsSpan(EBX.Values.ToList());
+            EbxAssetEntry[] assetEntriesArray = new EbxAssetEntry[ebxAssetEntries.Length];
+            for (var i = 0; i < ebxAssetEntries.Length; i++)
+            {
+                var value = ebxAssetEntries[i];
+                if (
+                    (!modifiedOnly
+                    || (
+                        value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
+                        )
+                    )
+                    && (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
+                {
+                    assetEntriesArray[i] = value;
+                }
+            }
 #if DEBUG
-			sw.Stop();
-			Debug.WriteLine($"EnumerateEbx:Span:{sw.Elapsed}");
+            sw.Stop();
+            Debug.WriteLine($"EnumerateEbx:Span:{sw.Elapsed}");
 #endif
-			return assetEntriesArray.Where(x => x != null);
+            return assetEntriesArray.Where(x => x != null);
 
 
-		}
+        }
 
         public IEnumerable<ResAssetEntry> EnumerateRes(BundleEntry bentry)
-		{
-			int num = Bundles.IndexOf(bentry);
-			if (num != -1)
-			{
-				foreach (ResAssetEntry item in EnumerateRes(0u, false, num))
-				{
-					yield return item;
-				}
-			}
-		}
+        {
+            int num = Bundles.IndexOf(bentry);
+            if (num != -1)
+            {
+                foreach (ResAssetEntry item in EnumerateRes(0u, false, num))
+                {
+                    yield return item;
+                }
+            }
+        }
 
-		public IEnumerable<ResAssetEntry> EnumerateRes(uint resType = 0u, bool modifiedOnly = false, string bundleSubPath = "")
-		{
-			List<int> list = new List<int>();
-			if (bundleSubPath != "")
-			{
-				bundleSubPath = bundleSubPath.ToLower();
-				for (int i = 0; i < Bundles.Count; i++)
-				{
-					if (Bundles[i].Name.Equals(bundleSubPath) || Bundles[i].Name.StartsWith(bundleSubPath + "/"))
-					{
-						list.Add(i);
-					}
-				}
-				if (list.Count == 0)
-				{
-					yield break;
-				}
-			}
-			foreach (ResAssetEntry item in EnumerateRes(resType, modifiedOnly, list.ToArray()))
-			{
-				yield return item;
-			}
-		}
+        public IEnumerable<ResAssetEntry> EnumerateRes(uint resType = 0u, bool modifiedOnly = false, string bundleSubPath = "")
+        {
+            List<int> list = new List<int>();
+            if (bundleSubPath != "")
+            {
+                bundleSubPath = bundleSubPath.ToLower();
+                for (int i = 0; i < Bundles.Count; i++)
+                {
+                    if (Bundles[i].Name.Equals(bundleSubPath) || Bundles[i].Name.StartsWith(bundleSubPath + "/"))
+                    {
+                        list.Add(i);
+                    }
+                }
+                if (list.Count == 0)
+                {
+                    yield break;
+                }
+            }
+            foreach (ResAssetEntry item in EnumerateRes(resType, modifiedOnly, list.ToArray()))
+            {
+                yield return item;
+            }
+        }
 
-		protected IEnumerable<ResAssetEntry> EnumerateRes(uint resType, bool modifiedOnly, params int[] bundles)
-		{
-			foreach (ResAssetEntry value in RES.Values)
-			{
-				if ((!modifiedOnly || value.IsDirectlyModified) && (resType == 0 || value.ResType == resType))
-				{
-					if (bundles.Length != 0)
-					{
-						bool flag = false;
-						foreach (int item in bundles)
-						{
-							if (value.Bundles.Contains(item))
-							{
-								flag = true;
-								break;
-							}
-						}
-						if (!flag)
-						{
-							continue;
-						}
-					}
-					yield return value;
-				}
-			}
-		}
+        protected IEnumerable<ResAssetEntry> EnumerateRes(uint resType, bool modifiedOnly, params int[] bundles)
+        {
+            foreach (ResAssetEntry value in RES.Values)
+            {
+                if ((!modifiedOnly || value.IsDirectlyModified) && (resType == 0 || value.ResType == resType))
+                {
+                    if (bundles.Length != 0)
+                    {
+                        bool flag = false;
+                        foreach (int item in bundles)
+                        {
+                            if (value.Bundles.Contains(item))
+                            {
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag)
+                        {
+                            continue;
+                        }
+                    }
+                    yield return value;
+                }
+            }
+        }
 
-		public IEnumerable<ChunkAssetEntry> EnumerateChunks(BundleEntry bentry)
-		{
-			int bindex = Bundles.IndexOf(bentry);
-			if (bindex != -1)
-			{
-				foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x => x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
-				{
-					if (value.Bundles.Contains(bindex))
-					{
-						yield return value;
-					}
-				}
-			}
-		}
+        public IEnumerable<ChunkAssetEntry> EnumerateChunks(BundleEntry bentry)
+        {
+            int bindex = Bundles.IndexOf(bentry);
+            if (bindex != -1)
+            {
+                foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x => x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
+                {
+                    if (value.Bundles.Contains(bindex))
+                    {
+                        yield return value;
+                    }
+                }
+            }
+        }
 
-		public IEnumerable<ChunkAssetEntry> EnumerateChunks(bool modifiedOnly = false)
-		{
-			foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x=> x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
-			{
-				if (!modifiedOnly || value.IsDirectlyModified)
-				{
-					yield return value;
-				}
-			}
-		}
+        public IEnumerable<ChunkAssetEntry> EnumerateChunks(bool modifiedOnly = false)
+        {
+            foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x => x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
+            {
+                if (!modifiedOnly || value.IsDirectlyModified)
+                {
+                    yield return value;
+                }
+            }
+        }
 
-		public IEnumerable<AssetEntry> EnumerateCustomAssets(string type, bool modifiedOnly = false)
-		{
-			if(type == "ebx")
-				return EnumerateEbx(type, modifiedOnly);
+        public IEnumerable<AssetEntry> EnumerateCustomAssets(string type, bool modifiedOnly = false)
+        {
+            if (type == "ebx")
+                return EnumerateEbx(type, modifiedOnly);
 
 
 
-			if (CustomAssetManagers.ContainsKey(type))
-			{
-				return CustomAssetManagers[type].EnumerateAssets(modifiedOnly);
+            if (CustomAssetManagers.ContainsKey(type))
+            {
+                return CustomAssetManagers[type].EnumerateAssets(modifiedOnly);
                 //{
                 //    yield return item;
                 //}
-    //            foreach (AssetEntry item in CustomAssetManagers[type].EnumerateAssets(modifiedOnly))
-				//{
-				//	yield return item;
-				//}
-			}
-			return null;
-		}
+                //            foreach (AssetEntry item in CustomAssetManagers[type].EnumerateAssets(modifiedOnly))
+                //{
+                //	yield return item;
+                //}
+            }
+            return null;
+        }
 
         public IEnumerable<AssetEntry> ModifiedAssetEntries
         {
@@ -1781,112 +1779,113 @@ namespace FrostySdk.Managers
         }
 
         public int GetSuperBundleId(SuperBundleEntry sbentry)
-		{
-			return superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbentry.Name));
-		}
+        {
+            return superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbentry.Name));
+        }
 
-		public int GetSuperBundleId(string sbname)
-		{
-			return superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbname, StringComparison.OrdinalIgnoreCase));
-		}
+        public int GetSuperBundleId(string sbname)
+        {
+            return superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbname, StringComparison.OrdinalIgnoreCase));
+        }
 
-		public SuperBundleEntry GetSuperBundle(int id)
-		{
-			if (id >= superBundles.Count)
-			{
-				return null;
-			}
-			return superBundles[id];
-		}
+        public SuperBundleEntry GetSuperBundle(int id)
+        {
+            if (id >= superBundles.Count)
+            {
+                return null;
+            }
+            return superBundles[id];
+        }
 
-		public int GetBundleId(BundleEntry bentry)
-		{
-			return Bundles.FindIndex((BundleEntry be) => be.Name.Equals(bentry.Name));
-		}
+        public int GetBundleId(BundleEntry bentry)
+        {
+            return Bundles.FindIndex((BundleEntry be) => be.Name.Equals(bentry.Name));
+        }
 
-		public int GetBundleId(string name)
-		{
-			return Bundles.FindIndex((BundleEntry be) => be.Name.Equals(name));
-		}
+        public int GetBundleId(string name)
+        {
+            return Bundles.FindIndex((BundleEntry be) => be.Name.Equals(name));
+        }
 
-		public BundleEntry GetBundleEntry(int bundleId)
-		{
-			if (Bundles.Count == 0)
-				return null;
+        public BundleEntry GetBundleEntry(int bundleId)
+        {
+            if (Bundles.Count == 0)
+                return null;
 
-			var bundleIndex = (Bundles.FindIndex(x => bundleId == Fnv1a.HashString(x.Name)));
-			if (bundleIndex != -1)
-				bundleId = bundleIndex;
+            var bundleIndex = (Bundles.FindIndex(x => bundleId == Fnv1a.HashString(x.Name)));
+            if (bundleIndex != -1)
+                bundleId = bundleIndex;
 
-			if (bundleId >= Bundles.Count)
-				return null;
+            if (bundleId >= Bundles.Count)
+                return null;
 
             if (bundleId < 0)
                 return null;
 
             return Bundles[bundleId];
-		}
-
-		public AssetEntry GetCustomAssetEntry(string type, string key)
-		{
-			if (!CustomAssetManagers.ContainsKey(type))
-			{
-				return null;
-			}
-			return CustomAssetManagers[type].GetAssetEntry(key);
-		}
-
-		public async Task<AssetEntry> GetCustomAssetEntryAsync(string type, string key)
-		{
-			return await Task.Run(() => {
-
-				return GetCustomAssetEntry(type, key);
-			
-			});
-		}
-
-		public T GetCustomAssetEntry<T>(string type, string key) where T : AssetEntry
-		{
-			return (T)GetCustomAssetEntry(type, key);
-		}
-
-		public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
-		{
-			// Old school, search by string
-			if (EBX.TryGetValue(name.ToString(), out var ent))// ContainsKey(name.ToString()))
-				return ent;// EBX[name.ToString()];
-
-			// Search by string but with the typed name (for Assets searching)
-			if (EBX.ContainsKey($"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"))
-                return EBX[$"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"];
-
-			// Search by Fnv1
-			if (EBX.ContainsKey($"{Fnv1.HashString(name.ToString())}"))
-                return EBX[$"{Fnv1.HashString(name.ToString())}"];
-
-			if (CacheManager.HasEbx(name.ToString()))
-			{
-				EBX.TryAdd(name.ToString(), CacheManager.GetEbx(name.ToString()));
-			}
-
-            return null;
-		}
-
-		public EbxAssetEntry GetEbxEntry(Guid id)
-		{
-			var ebxGuids = EBX.Values.Where(x => x.Guid != null);
-			return ebxGuids.FirstOrDefault(x => x.Guid == id);
-		}
-
-		public ResAssetEntry GetResEntry(ulong resRid)
-		{
-			return RES.Values.FirstOrDefault(x => x.ResRid == resRid);
         }
 
-		public ResAssetEntry GetResEntry(string name)
-		{
-			var loweredString = name.ToString().ToLower();
-            
+        public AssetEntry GetCustomAssetEntry(string type, string key)
+        {
+            if (!CustomAssetManagers.ContainsKey(type))
+            {
+                return null;
+            }
+            return CustomAssetManagers[type].GetAssetEntry(key);
+        }
+
+        public async Task<AssetEntry> GetCustomAssetEntryAsync(string type, string key)
+        {
+            return await Task.Run(() =>
+            {
+
+                return GetCustomAssetEntry(type, key);
+
+            });
+        }
+
+        public T GetCustomAssetEntry<T>(string type, string key) where T : AssetEntry
+        {
+            return (T)GetCustomAssetEntry(type, key);
+        }
+
+        public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
+        {
+            // Old school, search by string
+            if (EBX.TryGetValue(name.ToString(), out var ent))// ContainsKey(name.ToString()))
+                return ent;// EBX[name.ToString()];
+
+            // Search by string but with the typed name (for Assets searching)
+            if (EBX.ContainsKey($"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"))
+                return EBX[$"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"];
+
+            // Search by Fnv1
+            if (EBX.ContainsKey($"{Fnv1.HashString(name.ToString())}"))
+                return EBX[$"{Fnv1.HashString(name.ToString())}"];
+
+            if (CacheManager.HasEbx(name.ToString()))
+            {
+                EBX.TryAdd(name.ToString(), CacheManager.GetEbx(name.ToString()));
+            }
+
+            return null;
+        }
+
+        public EbxAssetEntry GetEbxEntry(Guid id)
+        {
+            var ebxGuids = EBX.Values.Where(x => x.Guid != null);
+            return ebxGuids.FirstOrDefault(x => x.Guid == id);
+        }
+
+        public ResAssetEntry GetResEntry(ulong resRid)
+        {
+            return RES.Values.FirstOrDefault(x => x.ResRid == resRid);
+        }
+
+        public ResAssetEntry GetResEntry(string name)
+        {
+            var loweredString = name.ToString().ToLower();
+
             // Old school, search by string
             if (RES.ContainsKey(loweredString))
                 return RES[loweredString];
@@ -1899,194 +1898,194 @@ namespace FrostySdk.Managers
             if (RES.ContainsKey($"{Fnv1.HashString(loweredString)}"))
                 return RES[$"{Fnv1.HashString(loweredString)}"];
 
-			return null;
+            return null;
         }
 
-		public ChunkAssetEntry GetChunkEntry(Guid id)
-		{
+        public ChunkAssetEntry GetChunkEntry(Guid id)
+        {
             if (Chunks.TryGetValue(id, out var entry))
-				return entry;
+                return entry;
 
             if (SuperBundleChunks.TryGetValue(Fnv1a.HashString(id.ToString()), out var sbChunkEntry))
                 return sbChunkEntry;
 
 
             return null;
-		}
+        }
 
         public async ValueTask<ChunkAssetEntry> GetChunkEntryAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
         {
-			cancellationToken.ThrowIfCancellationRequested();
-			return await Task.FromResult(GetChunkEntry(id));
+            cancellationToken.ThrowIfCancellationRequested();
+            return await Task.FromResult(GetChunkEntry(id));
         }
 
-		public Stream GetCustomAsset(string type, AssetEntry entry)
-		{
-			if (!CustomAssetManagers.ContainsKey(type))
-			{
-				return null;
-			}
-			return CustomAssetManagers[type].GetAsset(entry);
-		}
-
-		public async Task<MemoryStream> GetCustomAssetAsync(string type, AssetEntry entry)
+        public Stream GetCustomAsset(string type, AssetEntry entry)
         {
-			return await Task.FromResult(GetCustomAsset(type, entry) as MemoryStream);
+            if (!CustomAssetManagers.ContainsKey(type))
+            {
+                return null;
+            }
+            return CustomAssetManagers[type].GetAsset(entry);
         }
 
-		public EbxAsset GetEbx(EbxAssetEntry entry, bool getModified = true)
-		{
-			Stream assetStream = null;
-			if (getModified)
-			{
-				if (entry != null && entry.ModifiedEntry != null && ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject != null)
-				{
-					if (entry.IsBinary || entry.ModifiedEntry.Data != null)
-					{
-						assetStream = new MemoryStream(entry.ModifiedEntry.Data);
-					}
-					else
-					{
-						var r = ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject as EbxAsset;
-						r.ParentEntry = entry;
+        public async Task<MemoryStream> GetCustomAssetAsync(string type, AssetEntry entry)
+        {
+            return await Task.FromResult(GetCustomAsset(type, entry) as MemoryStream);
+        }
 
-						return r;
-					}
-				}
-			}
+        public EbxAsset GetEbx(EbxAssetEntry entry, bool getModified = true)
+        {
+            Stream assetStream = null;
+            if (getModified)
+            {
+                if (entry != null && entry.ModifiedEntry != null && ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject != null)
+                {
+                    if (entry.IsBinary || entry.ModifiedEntry.Data != null)
+                    {
+                        assetStream = new MemoryStream(entry.ModifiedEntry.Data);
+                    }
+                    else
+                    {
+                        var r = ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject as EbxAsset;
+                        r.ParentEntry = entry;
 
-			if(assetStream == null)
-			{
-				assetStream = GetAsset(entry, getModified);
-				if (assetStream == null)
-				{
-					return null;
-				}
-			}
+                        return r;
+                    }
+                }
+            }
+
+            if (assetStream == null)
+            {
+                assetStream = GetAsset(entry, getModified);
+                if (assetStream == null)
+                {
+                    return null;
+                }
+            }
             bool inPatched = false;
-			if ( 
-				entry.ExtraData.CasPath.StartsWith("native_patch"))
-			{
-				inPatched = true;
-			}
+            if (
+                entry.ExtraData.CasPath.StartsWith("native_patch"))
+            {
+                inPatched = true;
+            }
 
             return GetEbxAssetFromStream(assetStream, inPatched);
         }
 
-		public async ValueTask<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			return await Task.Run(() =>
-			{
-				EbxAsset ebx = null;
-				Task.Run(() =>
-				{
-					cancellationToken.ThrowIfCancellationRequested();
-					ebx = GetEbx(entry, getModified);
-                }).Wait(TimeSpan.FromSeconds(EbxBaseWriter.GetEbxLoadWaitSeconds), cancellationToken);
-				return ebx;
-			}, cancellationToken);
-		}
-
-
-		public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
+        public async ValueTask<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true, CancellationToken cancellationToken = default(CancellationToken))
         {
-			EbxReader ebxReader = null;
+            cancellationToken.ThrowIfCancellationRequested();
 
-			if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
-			{
-				//            if (ProfilesLibrary.EBXReader.Contains("V3", StringComparison.OrdinalIgnoreCase))
-				//            {
-				//	return new EbxReaderV3(asset, inPatched).ReadAsset();
-				//}
-				ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, asset, inPatched);
-			}
-			else
-			{
+            return await Task.Run(() =>
+            {
+                EbxAsset ebx = null;
+                Task.Run(() =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    ebx = GetEbx(entry, getModified);
+                }).Wait(TimeSpan.FromSeconds(EbxBaseWriter.GetEbxLoadWaitSeconds), cancellationToken);
+                return ebx;
+            }, cancellationToken);
+        }
 
-				if (ProfileManager.IsFIFA21DataVersion())
-				{
-					//ebxReader = new EbxReader_F21(asset, inPatched);
-					//ebxReader = new EbxReaderV2(asset, inPatched);
-					ebxReader = new EbxReaderV3(asset, inPatched);
 
-				}
-				else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-				{
-					//ebxReader = new EbxReader_F21(asset, inPatched);
-					//ebxReader = new EbxReaderV2(asset, inPatched);
-					ebxReader = new EbxReaderV3(asset, inPatched);
+        public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
+        {
+            EbxReader ebxReader = null;
 
-				}
-				else if (ProfileManager.DataVersion == 20181207
-					|| ProfileManager.IsFIFA20DataVersion()
-					|| ProfileManager.DataVersion == 20190905)
-				{
-					ebxReader = new EbxReaderV2(asset, inPatched);
-				}
-				else
-				{
-					ebxReader = new EbxReader(asset);
-				}
-			}
+            if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
+            {
+                //            if (ProfilesLibrary.EBXReader.Contains("V3", StringComparison.OrdinalIgnoreCase))
+                //            {
+                //	return new EbxReaderV3(asset, inPatched).ReadAsset();
+                //}
+                ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, asset, inPatched);
+            }
+            else
+            {
+
+                if (ProfileManager.IsFIFA21DataVersion())
+                {
+                    //ebxReader = new EbxReader_F21(asset, inPatched);
+                    //ebxReader = new EbxReaderV2(asset, inPatched);
+                    ebxReader = new EbxReaderV3(asset, inPatched);
+
+                }
+                else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
+                {
+                    //ebxReader = new EbxReader_F21(asset, inPatched);
+                    //ebxReader = new EbxReaderV2(asset, inPatched);
+                    ebxReader = new EbxReaderV3(asset, inPatched);
+
+                }
+                else if (ProfileManager.DataVersion == 20181207
+                    || ProfileManager.IsFIFA20DataVersion()
+                    || ProfileManager.DataVersion == 20190905)
+                {
+                    ebxReader = new EbxReaderV2(asset, inPatched);
+                }
+                else
+                {
+                    ebxReader = new EbxReader(asset);
+                }
+            }
 
             return ebxReader.ReadAsset();
-		}
+        }
 
-		public Stream GetEbxStream(EbxAssetEntry entry)
-		{
-			return GetAsset(entry, false);
-		}
+        public Stream GetEbxStream(EbxAssetEntry entry)
+        {
+            return GetAsset(entry, false);
+        }
 
-		public Stream GetRes(ResAssetEntry entry)
-		{
-			return GetAsset(entry);
-		}
+        public Stream GetRes(ResAssetEntry entry)
+        {
+            return GetAsset(entry);
+        }
 
-		public async Task<Stream> GetResAsync(ResAssetEntry entry)
-		{
-			return await Task.Run(() =>
-			{
-				return GetRes(entry);
-			});
-		}
+        public async Task<Stream> GetResAsync(ResAssetEntry entry)
+        {
+            return await Task.Run(() =>
+            {
+                return GetRes(entry);
+            });
+        }
 
-		//public T GetResAs<T>(ResAssetEntry entry) where T : Resource, new()
-		//{
-		//	using (NativeReader reader = new NativeReader(GetAsset(entry)))
-		//	{
-		//		ModifiedResource modifiedData = null;
-		//		if (entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
-		//		{
-		//			modifiedData = (entry.ModifiedEntry.DataObject as ModifiedResource);
-		//		}
-		//		T val = new T();
-		//		val.Read(reader, this, entry, modifiedData);
-		//		return val;
-		//	}
-		//}
+        //public T GetResAs<T>(ResAssetEntry entry) where T : Resource, new()
+        //{
+        //	using (NativeReader reader = new NativeReader(GetAsset(entry)))
+        //	{
+        //		ModifiedResource modifiedData = null;
+        //		if (entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
+        //		{
+        //			modifiedData = (entry.ModifiedEntry.DataObject as ModifiedResource);
+        //		}
+        //		T val = new T();
+        //		val.Read(reader, this, entry, modifiedData);
+        //		return val;
+        //	}
+        //}
 
-		//public Stream GetChunk(Guid id)
-		//{
-		//	return GetAsset(GetChunkEntry(id));
-		//}
+        //public Stream GetChunk(Guid id)
+        //{
+        //	return GetAsset(GetChunkEntry(id));
+        //}
 
-		public Stream GetChunk(ChunkAssetEntry entry)
-		{
-			return GetAsset(entry);
-		}
+        public Stream GetChunk(ChunkAssetEntry entry)
+        {
+            return GetAsset(entry);
+        }
 
         public ReadOnlySpan<byte> GetChunkData(ChunkAssetEntry entry)
-		{
-			if(entry == null)
-				throw new ArgumentNullException(nameof(entry));
+        {
+            if (entry == null)
+                throw new ArgumentNullException(nameof(entry));
 
-			if (entry.ModifiedEntry != null)
-				return entry.ModifiedEntry.Data;
+            if (entry.ModifiedEntry != null)
+                return entry.ModifiedEntry.Data;
 
-			return GetResourceData2(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);// GetChunkData(chunkEntry);
-			//return ((MemoryStream)GetAsset(entry)).ToArray();
+            return GetResourceData2(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);// GetChunkData(chunkEntry);
+                                                                                                            //return ((MemoryStream)GetAsset(entry)).ToArray();
         }
 
         public FMT.FileTools.Sha1 GetBaseSha1(FMT.FileTools.Sha1 sha1)
@@ -2095,34 +2094,34 @@ namespace FrostySdk.Managers
         }
 
         private Stream GetAsset(AssetEntry entry, bool getModified = true)
-		{
-			if(entry == null)
+        {
+            if (entry == null)
             {
-				throw new Exception("Failed to find Asset Entry");
+                throw new Exception("Failed to find Asset Entry");
             }
 
-			if (entry.ModifiedEntry != null && entry.ModifiedEntry.Data != null && getModified)
-			{
-				return GetResourceData(entry.ModifiedEntry.Data);
-			}
-			switch (entry.Location)
-			{
-			//case AssetDataLocation.Cas:
-			//	if (entry.ExtraData == null)
-			//	{
-			//		return rm.GetResourceData(entry.Sha1);
-			//	}
-			//	return rm.GetResourceData(entry.ExtraData.BaseSha1, entry.ExtraData.DeltaSha1);
-			//case AssetDataLocation.SuperBundle:
-			//	return rm.GetResourceData((entry.ExtraData.IsPatch ? "native_patch/" : "native_data/") + superBundles[entry.ExtraData.SuperBundleId].Name + ".sb", entry.ExtraData.DataOffset, entry.Size);
-			//case AssetDataLocation.Cache:
-			//	return rm.GetResourceData(entry.ExtraData.DataOffset, entry.Size);
-			case AssetDataLocation.CasNonIndexed:
-				return GetResourceData(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);
-			default:
-				return null;
-			}
-		}
+            if (entry.ModifiedEntry != null && entry.ModifiedEntry.Data != null && getModified)
+            {
+                return GetResourceData(entry.ModifiedEntry.Data);
+            }
+            switch (entry.Location)
+            {
+                //case AssetDataLocation.Cas:
+                //	if (entry.ExtraData == null)
+                //	{
+                //		return rm.GetResourceData(entry.Sha1);
+                //	}
+                //	return rm.GetResourceData(entry.ExtraData.BaseSha1, entry.ExtraData.DeltaSha1);
+                //case AssetDataLocation.SuperBundle:
+                //	return rm.GetResourceData((entry.ExtraData.IsPatch ? "native_patch/" : "native_data/") + superBundles[entry.ExtraData.SuperBundleId].Name + ".sb", entry.ExtraData.DataOffset, entry.Size);
+                //case AssetDataLocation.Cache:
+                //	return rm.GetResourceData(entry.ExtraData.DataOffset, entry.Size);
+                case AssetDataLocation.CasNonIndexed:
+                    return GetResourceData(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);
+                default:
+                    return null;
+            }
+        }
 
         public Stream GetResourceData(byte[] buffer)
         {
@@ -2208,7 +2207,7 @@ namespace FrostySdk.Managers
                             {
                                 return null;
                             }
-							return new ReadOnlySpan<byte>(array);
+                            return new ReadOnlySpan<byte>(array);
                         }
                     }
                 }
@@ -2276,107 +2275,107 @@ namespace FrostySdk.Managers
         }
 
         public void ProcessBundleEbx(DbObject sb, int bundleId, BinarySbDataHelper helper)
-		{
-			if (sb.GetValue<DbObject>("ebx") != null)
-			{
-				foreach (DbObject item in sb.GetValue<DbObject>("ebx"))
-				{
+        {
+            if (sb.GetValue<DbObject>("ebx") != null)
+            {
+                foreach (DbObject item in sb.GetValue<DbObject>("ebx"))
+                {
                     EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
                     ebxAssetEntry = (EbxAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, ebxAssetEntry);
-					AddEbx(ebxAssetEntry);
-					////if (item.GetValue<string>("name").Contains("gp_actor_movement_runtime", StringComparison.OrdinalIgnoreCase))
-					////{
+                    AddEbx(ebxAssetEntry);
+                    ////if (item.GetValue<string>("name").Contains("gp_actor_movement_runtime", StringComparison.OrdinalIgnoreCase))
+                    ////{
 
-					////}
+                    ////}
 
-					////EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion(ProfileManager.Game));
-					////EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
-					////if (ebxAssetEntry.Sha1 != item.GetValue<FMT.FileTools.Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
-					////{
-					////	ebxAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
-					////	ebxAssetEntry.IsInline = item.HasValue("idata");
-					////}
+                    ////EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion(ProfileManager.Game));
+                    ////EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
+                    ////if (ebxAssetEntry.Sha1 != item.GetValue<FMT.FileTools.Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+                    ////{
+                    ////	ebxAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
+                    ////	ebxAssetEntry.IsInline = item.HasValue("idata");
+                    ////}
 
-					////if (ebxAssetEntry.Size != item.GetValue<long>("size"))
-					////{
-					////	ebxAssetEntry.Size = item.GetValue("size", 0L);
-					////}
+                    ////if (ebxAssetEntry.Size != item.GetValue<long>("size"))
+                    ////{
+                    ////	ebxAssetEntry.Size = item.GetValue("size", 0L);
+                    ////}
 
-					////if (ebxAssetEntry.OriginalSize != item.GetValue<long>("originalSize"))
-					////{
-					////	ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-					////}
+                    ////if (ebxAssetEntry.OriginalSize != item.GetValue<long>("originalSize"))
+                    ////{
+                    ////	ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                    ////}
 
-					////if (item.GetValue("cache", defaultValue: false) && ebxAssetEntry.Location != AssetDataLocation.Cache)
-					////{
-					////	helper.RemoveEbxData(ebxAssetEntry.Name);
-					////}
+                    ////if (item.GetValue("cache", defaultValue: false) && ebxAssetEntry.Location != AssetDataLocation.Cache)
+                    ////{
+                    ////	helper.RemoveEbxData(ebxAssetEntry.Name);
+                    ////}
 
-					////if (item.HasValue("SBFileLocation"))
-					////	ebxAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
+                    ////if (item.HasValue("SBFileLocation"))
+                    ////	ebxAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
 
-					////if (item.HasValue("TOCFileLocation"))
-					////	ebxAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
+                    ////if (item.HasValue("TOCFileLocation"))
+                    ////	ebxAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
 
-					////if (item.HasValue("SB_CAS_Offset_Position"))
-					////	ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
+                    ////if (item.HasValue("SB_CAS_Offset_Position"))
+                    ////	ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
 
-					////if (item.HasValue("SB_CAS_Size_Position"))
-					////	ebxAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
+                    ////if (item.HasValue("SB_CAS_Size_Position"))
+                    ////	ebxAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
 
-					////if (item.HasValue("SB_OriginalSize_Position"))
-					////	ebxAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
+                    ////if (item.HasValue("SB_OriginalSize_Position"))
+                    ////	ebxAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
 
-					////if (item.HasValue("SB_Sha1_Position"))
-					////	ebxAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
+                    ////if (item.HasValue("SB_Sha1_Position"))
+                    ////	ebxAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
 
-					////if (item.HasValue("ParentBundleOffset"))
-					////	ebxAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
+                    ////if (item.HasValue("ParentBundleOffset"))
+                    ////	ebxAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
 
-					////if (item.HasValue("ParentBundleSize"))
-					////	ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
+                    ////if (item.HasValue("ParentBundleSize"))
+                    ////	ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-					////ebxAssetEntry.Bundles.Add(bundleId);
+                    ////ebxAssetEntry.Bundles.Add(bundleId);
 
-					////if (item.HasValue("Bundle"))
-					////{
-					////	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
-					////}
-					////else if (AssetManager.Instance.bundles.Count < bundleId)
-					////{
-					////	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-					////}
-				}
-			}
-		}
+                    ////if (item.HasValue("Bundle"))
+                    ////{
+                    ////	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
+                    ////}
+                    ////else if (AssetManager.Instance.bundles.Count < bundleId)
+                    ////{
+                    ////	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                    ////}
+                }
+            }
+        }
 
-		public void ProcessBundleRes(DbObject sb, int bundleId, BinarySbDataHelper helper)
-		{
-			if (sb.GetValue<DbObject>("res") != null)
-			{
-				foreach (DbObject item in sb.GetValue<DbObject>("res"))
-				{
-					if (!ProfileManager.IsResTypeIgnored((ResourceType)item.GetValue("resType", 0L)))
-					{
-						ResAssetEntry resAssetEntry = new ResAssetEntry();
+        public void ProcessBundleRes(DbObject sb, int bundleId, BinarySbDataHelper helper)
+        {
+            if (sb.GetValue<DbObject>("res") != null)
+            {
+                foreach (DbObject item in sb.GetValue<DbObject>("res"))
+                {
+                    if (!ProfileManager.IsResTypeIgnored((ResourceType)item.GetValue("resType", 0L)))
+                    {
+                        ResAssetEntry resAssetEntry = new ResAssetEntry();
                         resAssetEntry = (ResAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, resAssetEntry);
 
 
-       //                 ResAssetEntry resAssetEntry = AddRes(item, 
-							//ProfilesLibrary.IsMadden21DataVersion()
-							////|| ProfilesLibrary.IsFIFA22DataVersion()
-							//);
-       //                 if (resAssetEntry.Sha1 != item.GetValue<FMT.FileTools.Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
-       //                 {
-       //                     resRidList.Remove(resAssetEntry.ResRid);
-       //                     resAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
-       //                     resAssetEntry.Size = item.GetValue("size", 0L);
-       //                     resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
-       //                     resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
-       //                     resAssetEntry.IsInline = item.HasValue("idata");
-       //                     resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-       //                     resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-       //                 }
+                        //                 ResAssetEntry resAssetEntry = AddRes(item, 
+                        //ProfilesLibrary.IsMadden21DataVersion()
+                        ////|| ProfilesLibrary.IsFIFA22DataVersion()
+                        //);
+                        //                 if (resAssetEntry.Sha1 != item.GetValue<FMT.FileTools.Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+                        //                 {
+                        //                     resRidList.Remove(resAssetEntry.ResRid);
+                        //                     resAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
+                        //                     resAssetEntry.Size = item.GetValue("size", 0L);
+                        //                     resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
+                        //                     resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
+                        //                     resAssetEntry.IsInline = item.HasValue("idata");
+                        //                     resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                        //                     resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+                        //                 }
                         //if (item.GetValue("cache", defaultValue: false) && resAssetEntry.Location != AssetDataLocation.Cache)
                         //{
                         //	helper.RemoveResData(resAssetEntry.Name);
@@ -2417,568 +2416,568 @@ namespace FrostySdk.Managers
 
                         resAssetEntry.Bundles.Add(bundleId);
 
-						//if (item.HasValue("Bundle"))
-						//{
-						//	resAssetEntry.Bundle = item.GetValue<string>("Bundle");
-						//}
-						//else if (AssetManager.Instance.bundles.Count < bundleId)
-						//{
-						//	resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-						//}
-					}
-				}
-			}
-		}
-
-		public void ProcessBundleChunks(DbObject sb, int bundleId, BinarySbDataHelper helper)
-		{
-			if (sb.GetValue<DbObject>("chunks") != null)
-			{
-				foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
-				{
-                    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                    chunkAssetEntry = (ChunkAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, chunkAssetEntry);
-					AddChunk(chunkAssetEntry);
+                        //if (item.HasValue("Bundle"))
+                        //{
+                        //	resAssetEntry.Bundle = item.GetValue<string>("Bundle");
+                        //}
+                        //else if (AssetManager.Instance.bundles.Count < bundleId)
+                        //{
+                        //	resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                        //}
+                    }
                 }
             }
-		}
+        }
 
-		public DbObject ProcessTocChunks(string superBundleName, BinarySbDataHelper helper, bool isBase = false)
-		{
-			string text = fs.ResolvePath(superBundleName);
-			if (text == "")
-			{
-				return null;
-			}
-			DbObject dbObject = null;
-			using (DbReader dbReader = new DbReader(new FileStream(text, FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-			{
-				dbObject = dbReader.ReadDbObject();
-			}
-			if (isBase && ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103 && ProfileManager.DataVersion != 20150223 && ProfileManager.DataVersion != 20131115 && ProfileManager.DataVersion != 20140225)
-			{
-				return dbObject;
-			}
-			if (dbObject.GetValue<DbObject>("chunks") != null)
-			{
-				foreach (DbObject item in dbObject.GetValue<DbObject>("chunks"))
-				{
-					Guid value = item.GetValue<Guid>("id");
-					ChunkAssetEntry chunkAssetEntry = null;
-					if (Chunks.ContainsKey(value))
-					{
-						chunkAssetEntry = Chunks[value];
-						//chunkList.Remove(value);
-						Chunks.TryRemove(value, out _);
-						helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
-					}
-					else
-					{
-						chunkAssetEntry = new ChunkAssetEntry();
-					}
-					chunkAssetEntry.Id = item.GetValue<Guid>("id");
-					chunkAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
-					if (item.GetValue("size", 0L) != 0L)
-					{
-						chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
-						chunkAssetEntry.Size = item.GetValue("size", 0L);
-						chunkAssetEntry.ExtraData = new AssetExtraData();
-						chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-						//chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-						chunkAssetEntry.ExtraData.IsPatch = superBundleName.StartsWith("native_patch");
-					}
+        public void ProcessBundleChunks(DbObject sb, int bundleId, BinarySbDataHelper helper)
+        {
+            if (sb.GetValue<DbObject>("chunks") != null)
+            {
+                foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
+                {
+                    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                    chunkAssetEntry = (ChunkAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, chunkAssetEntry);
+                    AddChunk(chunkAssetEntry);
+                }
+            }
+        }
 
-					chunkAssetEntry.SB_LogicalOffset_Position = item.GetValue("SB_LogicalOffset_Position", 0u);
-					chunkAssetEntry.SB_LogicalSize_Position = item.GetValue("SB_LogicalSize_Position", 0u);
-					Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
-					//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-				}
-				return dbObject;
-			}
-			return dbObject;
-		}
+        public DbObject ProcessTocChunks(string superBundleName, BinarySbDataHelper helper, bool isBase = false)
+        {
+            string text = fs.ResolvePath(superBundleName);
+            if (text == "")
+            {
+                return null;
+            }
+            DbObject dbObject = null;
+            using (DbReader dbReader = new DbReader(new FileStream(text, FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+            {
+                dbObject = dbReader.ReadDbObject();
+            }
+            if (isBase && ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103 && ProfileManager.DataVersion != 20150223 && ProfileManager.DataVersion != 20131115 && ProfileManager.DataVersion != 20140225)
+            {
+                return dbObject;
+            }
+            if (dbObject.GetValue<DbObject>("chunks") != null)
+            {
+                foreach (DbObject item in dbObject.GetValue<DbObject>("chunks"))
+                {
+                    Guid value = item.GetValue<Guid>("id");
+                    ChunkAssetEntry chunkAssetEntry = null;
+                    if (Chunks.ContainsKey(value))
+                    {
+                        chunkAssetEntry = Chunks[value];
+                        //chunkList.Remove(value);
+                        Chunks.TryRemove(value, out _);
+                        helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
+                    }
+                    else
+                    {
+                        chunkAssetEntry = new ChunkAssetEntry();
+                    }
+                    chunkAssetEntry.Id = item.GetValue<Guid>("id");
+                    chunkAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
+                    if (item.GetValue("size", 0L) != 0L)
+                    {
+                        chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
+                        chunkAssetEntry.Size = item.GetValue("size", 0L);
+                        chunkAssetEntry.ExtraData = new AssetExtraData();
+                        chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                        //chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+                        chunkAssetEntry.ExtraData.IsPatch = superBundleName.StartsWith("native_patch");
+                    }
 
-		//public EbxAssetEntry AddEbx(DbObject ebx, bool returnExisting = false)
-		//{
-		//	EbxAssetEntry originalEbx = null;
-		//	string text = ebx.GetValue<string>("name").ToLower();
-		//	if (EBX.ContainsKey(text))
-		//	{
-		//		if(returnExisting)
-		//			return EBX[text];
-		//		else
-		//			EBX.TryRemove(text, out originalEbx);
-		//	}
-		//	EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-		//	ebxAssetEntry.Name = text;
-		//	ebxAssetEntry.Sha1 = ebx.GetValue<FMT.FileTools.Sha1>("sha1");
-		//	ebxAssetEntry.BaseSha1 = GetBaseSha1(ebxAssetEntry.Sha1);
-		//	ebxAssetEntry.Size = ebx.GetValue("size", 0L);
-		//	ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
-		//	ebxAssetEntry.IsInline = ebx.HasValue("idata");
-		//	ebxAssetEntry.Location = AssetDataLocation.Cas;
-		//	if (ebx.HasValue("cas"))
-		//	{
-		//		ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-		//		ebxAssetEntry.ExtraData = new AssetExtraData();
-		//		ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
-		//		ebxAssetEntry.ExtraData.Cas = ebx.HasValue("cas") ? ebx.GetValue<ushort>("cas") : null;
-		//		ebxAssetEntry.ExtraData.Catalog = ebx.HasValue("catalog") ? ebx.GetValue<ushort>("catalog") : null;
-  //              ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
-		//		ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.GetValue("patch", false));
-  //          }
-		//	else if (ebx.GetValue("sb", defaultValue: false))
-		//	{
-		//		ebxAssetEntry.Location = AssetDataLocation.SuperBundle;
-		//		ebxAssetEntry.ExtraData = new AssetExtraData();
-		//		ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
-		//		ebxAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-		//	}
+                    chunkAssetEntry.SB_LogicalOffset_Position = item.GetValue("SB_LogicalOffset_Position", 0u);
+                    chunkAssetEntry.SB_LogicalSize_Position = item.GetValue("SB_LogicalSize_Position", 0u);
+                    Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+                    //chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
+                }
+                return dbObject;
+            }
+            return dbObject;
+        }
 
-		//	if(ebx.HasValue("SBFileLocation"))
-		//		ebxAssetEntry.SBFileLocation = ebx.GetValue<string>("SBFileLocation");
-		//	if(ebx.HasValue("TOCFileLocation"))
-		//		ebxAssetEntry.TOCFileLocation = ebx.GetValue<string>("TOCFileLocation");
-		//	if(ebx.HasValue("SB_CAS_Offset_Position"))
-		//		ebxAssetEntry.SB_CAS_Offset_Position = ebx.GetValue<int>("SB_CAS_Offset_Position");
-		//	if (ebx.HasValue("SB_CAS_Size_Position"))
-		//		ebxAssetEntry.SB_CAS_Size_Position = ebx.GetValue<int>("SB_CAS_Size_Position");
-		//	if(ebx.HasValue("SB_OriginalSize_Position"))
-		//		ebxAssetEntry.SB_OriginalSize_Position = ebx.GetValue<int>("SB_OriginalSize_Position");
-		//	if(ebx.HasValue("SB_Sha1_Position"))
-		//		ebxAssetEntry.SB_Sha1_Position = ebx.GetValue<int>("SB_Sha1_Position");
+        //public EbxAssetEntry AddEbx(DbObject ebx, bool returnExisting = false)
+        //{
+        //	EbxAssetEntry originalEbx = null;
+        //	string text = ebx.GetValue<string>("name").ToLower();
+        //	if (EBX.ContainsKey(text))
+        //	{
+        //		if(returnExisting)
+        //			return EBX[text];
+        //		else
+        //			EBX.TryRemove(text, out originalEbx);
+        //	}
+        //	EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+        //	ebxAssetEntry.Name = text;
+        //	ebxAssetEntry.Sha1 = ebx.GetValue<FMT.FileTools.Sha1>("sha1");
+        //	ebxAssetEntry.BaseSha1 = GetBaseSha1(ebxAssetEntry.Sha1);
+        //	ebxAssetEntry.Size = ebx.GetValue("size", 0L);
+        //	ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
+        //	ebxAssetEntry.IsInline = ebx.HasValue("idata");
+        //	ebxAssetEntry.Location = AssetDataLocation.Cas;
+        //	if (ebx.HasValue("cas"))
+        //	{
+        //		ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+        //		ebxAssetEntry.ExtraData = new AssetExtraData();
+        //		ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+        //		ebxAssetEntry.ExtraData.Cas = ebx.HasValue("cas") ? ebx.GetValue<ushort>("cas") : null;
+        //		ebxAssetEntry.ExtraData.Catalog = ebx.HasValue("catalog") ? ebx.GetValue<ushort>("catalog") : null;
+        //              ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
+        //		ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.GetValue("patch", false));
+        //          }
+        //	else if (ebx.GetValue("sb", defaultValue: false))
+        //	{
+        //		ebxAssetEntry.Location = AssetDataLocation.SuperBundle;
+        //		ebxAssetEntry.ExtraData = new AssetExtraData();
+        //		ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+        //		ebxAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+        //	}
 
-		//	if(originalEbx != null)
-  //          {
-		//		ebxAssetEntry.Bundles.AddRange(originalEbx.Bundles);
-		//		ebxAssetEntry.Bundles.Add(Bundles.Count - 1);
-  //          }
+        //	if(ebx.HasValue("SBFileLocation"))
+        //		ebxAssetEntry.SBFileLocation = ebx.GetValue<string>("SBFileLocation");
+        //	if(ebx.HasValue("TOCFileLocation"))
+        //		ebxAssetEntry.TOCFileLocation = ebx.GetValue<string>("TOCFileLocation");
+        //	if(ebx.HasValue("SB_CAS_Offset_Position"))
+        //		ebxAssetEntry.SB_CAS_Offset_Position = ebx.GetValue<int>("SB_CAS_Offset_Position");
+        //	if (ebx.HasValue("SB_CAS_Size_Position"))
+        //		ebxAssetEntry.SB_CAS_Size_Position = ebx.GetValue<int>("SB_CAS_Size_Position");
+        //	if(ebx.HasValue("SB_OriginalSize_Position"))
+        //		ebxAssetEntry.SB_OriginalSize_Position = ebx.GetValue<int>("SB_OriginalSize_Position");
+        //	if(ebx.HasValue("SB_Sha1_Position"))
+        //		ebxAssetEntry.SB_Sha1_Position = ebx.GetValue<int>("SB_Sha1_Position");
 
-		//	EBX.TryAdd(text, ebxAssetEntry);
-		//	return ebxAssetEntry;
-		//}
+        //	if(originalEbx != null)
+        //          {
+        //		ebxAssetEntry.Bundles.AddRange(originalEbx.Bundles);
+        //		ebxAssetEntry.Bundles.Add(Bundles.Count - 1);
+        //          }
 
-		//public ResAssetEntry AddRes(DbObject res, bool returnExisting = false)
-		//{
-		//	string value = res.GetValue<string>("name");
-		//	if (RES.ContainsKey(value))
-		//	{
-		//		if(returnExisting)
-		//			return RES[value];
+        //	EBX.TryAdd(text, ebxAssetEntry);
+        //	return ebxAssetEntry;
+        //}
 
-		//		RES.Remove(value);
-		//		//return resList[value];
-		//	}
-		//	ResAssetEntry resAssetEntry = new ResAssetEntry();
-		//	resAssetEntry.Name = value;
-		//	resAssetEntry.Sha1 = res.GetValue<FMT.FileTools.Sha1>("sha1");
-		//	resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
-		//	resAssetEntry.Size = res.GetValue("size", 0L);
-		//	resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
-		//	var rrid = res.GetValue<string>("resRid");
-		//	//if (rrid < 0) rrid *= -1;
-		//	resAssetEntry.ResRid = Convert.ToUInt64(rrid);
-		//	resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
-		//	resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
-		//	resAssetEntry.IsInline = res.HasValue("idata");
-		//	resAssetEntry.Location = AssetDataLocation.Cas;
-		//	if (res.HasValue("cas"))
-		//	{
-		//		resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-		//		resAssetEntry.ExtraData = new AssetExtraData();
-		//		resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
-  //              resAssetEntry.ExtraData.Cas = res.HasValue("cas") ? res.GetValue<ushort>("cas") : null;
-  //              resAssetEntry.ExtraData.Catalog = res.HasValue("catalog") ? res.GetValue<ushort>("catalog") : null;
-  //              resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
-  //              resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? fs.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : fs.GetFilePath(res.GetValue("cas", 0)));
-		//	}
-		//	else if (res.GetValue("sb", defaultValue: false))
-		//	{
-		//		resAssetEntry.Location = AssetDataLocation.SuperBundle;
-		//		resAssetEntry.ExtraData = new AssetExtraData();
-		//		resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
-		//		resAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-		//	}
-		//	else if (res.GetValue("cache", defaultValue: false))
-		//	{
-		//		resAssetEntry.Location = AssetDataLocation.Cache;
-		//		resAssetEntry.ExtraData = new AssetExtraData();
-		//		//resAssetEntry.ExtraData.DataOffset = 3735928559L;
-		//	}
-		//	else if (res.GetValue("casPatchType", 0) == 2)
-		//	{
-		//		resAssetEntry.ExtraData = new AssetExtraData();
-		//		resAssetEntry.ExtraData.BaseSha1 = res.GetValue<FMT.FileTools.Sha1>("baseSha1");
-		//		resAssetEntry.ExtraData.DeltaSha1 = res.GetValue<FMT.FileTools.Sha1>("deltaSha1");
-		//	}
+        //public ResAssetEntry AddRes(DbObject res, bool returnExisting = false)
+        //{
+        //	string value = res.GetValue<string>("name");
+        //	if (RES.ContainsKey(value))
+        //	{
+        //		if(returnExisting)
+        //			return RES[value];
 
-		//	resAssetEntry.SBFileLocation = res.GetValue<string>("SBFileLocation");
-		//	resAssetEntry.TOCFileLocation = res.GetValue<string>("TOCFileLocation");
-		//	resAssetEntry.SB_CAS_Offset_Position = res.GetValue<int>("SB_CAS_Offset_Position");
-		//	resAssetEntry.SB_CAS_Size_Position = res.GetValue<int>("SB_CAS_Size_Position");
-		//	resAssetEntry.SB_OriginalSize_Position = res.GetValue<int>("SB_OriginalSize_Position");
-		//	resAssetEntry.SB_Sha1_Position = res.GetValue<int>("SB_Sha1_Position");
+        //		RES.Remove(value);
+        //		//return resList[value];
+        //	}
+        //	ResAssetEntry resAssetEntry = new ResAssetEntry();
+        //	resAssetEntry.Name = value;
+        //	resAssetEntry.Sha1 = res.GetValue<FMT.FileTools.Sha1>("sha1");
+        //	resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
+        //	resAssetEntry.Size = res.GetValue("size", 0L);
+        //	resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
+        //	var rrid = res.GetValue<string>("resRid");
+        //	//if (rrid < 0) rrid *= -1;
+        //	resAssetEntry.ResRid = Convert.ToUInt64(rrid);
+        //	resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
+        //	resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
+        //	resAssetEntry.IsInline = res.HasValue("idata");
+        //	resAssetEntry.Location = AssetDataLocation.Cas;
+        //	if (res.HasValue("cas"))
+        //	{
+        //		resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+        //		resAssetEntry.ExtraData = new AssetExtraData();
+        //		resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
+        //              resAssetEntry.ExtraData.Cas = res.HasValue("cas") ? res.GetValue<ushort>("cas") : null;
+        //              resAssetEntry.ExtraData.Catalog = res.HasValue("catalog") ? res.GetValue<ushort>("catalog") : null;
+        //              resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
+        //              resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? fs.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : fs.GetFilePath(res.GetValue("cas", 0)));
+        //	}
+        //	else if (res.GetValue("sb", defaultValue: false))
+        //	{
+        //		resAssetEntry.Location = AssetDataLocation.SuperBundle;
+        //		resAssetEntry.ExtraData = new AssetExtraData();
+        //		resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
+        //		resAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+        //	}
+        //	else if (res.GetValue("cache", defaultValue: false))
+        //	{
+        //		resAssetEntry.Location = AssetDataLocation.Cache;
+        //		resAssetEntry.ExtraData = new AssetExtraData();
+        //		//resAssetEntry.ExtraData.DataOffset = 3735928559L;
+        //	}
+        //	else if (res.GetValue("casPatchType", 0) == 2)
+        //	{
+        //		resAssetEntry.ExtraData = new AssetExtraData();
+        //		resAssetEntry.ExtraData.BaseSha1 = res.GetValue<FMT.FileTools.Sha1>("baseSha1");
+        //		resAssetEntry.ExtraData.DeltaSha1 = res.GetValue<FMT.FileTools.Sha1>("deltaSha1");
+        //	}
 
-		//	RES.Add(value, resAssetEntry);
-		//	if (resAssetEntry.ResRid != 0L)
-		//	{
-		//		if (resRidList.ContainsKey(resAssetEntry.ResRid))
-		//			resRidList.Remove(resAssetEntry.ResRid);
+        //	resAssetEntry.SBFileLocation = res.GetValue<string>("SBFileLocation");
+        //	resAssetEntry.TOCFileLocation = res.GetValue<string>("TOCFileLocation");
+        //	resAssetEntry.SB_CAS_Offset_Position = res.GetValue<int>("SB_CAS_Offset_Position");
+        //	resAssetEntry.SB_CAS_Size_Position = res.GetValue<int>("SB_CAS_Size_Position");
+        //	resAssetEntry.SB_OriginalSize_Position = res.GetValue<int>("SB_OriginalSize_Position");
+        //	resAssetEntry.SB_Sha1_Position = res.GetValue<int>("SB_Sha1_Position");
 
-		//		resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-		//	}
-		//	return resAssetEntry;
-		//}
+        //	RES.Add(value, resAssetEntry);
+        //	if (resAssetEntry.ResRid != 0L)
+        //	{
+        //		if (resRidList.ContainsKey(resAssetEntry.ResRid))
+        //			resRidList.Remove(resAssetEntry.ResRid);
 
-		//public ChunkAssetEntry AddChunk(DbObject chunk, bool returnExisting = false)
-		//{
-		//	Guid value = chunk.GetValue<Guid>("id");
-		//	if(value.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
-  //          {
+        //		resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+        //	}
+        //	return resAssetEntry;
+        //}
 
-  //          }
+        //public ChunkAssetEntry AddChunk(DbObject chunk, bool returnExisting = false)
+        //{
+        //	Guid value = chunk.GetValue<Guid>("id");
+        //	if(value.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
+        //          {
 
-		//	ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-		//	if (Chunks.ContainsKey(value))
-		//	{
-		//		chunkAssetEntry = Chunks[value];
-		//		chunkAssetEntry.IsTocChunk = false;
-		//	}
+        //          }
 
-		//	chunkAssetEntry.Id = value;
-		//	chunkAssetEntry.Sha1 = chunk.GetValue<FMT.FileTools.Sha1>("sha1");
-		//	chunkAssetEntry.Size = chunk.GetValue("size", 0L);
-		//	chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
-		//	chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
-		//	chunkAssetEntry.RangeStart = chunk.GetValue("rangeStart", 0u);
-		//	chunkAssetEntry.RangeEnd = chunk.GetValue("rangeEnd", 0u);
-		//	chunkAssetEntry.BundledSize = chunk.GetValue("bundledSize", 0u);
-		//	chunkAssetEntry.IsInline = chunk.HasValue("idata");
-		//	chunkAssetEntry.Location = AssetDataLocation.Cas;
-		//	if (chunk.HasValue("cas"))
-		//	{
-		//		chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-		//		chunkAssetEntry.ExtraData = new AssetExtraData();
-		//		chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
-		//		chunkAssetEntry.ExtraData.Cas = (ushort)chunk.GetValue("cas", 0);
-		//		chunkAssetEntry.ExtraData.Catalog = (ushort)chunk.GetValue("catalog", 0);
-		//		chunkAssetEntry.ExtraData.IsPatch = chunk.GetValue("patch", false);
-		//		if(string.IsNullOrEmpty(chunkAssetEntry.ExtraData.CasPath))
-		//			chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? fs.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.GetValue("patch", false)) : fs.GetFilePath(chunk.GetValue("cas", 0)));
+        //	ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+        //	if (Chunks.ContainsKey(value))
+        //	{
+        //		chunkAssetEntry = Chunks[value];
+        //		chunkAssetEntry.IsTocChunk = false;
+        //	}
 
-		//	}
+        //	chunkAssetEntry.Id = value;
+        //	chunkAssetEntry.Sha1 = chunk.GetValue<FMT.FileTools.Sha1>("sha1");
+        //	chunkAssetEntry.Size = chunk.GetValue("size", 0L);
+        //	chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
+        //	chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
+        //	chunkAssetEntry.RangeStart = chunk.GetValue("rangeStart", 0u);
+        //	chunkAssetEntry.RangeEnd = chunk.GetValue("rangeEnd", 0u);
+        //	chunkAssetEntry.BundledSize = chunk.GetValue("bundledSize", 0u);
+        //	chunkAssetEntry.IsInline = chunk.HasValue("idata");
+        //	chunkAssetEntry.Location = AssetDataLocation.Cas;
+        //	if (chunk.HasValue("cas"))
+        //	{
+        //		chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+        //		chunkAssetEntry.ExtraData = new AssetExtraData();
+        //		chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
+        //		chunkAssetEntry.ExtraData.Cas = (ushort)chunk.GetValue("cas", 0);
+        //		chunkAssetEntry.ExtraData.Catalog = (ushort)chunk.GetValue("catalog", 0);
+        //		chunkAssetEntry.ExtraData.IsPatch = chunk.GetValue("patch", false);
+        //		if(string.IsNullOrEmpty(chunkAssetEntry.ExtraData.CasPath))
+        //			chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? fs.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.GetValue("patch", false)) : fs.GetFilePath(chunk.GetValue("cas", 0)));
 
-		//	else if (chunk.GetValue("sb", defaultValue: false))
-		//	{
-		//		chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
-		//		chunkAssetEntry.ExtraData = new AssetExtraData();
-		//		chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
-		//		chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-		//	}
-		//	else if (chunk.GetValue("cache", defaultValue: false))
-		//	{
-		//		chunkAssetEntry.Location = AssetDataLocation.Cache;
-		//		chunkAssetEntry.ExtraData = new AssetExtraData();
-		//	}
+        //	}
+
+        //	else if (chunk.GetValue("sb", defaultValue: false))
+        //	{
+        //		chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
+        //		chunkAssetEntry.ExtraData = new AssetExtraData();
+        //		chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
+        //		chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+        //	}
+        //	else if (chunk.GetValue("cache", defaultValue: false))
+        //	{
+        //		chunkAssetEntry.Location = AssetDataLocation.Cache;
+        //		chunkAssetEntry.ExtraData = new AssetExtraData();
+        //	}
 
 
-		//	var tocfL = chunk.GetValue<string>("TOCFileLocation");
-		//	chunkAssetEntry.TOCFileLocation = tocfL;
-		//	chunkAssetEntry.TOCFileLocations.Add(tocfL);
+        //	var tocfL = chunk.GetValue<string>("TOCFileLocation");
+        //	chunkAssetEntry.TOCFileLocation = tocfL;
+        //	chunkAssetEntry.TOCFileLocations.Add(tocfL);
 
-		//	var sbfl = chunk.GetValue<string>("SBFileLocation");
-  //          if (!string.IsNullOrEmpty(sbfl))
-  //          {
-		//		chunkAssetEntry.SBFileLocation = sbfl;
-		//		chunkAssetEntry.SBFileLocations.Add(tocfL);
-		//	}
+        //	var sbfl = chunk.GetValue<string>("SBFileLocation");
+        //          if (!string.IsNullOrEmpty(sbfl))
+        //          {
+        //		chunkAssetEntry.SBFileLocation = sbfl;
+        //		chunkAssetEntry.SBFileLocations.Add(tocfL);
+        //	}
 
-		//	chunkAssetEntry.SB_CAS_Offset_Position = chunk.GetValue<int>("SB_CAS_Offset_Position");
-		//	chunkAssetEntry.SB_CAS_Size_Position = chunk.GetValue<int>("SB_CAS_Size_Position");
-		//	chunkAssetEntry.SB_OriginalSize_Position = chunk.GetValue<int>("SB_OriginalSize_Position");
-		//	chunkAssetEntry.SB_Sha1_Position = chunk.GetValue<int>("SB_Sha1_Position");
-		//	chunkAssetEntry.CASFileLocation = chunk.GetValue<string>("CASFileLocation");
+        //	chunkAssetEntry.SB_CAS_Offset_Position = chunk.GetValue<int>("SB_CAS_Offset_Position");
+        //	chunkAssetEntry.SB_CAS_Size_Position = chunk.GetValue<int>("SB_CAS_Size_Position");
+        //	chunkAssetEntry.SB_OriginalSize_Position = chunk.GetValue<int>("SB_OriginalSize_Position");
+        //	chunkAssetEntry.SB_Sha1_Position = chunk.GetValue<int>("SB_Sha1_Position");
+        //	chunkAssetEntry.CASFileLocation = chunk.GetValue<string>("CASFileLocation");
 
-		//	AddChunk(chunkAssetEntry);
+        //	AddChunk(chunkAssetEntry);
 
-		//	return chunkAssetEntry;
-		//}
+        //	return chunkAssetEntry;
+        //}
 
-		public void SendManagerCommand(string type, string command, params object[] value)
-		{
-			if (CustomAssetManagers.ContainsKey(type))
-			{
-				CustomAssetManagers[type].OnCommand(command, value);
-			}
-		}
+        public void SendManagerCommand(string type, string command, params object[] value)
+        {
+            if (CustomAssetManagers.ContainsKey(type))
+            {
+                CustomAssetManagers[type].OnCommand(command, value);
+            }
+        }
 
         public static MemoryStream CacheDecompress()
         {
             return CacheManager.CacheDecompress();
-		}
+        }
 
         public static async Task<MemoryStream> CacheDecompressAsync()
         {
-			return await CacheManager.CacheDecompressAsync();
+            return await CacheManager.CacheDecompressAsync();
         }
 
         public static bool CacheCompress(MemoryStream msCache)
-		{
-			return CacheManager.CacheCompress(msCache);
-		}
+        {
+            return CacheManager.CacheCompress(msCache);
+        }
 
         public bool CacheRead(out List<EbxAssetEntry> prePatchCache)
-		{
-			prePatchCache = null;
-			return CacheManager.CacheRead(out prePatchCache);
-        }
-
-		public void CacheWrite()
         {
-			CacheManager.CacheWrite();
+            prePatchCache = null;
+            return CacheManager.CacheRead(out prePatchCache);
         }
 
-		public bool DoLegacyImageImport(MemoryStream stream, LegacyFileEntry lfe)
-		{
-			var bytes = ((MemoryStream)GetCustomAsset("legacy", lfe)).ToArray();
-			ImageEngineImage originalImage = new ImageEngineImage(bytes);
-
-			ImageEngineImage newImage = new ImageEngineImage(stream);
-
-			var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
-
-
-			if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
-			{
-				bytes = newImage.Save(
-					new ImageFormats.ImageEngineFormatDetails(
-						ImageEngineFormat.DDS_DXT5
-						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM)
-					, mipHandling
-					, removeAlpha: false);
-			}
-			else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
-			{
-				bytes = newImage.Save(
-					new ImageFormats.ImageEngineFormatDetails(
-						ImageEngineFormat.DDS_DXT3
-						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB)
-					, MipHandling.KeepTopOnly
-					, removeAlpha: false);
-			}
-			else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
-			{
-				bytes = newImage.Save(
-					new ImageFormats.ImageEngineFormatDetails(
-						ImageEngineFormat.DDS_DXT1
-						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
-					, mipHandling
-					, removeAlpha: false);
-			}
-			else
-			{
-				bytes = newImage.Save(
-					new ImageFormats.ImageEngineFormatDetails(
-						ImageEngineFormat.DDS_DXT1
-						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
-					, mipHandling
-					, removeAlpha: false);
-			}
-
-
-			ModifyLegacyAsset(lfe.Name, bytes, false);
-			return true;
-		}
-
-		public async Task<bool> DoLegacyImageImportAsync(string importFilePath, LegacyFileEntry lfe)
+        public void CacheWrite()
         {
-			return await Task.Run(() => { return DoLegacyImageImport(importFilePath, lfe); });
+            CacheManager.CacheWrite();
         }
 
-		public bool DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
-		{
-			var extension = "DDS";
-			var spl = importFilePath.Split('.');
-			extension = spl[spl.Length - 1].ToUpper();
+        public bool DoLegacyImageImport(MemoryStream stream, LegacyFileEntry lfe)
+        {
+            var bytes = ((MemoryStream)GetCustomAsset("legacy", lfe)).ToArray();
+            ImageEngineImage originalImage = new ImageEngineImage(bytes);
 
-			var compatible_extensions = new List<string>() { "DDS", "PNG" };
-			if (!compatible_extensions.Contains(extension))
-			{
-				throw new NotImplementedException("Incorrect file type used in Texture Importer");
-			}
+            ImageEngineImage newImage = new ImageEngineImage(stream);
 
-			// -------------------------------- //
-			// Gets Image Format from Extension //
-			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
-			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
-			//if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
-			//{
-			//	MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
-			//}
-			// -------------------------------- //
+            var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
 
-			MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", lfe);
-			var bytes = memoryStream.ToArray();
 
-			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
-			if (imageFormat == TextureUtils.ImageFormat.DDS)
-			{
-				ImageEngineImage originalImage = new ImageEngineImage(bytes);
-				ImageEngineImage newImage = new ImageEngineImage(importFilePath);
-				if (originalImage.Format != newImage.Format)
-				{
-					var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
+            if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
+            {
+                bytes = newImage.Save(
+                    new ImageFormats.ImageEngineFormatDetails(
+                        ImageEngineFormat.DDS_DXT5
+                        , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM)
+                    , mipHandling
+                    , removeAlpha: false);
+            }
+            else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
+            {
+                bytes = newImage.Save(
+                    new ImageFormats.ImageEngineFormatDetails(
+                        ImageEngineFormat.DDS_DXT3
+                        , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB)
+                    , MipHandling.KeepTopOnly
+                    , removeAlpha: false);
+            }
+            else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
+            {
+                bytes = newImage.Save(
+                    new ImageFormats.ImageEngineFormatDetails(
+                        ImageEngineFormat.DDS_DXT1
+                        , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+                    , mipHandling
+                    , removeAlpha: false);
+            }
+            else
+            {
+                bytes = newImage.Save(
+                    new ImageFormats.ImageEngineFormatDetails(
+                        ImageEngineFormat.DDS_DXT1
+                        , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+                    , mipHandling
+                    , removeAlpha: false);
+            }
 
-					bytes = newImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT1
-							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
-						, mipHandling
-						, removeAlpha: false);
-				}
-				else
+
+            ModifyLegacyAsset(lfe.Name, bytes, false);
+            return true;
+        }
+
+        public async Task<bool> DoLegacyImageImportAsync(string importFilePath, LegacyFileEntry lfe)
+        {
+            return await Task.Run(() => { return DoLegacyImageImport(importFilePath, lfe); });
+        }
+
+        public bool DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
+        {
+            var extension = "DDS";
+            var spl = importFilePath.Split('.');
+            extension = spl[spl.Length - 1].ToUpper();
+
+            var compatible_extensions = new List<string>() { "DDS", "PNG" };
+            if (!compatible_extensions.Contains(extension))
+            {
+                throw new NotImplementedException("Incorrect file type used in Texture Importer");
+            }
+
+            // -------------------------------- //
+            // Gets Image Format from Extension //
+            TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
+            imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
+            //if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
+            //{
+            //	MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
+            //}
+            // -------------------------------- //
+
+            MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", lfe);
+            var bytes = memoryStream.ToArray();
+
+            //TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+            if (imageFormat == TextureUtils.ImageFormat.DDS)
+            {
+                ImageEngineImage originalImage = new ImageEngineImage(bytes);
+                ImageEngineImage newImage = new ImageEngineImage(importFilePath);
+                if (originalImage.Format != newImage.Format)
                 {
-					bytes = File.ReadAllBytes(importFilePath);
-				}
-			}
-			else
-			{
+                    var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
 
-				ImageEngineImage originalImage = new ImageEngineImage(bytes);
+                    bytes = newImage.Save(
+                        new ImageFormats.ImageEngineFormatDetails(
+                            ImageEngineFormat.DDS_DXT1
+                            , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+                        , mipHandling
+                        , removeAlpha: false);
+                }
+                else
+                {
+                    bytes = File.ReadAllBytes(importFilePath);
+                }
+            }
+            else
+            {
 
-				ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
-				//imageEngineImage.Resize(
-				//	(imageEngineImage.Height + imageEngineImage.Width)
-				//	/ (originalImage.Height + originalImage.Width)
-				//	);
-				if (imageEngineImage.Height > originalImage.Height)
-				{
-					//imageEngineImage.Resize(
-					//	(imageEngineImage.Height + imageEngineImage.Width)
-					//	*
-					//	(originalImage.Height + originalImage.Width)
-					//	- (imageEngineImage.Height + imageEngineImage.Width)
-					//	);
-				}
+                ImageEngineImage originalImage = new ImageEngineImage(bytes);
+
+                ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
+                //imageEngineImage.Resize(
+                //	(imageEngineImage.Height + imageEngineImage.Width)
+                //	/ (originalImage.Height + originalImage.Width)
+                //	);
+                if (imageEngineImage.Height > originalImage.Height)
+                {
+                    //imageEngineImage.Resize(
+                    //	(imageEngineImage.Height + imageEngineImage.Width)
+                    //	*
+                    //	(originalImage.Height + originalImage.Width)
+                    //	- (imageEngineImage.Height + imageEngineImage.Width)
+                    //	);
+                }
                 var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
 
 
-				if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT5
-							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM)
-						, mipHandling
-						, removeAlpha: false);
-				}
-				else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT3
-							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB)
-						, MipHandling.KeepTopOnly
-						, removeAlpha: false);
-				}
-				else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT1
-							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
-						, mipHandling
-						, removeAlpha: false);
-				}
-				else
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT1
-							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
-						, mipHandling
-						, removeAlpha: false);
-				}
+                if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
+                {
+                    bytes = imageEngineImage.Save(
+                        new ImageFormats.ImageEngineFormatDetails(
+                            ImageEngineFormat.DDS_DXT5
+                            , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM)
+                        , mipHandling
+                        , removeAlpha: false);
+                }
+                else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
+                {
+                    bytes = imageEngineImage.Save(
+                        new ImageFormats.ImageEngineFormatDetails(
+                            ImageEngineFormat.DDS_DXT3
+                            , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB)
+                        , MipHandling.KeepTopOnly
+                        , removeAlpha: false);
+                }
+                else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
+                {
+                    bytes = imageEngineImage.Save(
+                        new ImageFormats.ImageEngineFormatDetails(
+                            ImageEngineFormat.DDS_DXT1
+                            , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+                        , mipHandling
+                        , removeAlpha: false);
+                }
+                else
+                {
+                    bytes = imageEngineImage.Save(
+                        new ImageFormats.ImageEngineFormatDetails(
+                            ImageEngineFormat.DDS_DXT1
+                            , CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+                        , mipHandling
+                        , removeAlpha: false);
+                }
 
-			}
+            }
 
-			AssetManager.Instance.ModifyLegacyAsset(lfe.Name, bytes, false);
-			return true;
+            AssetManager.Instance.ModifyLegacyAsset(lfe.Name, bytes, false);
+            return true;
 
-		}
+        }
 
 
-		public static string ApplicationDirectory
-		{
-			get
-			{
-				return AppContext.BaseDirectory + "\\";
-			}
-		}
+        public static string ApplicationDirectory
+        {
+            get
+            {
+                return AppContext.BaseDirectory + "\\";
+            }
+        }
 
         private string lastLogMessage = null;
-		public void WriteToLog(string text, params object[] vars)
-		{
-			if (Logger != null)
-			{
-				if (lastLogMessage == text)
-					return;
+        public void WriteToLog(string text, params object[] vars)
+        {
+            if (Logger != null)
+            {
+                if (lastLogMessage == text)
+                    return;
 
-				lastLogMessage = text;
-				Logger.Log(text, vars);
-			}
-		}
+                lastLogMessage = text;
+                Logger.Log(text, vars);
+            }
+        }
 
-		public FMT.FileTools.Sha1 GenerateSha1(byte[] buffer)
-		{
-			using(var sha1instance = SHA1.Create())
-				return new FMT.FileTools.Sha1(sha1instance.ComputeHash(buffer));
-			//using (SHA1Managed sHA1Managed = new SHA1Managed())
-			//{
-			//	return new FMT.FileTools.Sha1(sHA1Managed.ComputeHash(buffer));
-			//}
-		}
+        public FMT.FileTools.Sha1 GenerateSha1(byte[] buffer)
+        {
+            using (var sha1instance = SHA1.Create())
+                return new FMT.FileTools.Sha1(sha1instance.ComputeHash(buffer));
+            //using (SHA1Managed sHA1Managed = new SHA1Managed())
+            //{
+            //	return new FMT.FileTools.Sha1(sHA1Managed.ComputeHash(buffer));
+            //}
+        }
 
-		public Guid GenerateChunkId(AssetEntry ae)
-		{
-			ulong num = Murmur2.HashString64(ae.Filename, 18532uL);
-			ulong value = Murmur2.HashString64(ae.Path, 18532uL);
-			int num2 = 1;
-			Guid guid = Guid.Empty;
-			do
-			{
-				using (NativeWriter nativeWriter = new NativeWriter(new MemoryStream()))
-				{
-					nativeWriter.Write(value);
-					nativeWriter.Write((ulong)((long)num ^ (long)num2));
-					byte[] array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
-					array[15] = 1;
-					guid = new Guid(array);
-				}
-				num2++;
-			}
-			while (AssetManager.Instance.GetChunkEntry(guid) != null);
-			return guid;
-		}
+        public Guid GenerateChunkId(AssetEntry ae)
+        {
+            ulong num = Murmur2.HashString64(ae.Filename, 18532uL);
+            ulong value = Murmur2.HashString64(ae.Path, 18532uL);
+            int num2 = 1;
+            Guid guid = Guid.Empty;
+            do
+            {
+                using (NativeWriter nativeWriter = new NativeWriter(new MemoryStream()))
+                {
+                    nativeWriter.Write(value);
+                    nativeWriter.Write((ulong)((long)num ^ num2));
+                    byte[] array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
+                    array[15] = 1;
+                    guid = new Guid(array);
+                }
+                num2++;
+            }
+            while (AssetManager.Instance.GetChunkEntry(guid) != null);
+            return guid;
+        }
 
         public bool ModifyEntry(IAssetEntry entry, byte[] d2)
         {
-			if (entry is EbxAssetEntry ebxEntry)
-			{
-				ModifyEbxBinary(ebxEntry.Name, d2);
-				return true;
-			}
+            if (entry is EbxAssetEntry ebxEntry)
+            {
+                ModifyEbxBinary(ebxEntry.Name, d2);
+                return true;
+            }
 
-			if (entry is ResAssetEntry resEntry)
-			{
-				ModifyRes(resEntry.Name, d2);
-				return true;
-			}
+            if (entry is ResAssetEntry resEntry)
+            {
+                ModifyRes(resEntry.Name, d2);
+                return true;
+            }
 
             if (entry is ChunkAssetEntry chunkEntry)
                 return ModifyChunk(chunkEntry, d2);
 
-			return false;
+            return false;
         }
 
         //public void Log(string text, params object[] vars)

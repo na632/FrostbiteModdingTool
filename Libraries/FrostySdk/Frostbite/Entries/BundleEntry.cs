@@ -2,31 +2,31 @@ using FMT.FileTools;
 
 namespace FrostySdk.Managers
 {
-	public class BundleEntry
-	{
-		public string Name;
+    public class BundleEntry
+    {
+        public string Name;
 
-		public int NameHash => Fnv1a.HashString(Name);
+        public int NameHash => Fnv1a.HashString(Name);
 
-		public int SuperBundleId;
+        public int SuperBundleId;
 
-		public EbxAssetEntry Blueprint;
+        public EbxAssetEntry Blueprint;
 
-		public BundleType Type;
+        public BundleType Type;
 
-		public bool Added;
+        public bool Added;
 
-		public string DisplayName => Name;
+        public string DisplayName => Name;
 
-		public int PersistedIndex { get; set; }
+        public int PersistedIndex { get; set; }
 
-		public static int PersistedIndexCount;
+        public static int PersistedIndexCount;
 
-		public int BundleReference { get; set; }
+        public int BundleReference { get; set; }
 
         public override string ToString()
         {
-			if (!string.IsNullOrEmpty(Name)) return Name;
+            if (!string.IsNullOrEmpty(Name)) return Name;
 
             return base.ToString();
         }

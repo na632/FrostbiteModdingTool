@@ -1,8 +1,6 @@
 ﻿using FMT.FileTools;
 using Frostbite.Textures;
-using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using System;
@@ -12,9 +10,9 @@ using System.IO;
 namespace Madden21.Textures
 {
     public class M21TextureImporter : ITextureImporter
-	{
-		public void DoImport(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
-		{
+    {
+        public void DoImport(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
+        {
             //new TextureImporter().ImportTextureFromFileToTextureAsset_Original(path, assetEntry, AssetManager.Instance, ref textureAsset, out string message);
 
             var extension = "DDS";
@@ -90,7 +88,7 @@ namespace Madden21.Textures
                 }
 
                 string pixelFormat = "";
-                TextureFlags flags = (TextureFlags)0;
+                TextureFlags flags = 0;
                 textureAsset.FirstMip = 0;
                 //textureAsset.FirstMipOffset = 0;
                 //textureAsset.Flags = textureAsset.PixelFormat.Contains("SRGB") ? TextureFlags.SrgbGamma : TextureFlags.Streaming;
@@ -126,7 +124,7 @@ namespace Madden21.Textures
 
         }
 
-		public void DoImport(string path, AssetEntry assetEntry)
+        public void DoImport(string path, AssetEntry assetEntry)
         {
             throw new NotImplementedException();
         }

@@ -1,12 +1,8 @@
-﻿using FrostyModManager;
-using FrostySdk;
-using FrostySdk.Interfaces;
-using System;
+﻿using FrostySdk.Interfaces;
+using ModdingSupport;
 using System.Collections.Generic;
 using System.Diagnostics;
-using ModdingSupport;
 using System.Threading.Tasks;
-using FrostySdk.Managers;
 
 namespace FIFAModdingUI
 {

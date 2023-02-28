@@ -4,10 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using UsefulThings;
 
 namespace CSharpImageLibrary
 {
@@ -98,7 +94,7 @@ namespace CSharpImageLibrary
         /// Uncompressed ARGB DDS.
         /// </summary>
         [Description("Uncompressed ARGB DDS.")]
-        DDS_ABGR_8 = 32,  
+        DDS_ABGR_8 = 32,
 
         /// <summary>
         /// (BC4) Block Compressed Texture. Compresses 4x4 texels.
@@ -119,7 +115,7 @@ namespace CSharpImageLibrary
         /// Used for Luminescence.
         /// </summary>
         [Description("Single 8 bit channel. Used for Luminescence.")]
-        DDS_G8_L8 = 50, 
+        DDS_G8_L8 = 50,
 
         /// <summary>
         /// Alpha and single channel luminescence.
@@ -414,7 +410,7 @@ namespace CSharpImageLibrary
             //    ext = SupportedExtensions.BMP;
 
             // PNG
-            if (PNG_Header.CheckIdentifier(bits))  
+            if (PNG_Header.CheckIdentifier(bits))
                 ext = SupportedExtensions.PNG;
 
             // JPG
@@ -477,7 +473,7 @@ namespace CSharpImageLibrary
                 else if (actualFormat == "A8L8")
                     check = stringWithFormatInIt.Contains("L8", StringComparison.OrdinalIgnoreCase) && !stringWithFormatInIt.Contains("G", StringComparison.OrdinalIgnoreCase);
                 else if (actualFormat == "G8_L8")
-                    check = !stringWithFormatInIt.Contains("A", StringComparison.OrdinalIgnoreCase) &&  stringWithFormatInIt.Contains("G8", StringComparison.OrdinalIgnoreCase);
+                    check = !stringWithFormatInIt.Contains("A", StringComparison.OrdinalIgnoreCase) && stringWithFormatInIt.Contains("G8", StringComparison.OrdinalIgnoreCase);
                 else if (actualFormat.Contains("ARGB"))
                     check = stringWithFormatInIt.Contains("A8R8G8B8", StringComparison.OrdinalIgnoreCase) || stringWithFormatInIt.Contains("ARGB", StringComparison.OrdinalIgnoreCase);
 
@@ -486,12 +482,12 @@ namespace CSharpImageLibrary
                     detectedFormat = (ImageEngineFormat)Enum.Parse(typeof(ImageEngineFormat), formatName);
                     break;
                 }
-            }            
+            }
 
             return detectedFormat;
         }
 
-        
+
         /// <summary>
         /// Gets file extension of supported surface formats.
         /// Doesn't include preceding dot.
@@ -519,7 +515,7 @@ namespace CSharpImageLibrary
         {
             return DDS.DDSGeneral.GetCompressedSizeOfImage(numMipmaps, formatDetails, width, height);
         }
-        
+
 
 
         /// <summary>
@@ -533,10 +529,10 @@ namespace CSharpImageLibrary
         /// <returns>Uncompressed size in bytes including mipmaps.</returns>
         public static int GetUncompressedSize(int topWidth, int topHeight, int numChannels, bool inclMips)
         {
-            return (int)(numChannels * (topWidth * topHeight) * (inclMips ? 4d/3d : 1d));
+            return (int)(numChannels * (topWidth * topHeight) * (inclMips ? 4d / 3d : 1d));
         }
 
-        
+
         /// <summary>
         /// Gets maximum number of channels a format can contain.
         /// NOTE: This likely isn't actually the max number. i.e. None exceed four, but some are only one or two channels.

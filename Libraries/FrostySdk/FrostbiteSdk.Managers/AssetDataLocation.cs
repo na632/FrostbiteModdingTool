@@ -1,10 +1,10 @@
 namespace FrostySdk.Managers
 {
-	public enum AssetDataLocation
-	{
-		Cas,
-		SuperBundle,
-		Cache,
-		CasNonIndexed
-	}
+    public enum AssetDataLocation
+    {
+        Cas,
+        SuperBundle,
+        Cache,
+        CasNonIndexed
+    }
 }

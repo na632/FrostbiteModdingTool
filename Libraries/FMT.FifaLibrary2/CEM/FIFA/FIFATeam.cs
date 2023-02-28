@@ -1,14 +1,10 @@
-﻿using CareerExpansionMod.CEM;
+﻿using FMT.FifaLibrary.CEM;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using CareerExpansionMod.CEM.FIFA;
-using System.Security.Cryptography;
-using System.Diagnostics;
-using v2k4FIFAModding.Career.CME.FIFA;
 using System.Data;
-using FMT.FifaLibrary.CEM;
+using System.Diagnostics;
+using System.Linq;
+using v2k4FIFAModding.Career.CME.FIFA;
 
 namespace CareerExpansionMod.CEM.FIFA
 {
@@ -118,7 +114,7 @@ namespace CareerExpansionMod.CEM.FIFA
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            if(!CachedPlayersToTeam.ContainsKey(teamid) || CachedPlayersToTeam[teamid].Count == 0)
+            if (!CachedPlayersToTeam.ContainsKey(teamid) || CachedPlayersToTeam[teamid].Count == 0)
             {
                 CachedPlayersToTeam.Add(teamid, new Dictionary<int, FIFAPlayer>());
 
@@ -126,11 +122,11 @@ namespace CareerExpansionMod.CEM.FIFA
                 var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == teamid.ToString());
                 var ps = (from tpl in tplinks
                           join p in CareerDB2.Current.players on tpl["playerid"].ToString() equals p["playerid"].ToString()
-                          select p) ;
+                          select p);
 
                 foreach (var i in ps)
                 {
-                    var playerId = int.Parse(i["playerid"].ToString()); 
+                    var playerId = int.Parse(i["playerid"].ToString());
                     if (!CachedPlayersToTeam[teamid].ContainsKey(playerId))
                     {
                         var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
@@ -154,7 +150,7 @@ namespace CareerExpansionMod.CEM.FIFA
 
         public static double InfluenceCalculation(FIFAPlayer p)
         {
-           
+
 
             var leadership = (6 - p.emotion) + (p.personality * 1.25);
 
@@ -166,7 +162,7 @@ namespace CareerExpansionMod.CEM.FIFA
 
             leadership = Math.Max(0, Math.Min(20, leadership));
 
-            if(leadership > 0)
+            if (leadership > 0)
             {
                 leadership = Math.Round((leadership / 20) * 10);
             }
@@ -186,7 +182,7 @@ namespace CareerExpansionMod.CEM.FIFA
 
         }
 
-        public PersonalityTypes PersonalityTypeOfTeam 
+        public PersonalityTypes PersonalityTypeOfTeam
         {
             get
             {
@@ -221,7 +217,7 @@ namespace CareerExpansionMod.CEM.FIFA
 
         public List<FIFAPlayer> GetTeamTroubleMakers()
         {
-             List<FIFAPlayer> players = GetPlayers().OrderBy(x => InfluenceCalculation(x)).Take(3).ToList();
+            List<FIFAPlayer> players = GetPlayers().OrderBy(x => InfluenceCalculation(x)).Take(3).ToList();
 
 
             return players;
@@ -236,7 +232,7 @@ namespace CareerExpansionMod.CEM.FIFA
                 if (tl_link != null && CareerDB2.Current.leagues != null)
                 {
                     var leagueRow = CareerDB2.Current.leagues.FirstOrDefault(x => x["leagueid"].ToString() == tl_link["leagueid"].ToString());
-                    
+
                     var league = CEMUtilities.CreateItemFromRow<FIFALeague>(leagueRow);
                     Debug.WriteLine("[DEBUG] FIFATeam::GetLeague()::League::" + league.leaguename);
                     return league;
@@ -251,14 +247,14 @@ namespace CareerExpansionMod.CEM.FIFA
             Debug.WriteLine("[INFO] FIFATeam::GetLeague()::Using a Mock League");
 
             // Send a test / mock league
-            return new FIFALeague() { leaguename = "Mock League", level = 1 } ;
-        } 
+            return new FIFALeague() { leaguename = "Mock League", level = 1 };
+        }
 
         public static IEnumerable<FIFATeam> GetFIFATeams()
         {
-            if(CareerDB2.Current != null && CareerDB2.Current.teams != null)
+            if (CareerDB2.Current != null && CareerDB2.Current.teams != null)
             {
-                foreach(DataRow dr in CareerDB2.Current.teams.Rows)
+                foreach (DataRow dr in CareerDB2.Current.teams.Rows)
                 {
                     yield return CEMUtilities.CreateItemFromRow<FIFATeam>(dr);
                 }

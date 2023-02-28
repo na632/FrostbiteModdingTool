@@ -31,15 +31,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Text;
-using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
-using System.Diagnostics;
-using UsefulThings;
 using static CSharpImageLibrary.TargaImage;
 
 namespace CSharpImageLibrary
@@ -94,7 +90,7 @@ namespace CSharpImageLibrary
         /// <summary>
         /// Indicates the type of color map, if any, included with the image file. 
         /// </summary>
-        public enum ColorMapTypes: byte
+        public enum ColorMapTypes : byte
         {
             /// <summary>
             /// No color map was included in the file.
@@ -382,7 +378,7 @@ namespace CSharpImageLibrary
             Dispose(false);
         }
 
-        
+
         public void Save(MemoryStream ms, WriteableBitmap img)
         {
             TargaHeader header = new TargaHeader();
@@ -697,7 +693,7 @@ namespace CSharpImageLibrary
 
                         // load the extension area fields from the file
 
-                        this.objTargaExtensionArea.SetExtensionSize((int)(binReader.ReadInt16()));
+                        this.objTargaExtensionArea.SetExtensionSize(binReader.ReadInt16());
                         this.objTargaExtensionArea.SetAuthorName(System.Text.Encoding.ASCII.GetString(binReader.ReadBytes(TargaConstants.ExtensionAreaAuthorNameByteLength)).TrimEnd('\0'));
                         this.objTargaExtensionArea.SetAuthorComments(System.Text.Encoding.ASCII.GetString(binReader.ReadBytes(TargaConstants.ExtensionAreaAuthorCommentsByteLength)).TrimEnd('\0'));
 
@@ -723,7 +719,7 @@ namespace CSharpImageLibrary
                         iHour = binReader.ReadInt16();
                         iMinute = binReader.ReadInt16();
                         iSecond = binReader.ReadInt16();
-                        TimeSpan ts = new TimeSpan((int)iHour, (int)iMinute, (int)iSecond);
+                        TimeSpan ts = new TimeSpan(iHour, iMinute, iSecond);
                         this.objTargaExtensionArea.SetJobTime(ts);
 
 
@@ -731,7 +727,7 @@ namespace CSharpImageLibrary
 
 
                         // get the version number and letter from file
-                        float iVersionNumber = (float)binReader.ReadInt16() / 100.0F;
+                        float iVersionNumber = binReader.ReadInt16() / 100.0F;
                         string strVersionLetter = System.Text.Encoding.ASCII.GetString(binReader.ReadBytes(TargaConstants.ExtensionAreaSoftwareVersionLetterByteLength)).TrimEnd('\0');
 
 
@@ -739,21 +735,21 @@ namespace CSharpImageLibrary
 
 
                         // get the color key of the file
-                        int a = (int)binReader.ReadByte();
-                        int r = (int)binReader.ReadByte();
-                        int b = (int)binReader.ReadByte();
-                        int g = (int)binReader.ReadByte();
+                        int a = binReader.ReadByte();
+                        int r = binReader.ReadByte();
+                        int b = binReader.ReadByte();
+                        int g = binReader.ReadByte();
                         this.objTargaExtensionArea.SetKeyColor(Color.FromArgb(a, r, g, b));
 
 
-                        this.objTargaExtensionArea.SetPixelAspectRatioNumerator((int)binReader.ReadInt16());
-                        this.objTargaExtensionArea.SetPixelAspectRatioDenominator((int)binReader.ReadInt16());
-                        this.objTargaExtensionArea.SetGammaNumerator((int)binReader.ReadInt16());
-                        this.objTargaExtensionArea.SetGammaDenominator((int)binReader.ReadInt16());
+                        this.objTargaExtensionArea.SetPixelAspectRatioNumerator(binReader.ReadInt16());
+                        this.objTargaExtensionArea.SetPixelAspectRatioDenominator(binReader.ReadInt16());
+                        this.objTargaExtensionArea.SetGammaNumerator(binReader.ReadInt16());
+                        this.objTargaExtensionArea.SetGammaDenominator(binReader.ReadInt16());
                         this.objTargaExtensionArea.SetColorCorrectionOffset(binReader.ReadInt32());
                         this.objTargaExtensionArea.SetPostageStampOffset(binReader.ReadInt32());
                         this.objTargaExtensionArea.SetScanLineOffset(binReader.ReadInt32());
-                        this.objTargaExtensionArea.SetAttributesType((int)binReader.ReadByte());
+                        this.objTargaExtensionArea.SetAttributesType(binReader.ReadByte());
 
 
                         // load Scan Line Table from file if any
@@ -773,10 +769,10 @@ namespace CSharpImageLibrary
                             binReader.BaseStream.Seek(this.objTargaExtensionArea.ColorCorrectionOffset, SeekOrigin.Begin);
                             for (int i = 0; i < TargaConstants.ExtensionAreaColorCorrectionTableValueLength; i++)
                             {
-                                a = (int)binReader.ReadInt16();
-                                r = (int)binReader.ReadInt16();
-                                b = (int)binReader.ReadInt16();
-                                g = (int)binReader.ReadInt16();
+                                a = binReader.ReadInt16();
+                                r = binReader.ReadInt16();
+                                b = binReader.ReadInt16();
+                                g = binReader.ReadInt16();
                                 this.objTargaExtensionArea.ColorCorrectionTable.Add(Color.FromArgb(a, r, g, b));
                             }
                         }
@@ -822,10 +818,10 @@ namespace CSharpImageLibrary
 
 
                     // get the size in bytes of each row in the image
-                    int intImageRowByteSize = (int)this.objTargaHeader.Width * ((int)this.objTargaHeader.BytesPerPixel);
+                    int intImageRowByteSize = objTargaHeader.Width * objTargaHeader.BytesPerPixel;
 
                     // get the size in bytes of the whole image
-                    int intImageByteSize = intImageRowByteSize * (int)this.objTargaHeader.Height;
+                    int intImageByteSize = intImageRowByteSize * objTargaHeader.Height;
 
                     // is this a RLE compressed image type
                     if (this.objTargaHeader.ImageType == ImageType.RUN_LENGTH_ENCODED_BLACK_AND_WHITE ||
@@ -857,7 +853,7 @@ namespace CSharpImageLibrary
                             if ((RLEPacketType)intRLEPacketType == RLEPacketType.RUN_LENGTH)
                             {
                                 // get the pixel color data
-                                bRunLengthPixel = binReader.ReadBytes((int)this.objTargaHeader.BytesPerPixel);
+                                bRunLengthPixel = binReader.ReadBytes(objTargaHeader.BytesPerPixel);
 
                                 // add the number of pixels specified using the read pixel color
                                 for (int i = 0; i < intRLEPixelCount; i++)
@@ -886,7 +882,7 @@ namespace CSharpImageLibrary
                             else if ((RLEPacketType)intRLEPacketType == RLEPacketType.RAW)
                             {
                                 // get the number of bytes to read based on the read pixel count
-                                int intBytesToRead = intRLEPixelCount * (int)this.objTargaHeader.BytesPerPixel;
+                                int intBytesToRead = intRLEPixelCount * objTargaHeader.BytesPerPixel;
 
                                 // read each byte
                                 for (int i = 0; i < intBytesToRead; i++)
@@ -921,7 +917,7 @@ namespace CSharpImageLibrary
                         #region NON-COMPRESSED
 
                         // loop through each row in the image
-                        for (int i = 0; i < (int)this.objTargaHeader.Height; i++)
+                        for (int i = 0; i < objTargaHeader.Height; i++)
                         {
                             // loop through each byte in the row
                             for (int j = 0; j < intImageRowByteSize; j++)
@@ -1035,12 +1031,12 @@ namespace CSharpImageLibrary
             // In your loop, you copy the pixels one scanline at a time and take into
             // consideration the amount of padding that occurs due to memory alignment.
             // calculate the stride, in bytes, of the image (32bit aligned width of each image row)
-            this.intStride = (((int)this.objTargaHeader.Width * (int)this.objTargaHeader.PixelDepth + 31) & ~31) >> 3; // width in bytes
+            this.intStride = ((objTargaHeader.Width * objTargaHeader.PixelDepth + 31) & ~31) >> 3; // width in bytes
 
             // calculate the padding, in bytes, of the image 
             // number of bytes to add to make each row a 32bit aligned row
             // padding in bytes
-            this.intPadding = this.intStride - ((((int)this.objTargaHeader.Width * (int)this.objTargaHeader.PixelDepth) + 7) / 8);
+            this.intPadding = this.intStride - (((objTargaHeader.Width * objTargaHeader.PixelDepth) + 7) / 8);
 
             // get the image data bytes
             ImageData = this.LoadImageBytes(binReader);
@@ -1070,8 +1066,8 @@ namespace CSharpImageLibrary
 
             // create a Bitmap object using the image Width, Height,
             // Stride, PixelFormat and the pointer to the pinned byte array.
-            this.bmpTargaImage = new Bitmap((int)this.objTargaHeader.Width,
-                                            (int)this.objTargaHeader.Height,
+            this.bmpTargaImage = new Bitmap(objTargaHeader.Width,
+                                            objTargaHeader.Height,
                                             this.intStride,
                                             pf,
                                             this.ImageByteHandle.AddrOfPinnedObject());
@@ -1227,11 +1223,11 @@ namespace CSharpImageLibrary
                     // seek to the beginning of the image data using the ImageDataOffset value
                     binReader.BaseStream.Seek(this.ExtensionArea.PostageStampOffset, SeekOrigin.Begin);
 
-                    int iWidth = (int)binReader.ReadByte();
-                    int iHeight = (int)binReader.ReadByte();
+                    int iWidth = binReader.ReadByte();
+                    int iHeight = binReader.ReadByte();
 
-                    int iStride = ((iWidth * (int)this.objTargaHeader.PixelDepth + 31) & ~31) >> 3; // width in bytes
-                    int iPadding = iStride - (((iWidth * (int)this.objTargaHeader.PixelDepth) + 7) / 8);
+                    int iStride = ((iWidth * objTargaHeader.PixelDepth + 31) & ~31) >> 3; // width in bytes
+                    int iPadding = iStride - (((iWidth * objTargaHeader.PixelDepth) + 7) / 8);
 
                     System.Collections.Generic.List<System.Collections.Generic.List<byte>> objRows = new System.Collections.Generic.List<System.Collections.Generic.List<byte>>();
                     System.Collections.Generic.List<byte> objRow = new System.Collections.Generic.List<byte>();
@@ -1248,7 +1244,7 @@ namespace CSharpImageLibrary
                     using (msData = new MemoryStream())
                     {
                         // get the size in bytes of each row in the image
-                        int intImageRowByteSize = iWidth * ((int)this.objTargaHeader.PixelDepth / 8);
+                        int intImageRowByteSize = iWidth * (objTargaHeader.PixelDepth / 8);
 
                         // get the size in bytes of the whole image
                         int intImageByteSize = intImageRowByteSize * iHeight;
@@ -1816,7 +1812,7 @@ namespace CSharpImageLibrary
                 }
 
                 // add the length of the color map
-                intImageDataOffset += ((int)this.sColorMapLength * (int)Bytes);
+                intImageDataOffset += (sColorMapLength * Bytes);
 
                 // return result
                 return intImageDataOffset;
@@ -1830,7 +1826,7 @@ namespace CSharpImageLibrary
         {
             get
             {
-                return (int)this.bPixelDepth / 8;
+                return bPixelDepth / 8;
             }
         }
     }
@@ -2152,7 +2148,7 @@ namespace CSharpImageLibrary
             {
                 if (this.intPixelAspectRatioDenominator > 0)
                 {
-                    return (float)this.intPixelAspectRatioNumerator / (float)this.intPixelAspectRatioDenominator;
+                    return intPixelAspectRatioNumerator / (float)this.intPixelAspectRatioDenominator;
                 }
                 else
                     return 0.0F;
@@ -2202,7 +2198,7 @@ namespace CSharpImageLibrary
             {
                 if (this.intGammaDenominator > 0)
                 {
-                    float ratio = (float)this.intGammaNumerator / (float)this.intGammaDenominator;
+                    float ratio = intGammaNumerator / (float)this.intGammaDenominator;
                     return (float)Math.Round(ratio, 1);
                 }
                 else

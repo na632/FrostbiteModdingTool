@@ -9,24 +9,24 @@ using System.Linq;
 namespace FIFA22Plugin
 {
 
-	public class AssetLoader_Fifa22 : IAssetLoader
-	{
-		public List<DbObject> AllDbObjects = new List<DbObject>();
-		internal struct BundleFileInfo
-		{
-			public int Index;
+    public class AssetLoader_Fifa22 : IAssetLoader
+    {
+        public List<DbObject> AllDbObjects = new List<DbObject>();
+        internal struct BundleFileInfo
+        {
+            public int Index;
 
-			public int Offset;
+            public int Offset;
 
-			public int Size;
+            public int Size;
 
-			public BundleFileInfo(int index, int offset, int size)
-			{
-				Index = index;
-				Offset = offset;
-				Size = size;
-			}
-		}
+            public BundleFileInfo(int index, int offset, int size)
+            {
+                Index = index;
+                Offset = offset;
+                Size = size;
+            }
+        }
 
         //public class BaseBundleInfo
         //{
@@ -75,38 +75,38 @@ namespace FIFA22Plugin
         }
 
         public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
-		{
-			LoadData(parent, helper, "native_patch/");
-		}
-
-		public void Load(AssetManager parent, BinarySbDataHelper helper)
-		{
-			LoadPatch(parent, null);
-			LoadData(parent, null);
+        {
+            LoadData(parent, helper, "native_patch/");
         }
 
-		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
-		{
-			List<int> positions = new List<int>();
-			int patternLength = pattern.Length;
-			int totalLength = bytes.Length;
-			byte firstMatchByte = pattern[0];
-			for (int i = 0; i < totalLength; i++)
-			{
-				if (firstMatchByte == bytes[i] && totalLength - i >= patternLength)
-				{
-					byte[] match = new byte[patternLength];
-					Array.Copy(bytes, i, match, 0, patternLength);
-					if (match.SequenceEqual<byte>(pattern))
-					{
-						positions.Add(i);
-						i += patternLength - 1;
-					}
-				}
-			}
-			return positions;
-		}
-	}
+        public void Load(AssetManager parent, BinarySbDataHelper helper)
+        {
+            LoadPatch(parent, null);
+            LoadData(parent, null);
+        }
+
+        static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
+        {
+            List<int> positions = new List<int>();
+            int patternLength = pattern.Length;
+            int totalLength = bytes.Length;
+            byte firstMatchByte = pattern[0];
+            for (int i = 0; i < totalLength; i++)
+            {
+                if (firstMatchByte == bytes[i] && totalLength - i >= patternLength)
+                {
+                    byte[] match = new byte[patternLength];
+                    Array.Copy(bytes, i, match, 0, patternLength);
+                    if (match.SequenceEqual<byte>(pattern))
+                    {
+                        positions.Add(i);
+                        i += patternLength - 1;
+                    }
+                }
+            }
+            return positions;
+        }
+    }
 
 
 }

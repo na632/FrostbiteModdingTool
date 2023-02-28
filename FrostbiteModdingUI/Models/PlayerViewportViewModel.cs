@@ -1,10 +1,7 @@
 ﻿using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace FrostbiteModdingUI.Models
 {
@@ -54,7 +51,7 @@ namespace FrostbiteModdingUI.Models
                     {
                         DiffuseMap = new HelixToolkit.SharpDX.Core.DefaultTextureLoader().Load("Renderer/FaceModel.obj", "Renderer/FaceTexture.png", new HelixToolkit.Logger.DebugLogger())
                     };
-                
+
                 }
 
                 reader = new HelixToolkit.SharpDX.Core.ObjReader();
@@ -85,7 +82,7 @@ namespace FrostbiteModdingUI.Models
                         DiffuseAlphaMap = new HelixToolkit.SharpDX.Core.DefaultTextureLoader().Load("Renderer/HairCapModel.obj", "Renderer/HairCapTexture.png", new HelixToolkit.Logger.DebugLogger()),
                         DiffuseMap = new HelixToolkit.SharpDX.Core.DefaultTextureLoader().Load("Renderer/HairCapModel.obj", "Renderer/HairCapTexture.png", new HelixToolkit.Logger.DebugLogger())
                     };
-                }   
+                }
             }
 
             InstanceTranslation = new Matrix[1]

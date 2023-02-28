@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FMT.FileTools
 {
@@ -16,10 +12,10 @@ namespace FMT.FileTools
         public static string GetFileLoggerPath()
         {
             var fmtLogPath = $"FMT.Log.{LoggerStartDateTime.ToString("yyyy-MM-dd.HH-mm")}.log";
-            return fmtLogPath ;
+            return fmtLogPath;
         }
 
-        public FileLogger() 
+        public FileLogger()
         {
             if (!File.Exists(GetFileLoggerPath()))
                 File.WriteAllText(GetFileLoggerPath(), "");
@@ -30,7 +26,7 @@ namespace FMT.FileTools
             using (var nw = new NativeWriter(new FileStream(GetFileLoggerPath(), FileMode.Open)))
             {
                 nw.Position = nw.Length;
-                if(prefixDateTime)
+                if (prefixDateTime)
                     nw.WriteLine($"[{DateTime.Now.ToString()}]: {text}");
                 else
                     nw.WriteLine(text);

@@ -1,31 +1,21 @@
-﻿using FrostbiteModdingUI.Models;
-using FrostbiteSdk;
+﻿using FifaLibrary;
+using Frostbite.Textures;
+using FrostbiteModdingUI.Models;
 using FrostySdk;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
+using HelixToolkit.SharpDX.Core.Assimp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using HelixToolkit.Logger;
-using System.Threading;
-using HelixToolkit.SharpDX.Core.Assimp;
-using FrostySdk.Resources;
-using Frostbite.Textures;
-using FifaLibrary;
 
 namespace FrostbiteModdingUI.Pages.Player
 {
@@ -41,16 +31,16 @@ namespace FrostbiteModdingUI.Pages.Player
             public string Firstname { get; set; }
             public string Lastname { get; set; }
             public string Nickname { get; set; }
-            public string PlayerName 
-            { 
-                get 
+            public string PlayerName
+            {
+                get
                 {
                     if (!string.IsNullOrEmpty(Nickname))
                         return Nickname;
                     else
                         return Firstname + " " + Lastname;
                 }
-            } 
+            }
             public DataRow Data { get; set; }
         }
 
@@ -83,11 +73,11 @@ namespace FrostbiteModdingUI.Pages.Player
                 new PlayerVM() { PlayerId = -1, Nickname = "Loading..." },
             };
 
-            
+
 
             this.txtPlayerSearch.KeyUp += TxtPlayerSearch_KeyUp;
 
-           // SetupHeadScene();
+            // SetupHeadScene();
 
         }
 
@@ -138,61 +128,61 @@ namespace FrostbiteModdingUI.Pages.Player
 
         public void LoadPlayerList(LegacyFileEntry locDB, LegacyFileEntry locMeta)
         {
-                if(squadFile == null)
+            if (squadFile == null)
+            {
+                var resultOfSquadload = LoadSquadFile();
+                if (!resultOfSquadload)
                 {
-                    var resultOfSquadload = LoadSquadFile();
-                    if (!resultOfSquadload)
-                    {
-                        throw new Exception("Unable to Load Squad File");
-                    }
+                    throw new Exception("Unable to Load Squad File");
                 }
-                if (squadFile != null && dtPlayerNames == null)
+            }
+            if (squadFile != null && dtPlayerNames == null)
+            {
+                var dbAsset1 = AssetManager.Instance.GetCustomAsset("legacy", locDB);
+                var dbAsset2 = AssetManager.Instance.GetCustomAsset("legacy", locDB);
+                var dbMetaAsset = AssetManager.Instance.GetCustomAsset("legacy", locMeta);
+
+                DbFile dbFile = new DbFile(dbAsset2, dbMetaAsset);
+
+                dtPlayerNames = dbFile.GetTable("playernames").ConvertToDataTable();
+                PlayerList.Clear();
+                foreach (DataRow pRow in dtPlayers.Rows)
                 {
-                    var dbAsset1 = AssetManager.Instance.GetCustomAsset("legacy", locDB);
-                    var dbAsset2 = AssetManager.Instance.GetCustomAsset("legacy", locDB);
-                    var dbMetaAsset = AssetManager.Instance.GetCustomAsset("legacy", locMeta);
+                    PlayerVM player = new PlayerVM();
+                    player.PlayerId = int.Parse(pRow["playerid"].ToString());
+                    var fnid = int.Parse(pRow["firstnameid"].ToString());
+                    var lnid = int.Parse(pRow["lastnameid"].ToString());
 
-                    DbFile dbFile = new DbFile(dbAsset2, dbMetaAsset);
-
-                    dtPlayerNames = dbFile.GetTable("playernames").ConvertToDataTable();
-                    PlayerList.Clear();
-                    foreach (DataRow pRow in dtPlayers.Rows)
+                    int? cnid = null;
+                    if (pRow["commonnameid"] != null)
                     {
-                        PlayerVM player = new PlayerVM();
-                        player.PlayerId = int.Parse(pRow["playerid"].ToString());
-                        var fnid = int.Parse(pRow["firstnameid"].ToString());
-                        var lnid = int.Parse(pRow["lastnameid"].ToString());
-
-                        int? cnid = null;
-                        if(pRow["commonnameid"] != null)
-                        {
-                            cnid = int.Parse(pRow["commonnameid"].ToString());
-                        }
-
-                        player.Data = pRow;
-                        player.Firstname = "Unknown Firstname";
-                        player.Lastname = "Unknown Lastname";
-                        if (fnid < dtPlayerNames.Rows.Count)
-                        {
-                            player.Firstname = dtPlayerNames.Rows[fnid]["name"].ToString();
-                            if(lnid < dtPlayerNames.Rows.Count)
-                                player.Lastname = dtPlayerNames.Rows[lnid]["name"].ToString();
-                        }
-
-                        if(cnid.HasValue)
-                        {
-                            if (cnid < dtPlayerNames.Rows.Count)
-                            {
-                                player.Nickname = dtPlayerNames.Rows[cnid.Value]["name"].ToString();
-                            }
-                        }
-                        
-                        PlayerList.Add(player);
+                        cnid = int.Parse(pRow["commonnameid"].ToString());
                     }
-                    
+
+                    player.Data = pRow;
+                    player.Firstname = "Unknown Firstname";
+                    player.Lastname = "Unknown Lastname";
+                    if (fnid < dtPlayerNames.Rows.Count)
+                    {
+                        player.Firstname = dtPlayerNames.Rows[fnid]["name"].ToString();
+                        if (lnid < dtPlayerNames.Rows.Count)
+                            player.Lastname = dtPlayerNames.Rows[lnid]["name"].ToString();
+                    }
+
+                    if (cnid.HasValue)
+                    {
+                        if (cnid < dtPlayerNames.Rows.Count)
+                        {
+                            player.Nickname = dtPlayerNames.Rows[cnid.Value]["name"].ToString();
+                        }
+                    }
+
+                    PlayerList.Add(player);
                 }
 
-                
+            }
+
+
         }
 
         private void TxtPlayerSearch_KeyUp(object sender, KeyEventArgs e)
@@ -235,11 +225,11 @@ namespace FrostbiteModdingUI.Pages.Player
             if (!File.Exists("test_noSkel.obj"))
                 return;
 
-            
-            
+
+
 
             var import = new Importer();
-            var scene = import.Load("test_noSkel.obj", new ImporterConfiguration() { GlobalScale = 100, FlipWindingOrder = true,  CullMode = SharpDX.Direct3D11.CullMode.None, });
+            var scene = import.Load("test_noSkel.obj", new ImporterConfiguration() { GlobalScale = 100, FlipWindingOrder = true, CullMode = SharpDX.Direct3D11.CullMode.None, });
             //ViewportViewModel.BunnyModel = scene;
 
             //ViewportViewModel.GroupModel.RemoveNode(scene.Root);
@@ -252,7 +242,7 @@ namespace FrostbiteModdingUI.Pages.Player
 
         private void ExportAssetToRenderer(int id)
         {
-            if(!Directory.Exists("Renderer"))
+            if (!Directory.Exists("Renderer"))
                 Directory.CreateDirectory("Renderer");
 
             try
@@ -290,7 +280,7 @@ namespace FrostbiteModdingUI.Pages.Player
                                 else if (ebxEntry.Name.Contains("haircap_") && ebxEntry.Name.Contains("_color"))
                                     textureExporter.Export(t, "Renderer/HairCapTexture.png", "*.png");
                             }).Wait();
-                            
+
                         }
                     }
                 }
@@ -352,7 +342,7 @@ namespace FrostbiteModdingUI.Pages.Player
 
             }
         }
-            
+
 
     }
 }

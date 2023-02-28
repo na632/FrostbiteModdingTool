@@ -1,11 +1,8 @@
-﻿using Frostbite.Textures;
-using FrostySdk;
-using FrostySdk.Frostbite;
+﻿using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
-using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using SdkGenerator;
@@ -14,7 +11,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -308,7 +304,7 @@ namespace FrostbiteModdingTests
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(TestProjects.Single(x=>x.Key.EndsWith("FIFA22.UltraSlowExampleTest.fbproject")).Value);
+            projectManagement.Project.Load(TestProjects.Single(x => x.Key.EndsWith("FIFA22.UltraSlowExampleTest.fbproject")).Value);
             var testR = "test.fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
         }
@@ -332,9 +328,9 @@ namespace FrostbiteModdingTests
             var buildCache = new CacheManager();
             buildCache.LoadData("Fifa22", GamePath, this, false, true);
 
-            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
-            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("file", StringComparison.OrdinalIgnoreCase));
-            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("collector", StringComparison.OrdinalIgnoreCase));
+            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
+            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("file", StringComparison.OrdinalIgnoreCase));
+            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("collector", StringComparison.OrdinalIgnoreCase));
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 

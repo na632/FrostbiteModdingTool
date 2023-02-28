@@ -1,7 +1,16 @@
+using FMT.FileTools;
+using FMT.FileTools.Modding;
+using FrostbiteSdk;
+using FrostbiteSdk.FrostbiteSdk.Managers;
+using FrostbiteSdk.Frosty.Abstract;
 using FrostySdk;
+using FrostySdk.Frostbite.Compilers;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,23 +18,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using FrostbiteSdk.Frosty.Abstract;
-using System.Text;
-using FrostbiteSdk.FrostbiteSdk.Managers;
-using FrostbiteSdk;
-using v2k4FIFAModdingCL;
 using System.Xml;
-using FrostySdk.Frostbite.PluginInterfaces;
-using Microsoft.Win32;
-using FrostySdk.Frostbite.Compilers;
-using FMT.FileTools;
-using FMT.FileTools.Modding;
+using v2k4FIFAModdingCL;
 using Sha1 = FMT.FileTools.Sha1;
-using System.Windows.Data;
-using System.Threading.Channels;
 
 namespace ModdingSupport
 {
@@ -224,424 +222,424 @@ namespace ModdingSupport
             }
         }
 
-    //private class ManifestBundleAction
-    //    {
-    //        private static readonly object resourceLock = new object();
+        //private class ManifestBundleAction
+        //    {
+        //        private static readonly object resourceLock = new object();
 
-    //        private List<ModBundleInfo> bundles;
+        //        private List<ModBundleInfo> bundles;
 
-    //        private ManualResetEvent doneEvent;
+        //        private ManualResetEvent doneEvent;
 
-    //        private ModExecutor parent;
+        //        private ModExecutor parent;
 
-    //        private Exception errorException;
+        //        private Exception errorException;
 
-    //        private List<FMT.FileTools.Sha1> dataRefs = new List<FMT.FileTools.Sha1>();
+        //        private List<FMT.FileTools.Sha1> dataRefs = new List<FMT.FileTools.Sha1>();
 
-    //        private List<FMT.FileTools.Sha1> bundleRefs = new List<FMT.FileTools.Sha1>();
+        //        private List<FMT.FileTools.Sha1> bundleRefs = new List<FMT.FileTools.Sha1>();
 
-    //        private List<CasFileEntry> fileInfos = new List<CasFileEntry>();
+        //        private List<CasFileEntry> fileInfos = new List<CasFileEntry>();
 
-    //        private List<byte[]> bundleBuffers = new List<byte[]>();
+        //        private List<byte[]> bundleBuffers = new List<byte[]>();
 
-    //        public List<FMT.FileTools.Sha1> DataRefs => dataRefs;
+        //        public List<FMT.FileTools.Sha1> DataRefs => dataRefs;
 
-    //        public List<FMT.FileTools.Sha1> BundleRefs => bundleRefs;
+        //        public List<FMT.FileTools.Sha1> BundleRefs => bundleRefs;
 
-    //        public List<CasFileEntry> FileInfos => fileInfos;
+        //        public List<CasFileEntry> FileInfos => fileInfos;
 
-    //        public List<byte[]> BundleBuffers => bundleBuffers;
+        //        public List<byte[]> BundleBuffers => bundleBuffers;
 
-    //        public bool HasErrored => errorException != null;
+        //        public bool HasErrored => errorException != null;
 
-    //        public Exception Exception => errorException;
+        //        public Exception Exception => errorException;
 
-    //        public ManifestBundleAction(List<ModBundleInfo> inBundles, ManualResetEvent inDoneEvent, ModExecutor inParent)
-    //        {
-    //            bundles = inBundles;
-    //            doneEvent = inDoneEvent;
-    //            parent = inParent;
-    //        }
+        //        public ManifestBundleAction(List<ModBundleInfo> inBundles, ManualResetEvent inDoneEvent, ModExecutor inParent)
+        //        {
+        //            bundles = inBundles;
+        //            doneEvent = inDoneEvent;
+        //            parent = inParent;
+        //        }
 
-    //        public void Run()
-    //        {
-    //            try
-    //            {
-    //                FileSystem fs = parent.fs;
-    //                foreach (ModBundleInfo bundle in bundles)
-    //                {
-    //                    ManifestBundleInfo manifestBundle = fs.GetManifestBundle(bundle.Name);
-    //                    ManifestFileInfo manifestFileInfo = null;
-    //                    DbObject dbObject = null;
-    //                    if (manifestBundle.files.Count == 0)
-    //                    {
-    //                        manifestFileInfo = new ManifestFileInfo
-    //                        {
-    //                            file = new ManifestFileRef(1, inPatch: false, inCasIndex: 0)
-    //                        };
-    //                        manifestBundle.files.Add(manifestFileInfo);
-    //                        dbObject = new DbObject();
-    //                        dbObject.SetValue("ebx", DbObject.CreateList());
-    //                        dbObject.SetValue("res", DbObject.CreateList());
-    //                        dbObject.SetValue("chunks", DbObject.CreateList());
-    //                        dbObject.SetValue("chunkMeta", DbObject.CreateList());
-    //                    }
-    //                    else
-    //                    {
-    //                        manifestFileInfo = manifestBundle.files[0];
-    //                        fs.GetCatalog(manifestFileInfo.file);
-    //                        List<ManifestFileInfo> list = new List<ManifestFileInfo>();
-    //                        for (int i = 1; i < manifestBundle.files.Count; i++)
-    //                        {
-    //                            ManifestFileInfo manifestFileInfo2 = manifestBundle.files[i];
-    //                            int key = Fnv1.HashString(fs.ResolvePath((manifestFileInfo2.file.IsInPatch ? "native_patch/" : "native_data/") + fs.GetCatalog(manifestFileInfo2.file) + "/cas.cat").ToLower());
-    //                            Dictionary<uint, CatResourceEntry> dictionary = parent.resources[key][manifestFileInfo2.file.CasIndex];
-    //                            List<uint> list2 = dictionary.Keys.ToList();
-    //                            uint num = 0u;
-    //                            uint num2 = manifestFileInfo2.offset;
-    //                            list.Add(manifestFileInfo2);
-    //                            if (!dictionary.ContainsKey(num2))
-    //                            {
-    //                                num2 = (uint)((int)num2 + (int)manifestFileInfo2.size);
-    //                                int num3 = (!dictionary.ContainsKey(num2)) ? dictionary.Count : list2.BinarySearch(num2);
-    //                                while (num2 > manifestFileInfo2.offset)
-    //                                {
-    //                                    num3--;
-    //                                    num2 = list2[num3];
-    //                                }
-    //                                manifestFileInfo2.size += manifestFileInfo2.offset - num2;
-    //                            }
-    //                            CatResourceEntry catResourceEntry = dictionary[num2];
-    //                            num += catResourceEntry.Size;
-    //                            num2 += catResourceEntry.Size;
-    //                            long size = manifestFileInfo2.size;
-    //                            manifestFileInfo2.size = num2 - manifestFileInfo2.offset;
-    //                            while (num != size)
-    //                            {
-    //                                CatResourceEntry catResourceEntry2 = dictionary[num2];
-    //                                ManifestFileInfo manifestFileInfo3 = new ManifestFileInfo();
-    //                                manifestFileInfo3.file = new ManifestFileRef(manifestFileInfo2.file.CatalogIndex, manifestFileInfo2.file.IsInPatch, manifestFileInfo2.file.CasIndex);
-    //                                manifestFileInfo3.offset = catResourceEntry2.Offset;
-    //                                manifestFileInfo3.size = catResourceEntry2.Size;
-    //                                list.Add(manifestFileInfo3);
-    //                                num += catResourceEntry2.Size;
-    //                                num2 += catResourceEntry2.Size;
-    //                            }
-    //                        }
-    //                        manifestBundle.files.Clear();
-    //                        manifestBundle.files.Add(manifestFileInfo);
-    //                        manifestBundle.files.AddRange(list);
-    //                        using (NativeReader nativeReader = new NativeReader(new FileStream(fs.ResolvePath(manifestFileInfo.file), FileMode.Open, FileAccess.Read)))
-    //                        {
-    //                            using (BinarySbReader binarySbReader = new BinarySbReader(nativeReader.CreateViewStream(manifestFileInfo.offset, manifestFileInfo.size), 0L, null))
-    //                            {
-    //                                dbObject = binarySbReader.ReadDbObject();
-    //                            }
-    //                        }
-    //                    }
-    //                    int num4 = 1;
-    //                    foreach (DbObject item2 in dbObject.GetValue<DbObject>("ebx"))
-    //                    {
-    //                        string value = item2.GetValue<string>("name");
-    //                        if (bundle.Modify.Ebx.Contains(value))
-    //                        {
-    //                            ManifestFileInfo fileInfo = manifestBundle.files[num4];
-    //                            EbxAssetEntry ebxAssetEntry = parent.modifiedEbx[value];
-    //                            item2.SetValue("sha1", ebxAssetEntry.Sha1);
-    //                            item2.SetValue("originalSize", ebxAssetEntry.OriginalSize);
-    //                            dataRefs.Add(ebxAssetEntry.Sha1);
-    //                            fileInfos.Add(new CasFileEntry
-    //                            {
-    //                                Entry = null,
-    //                                FileInfo = fileInfo
-    //                            });
-    //                        }
-    //                        num4++;
-    //                    }
-    //                    foreach (string item3 in bundle.Add.Ebx)
-    //                    {
-    //                        EbxAssetEntry ebxAssetEntry2 = parent.modifiedEbx[item3];
-    //                        DbObject dbObject3 = new DbObject();
-    //                        dbObject3.SetValue("name", ebxAssetEntry2.Name);
-    //                        dbObject3.SetValue("sha1", ebxAssetEntry2.Sha1);
-    //                        dbObject3.SetValue("originalSize", ebxAssetEntry2.OriginalSize);
-    //                        dbObject.GetValue<DbObject>("ebx").Add(dbObject3);
-    //                        ManifestFileInfo manifestFileInfo4 = new ManifestFileInfo();
-    //                        manifestFileInfo4.file = new ManifestFileRef(manifestFileInfo.file.CatalogIndex, inPatch: false, inCasIndex: 0);
-    //                        manifestBundle.files.Insert(num4++, manifestFileInfo4);
-    //                        dataRefs.Add(ebxAssetEntry2.Sha1);
-    //                        fileInfos.Add(new CasFileEntry
-    //                        {
-    //                            Entry = null,
-    //                            FileInfo = manifestFileInfo4
-    //                        });
-    //                    }
-    //                    foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
-    //                    {
-    //                        string value2 = item4.GetValue<string>("name");
-    //                        if (bundle.Modify.Res.Contains(value2))
-    //                        {
-    //                            ManifestFileInfo manifestFileInfo5 = manifestBundle.files[num4];
-    //                            ResAssetEntry resAssetEntry = parent.modifiedRes[value2];
-    //                            if (resAssetEntry.ExtraData != null)
-    //                            {
-    //                                lock (resourceLock)
-    //                                {
-    //                                    HandlerExtraData handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
-    //                                    if (handlerExtraData != null)
-    //                                    {
-    //                                        byte[] outData = null;
-    //                                        Stream resourceData = parent.rm.GetResourceData(parent.fs.GetFilePath(manifestFileInfo5.file.CatalogIndex, manifestFileInfo5.file.CasIndex, manifestFileInfo5.file.IsInPatch), manifestFileInfo5.offset, manifestFileInfo5.size);
-    //                                        ResAssetEntry resAssetEntry2 = (ResAssetEntry)handlerExtraData.Handler.Modify(resAssetEntry, resourceData, handlerExtraData.Data, out outData);
-    //                                        if (!parent.archiveData.ContainsKey(resAssetEntry2.Sha1))
-    //                                        {
-    //                                            parent.archiveData.TryAdd(resAssetEntry2.Sha1, new ArchiveInfo
-    //                                            {
-    //                                                Data = outData,
-    //                                                RefCount = 1
-    //                                            });
-    //                                        }
-    //                                        resAssetEntry.Sha1 = resAssetEntry2.Sha1;
-    //                                        resAssetEntry.OriginalSize = resAssetEntry2.OriginalSize;
-    //                                        resAssetEntry.ResMeta = resAssetEntry2.ResMeta;
-    //                                        resAssetEntry.ExtraData = null;
-    //                                    }
-    //                                }
-    //                            }
-    //                            item4.SetValue("sha1", resAssetEntry.Sha1);
-    //                            item4.SetValue("originalSize", resAssetEntry.OriginalSize);
-    //                            if (resAssetEntry.ResMeta != null)
-    //                            {
-    //                                item4.SetValue("resMeta", resAssetEntry.ResMeta);
-    //                            }
-    //                            dataRefs.Add(resAssetEntry.Sha1);
-    //                            fileInfos.Add(new CasFileEntry
-    //                            {
-    //                                Entry = null,
-    //                                FileInfo = manifestFileInfo5
-    //                            });
-    //                        }
-    //                        num4++;
-    //                    }
-    //                    foreach (string re in bundle.Add.Res)
-    //                    {
-    //                        ResAssetEntry resAssetEntry3 = parent.modifiedRes[re];
-    //                        DbObject dbObject5 = new DbObject();
-    //                        dbObject5.SetValue("name", resAssetEntry3.Name);
-    //                        dbObject5.SetValue("sha1", resAssetEntry3.Sha1);
-    //                        dbObject5.SetValue("originalSize", resAssetEntry3.OriginalSize);
-    //                        dbObject5.SetValue("resRid", (long)resAssetEntry3.ResRid);
-    //                        dbObject5.SetValue("resType", resAssetEntry3.ResType);
-    //                        dbObject5.SetValue("resMeta", resAssetEntry3.ResMeta);
-    //                        dbObject.GetValue<DbObject>("res").Add(dbObject5);
-    //                        ManifestFileInfo manifestFileInfo6 = new ManifestFileInfo();
-    //                        manifestFileInfo6.file = new ManifestFileRef(manifestFileInfo.file.CatalogIndex, inPatch: false, inCasIndex: 0);
-    //                        manifestBundle.files.Insert(num4++, manifestFileInfo6);
-    //                        dataRefs.Add(resAssetEntry3.Sha1);
-    //                        fileInfos.Add(new CasFileEntry
-    //                        {
-    //                            Entry = null,
-    //                            FileInfo = manifestFileInfo6
-    //                        });
-    //                    }
-    //                    DbObject value3 = dbObject.GetValue<DbObject>("chunkMeta");
-    //                    int num5 = 0;
-    //                    List<int> list3 = new List<int>();
-    //                    foreach (DbObject item5 in dbObject.GetValue<DbObject>("chunks"))
-    //                    {
-    //                        Guid value4 = item5.GetValue<Guid>("id");
-    //                        if (bundle.Remove.Chunks.Contains(value4))
-    //                        {
-    //                            list3.Add(num5);
-    //                        }
-    //                        else if (bundle.Modify.Chunks.Contains(value4))
-    //                        {
-    //                            ChunkAssetEntry entry = parent.ModifiedChunks[value4];
-    //                            DbObject dbObject7 = value3.Find<DbObject>((object a) => (a as DbObject).GetValue("h32", 0) == entry.H32);
-    //                            item5.SetValue("sha1", entry.Sha1);
-    //                            item5.SetValue("logicalOffset", entry.LogicalOffset);
-    //                            item5.SetValue("logicalSize", entry.LogicalSize);
-    //                            if (entry.FirstMip != -1)
-    //                            {
-    //                                item5.SetValue("rangeStart", entry.RangeStart);
-    //                                item5.SetValue("rangeEnd", entry.RangeEnd);
-    //                                dbObject7?.GetValue<DbObject>("meta").SetValue("firstMip", entry.FirstMip);
-    //                            }
-    //                            if (num4 < manifestBundle.files.Count)
-    //                            {
-    //                                dataRefs.Add(entry.Sha1);
-    //                                ManifestFileInfo fileInfo2 = manifestBundle.files[num4];
-    //                                fileInfos.Add(new CasFileEntry
-    //                                {
-    //                                    Entry = entry,
-    //                                    FileInfo = fileInfo2
-    //                                });
-    //                            }
-    //                        }
-    //                        num4++;
-    //                        num5++;
-    //                    }
-    //                    list3.Reverse();
-    //                    foreach (int item6 in list3)
-    //                    {
-    //                        dbObject.GetValue<DbObject>("chunks").RemoveAt(item6);
-    //                        dbObject.GetValue<DbObject>("chunkMeta").RemoveAt(item6);
-    //                        manifestBundle.files.RemoveAt(item6 + num4);
-    //                    }
-    //                    foreach (Guid chunk in bundle.Add.Chunks)
-    //                    {
-    //                        ChunkAssetEntry chunkAssetEntry = parent.ModifiedChunks[chunk];
-    //                        DbObject dbObject8 = new DbObject();
-    //                        dbObject8.SetValue("id", chunk);
-    //                        dbObject8.SetValue("sha1", chunkAssetEntry.Sha1);
-    //                        dbObject8.SetValue("logicalOffset", chunkAssetEntry.LogicalOffset);
-    //                        dbObject8.SetValue("logicalSize", chunkAssetEntry.LogicalSize);
-    //                        DbObject dbObject9 = new DbObject();
-    //                        dbObject9.SetValue("h32", chunkAssetEntry.H32);
-    //                        dbObject9.SetValue("meta", new DbObject());
-    //                        value3.Add(dbObject9);
-    //                        if (chunkAssetEntry.FirstMip != -1)
-    //                        {
-    //                            dbObject8.SetValue("rangeStart", chunkAssetEntry.RangeStart);
-    //                            dbObject8.SetValue("rangeEnd", chunkAssetEntry.RangeEnd);
-    //                            dbObject9.GetValue<DbObject>("meta").SetValue("firstMip", chunkAssetEntry.FirstMip);
-    //                        }
-    //                        dbObject.GetValue<DbObject>("chunks").Add(dbObject8);
-    //                        ManifestFileInfo manifestFileInfo7 = new ManifestFileInfo();
-    //                        manifestFileInfo7.file = new ManifestFileRef(manifestFileInfo.file.CatalogIndex, inPatch: false, inCasIndex: 0);
-    //                        manifestBundle.files.Insert(num4++, manifestFileInfo7);
-    //                        dataRefs.Add(chunkAssetEntry.Sha1);
-    //                        fileInfos.Add(new CasFileEntry
-    //                        {
-    //                            Entry = chunkAssetEntry,
-    //                            FileInfo = manifestFileInfo7
-    //                        });
-    //                    }
-    //                    MemoryStream memoryStream = new MemoryStream();
-    //                    using (NativeWriter nativeWriter = new NativeWriter(memoryStream, leaveOpen: true))
-    //                    {
-    //                        nativeWriter.Write(3735927486u, Endian.Big);
-    //                        long position = nativeWriter.BaseStream.Position;
-    //                        nativeWriter.Write(2641989333u, Endian.Big);
-    //                        nativeWriter.Write(dbObject.GetValue<DbObject>("ebx").Count + dbObject.GetValue<DbObject>("res").Count + dbObject.GetValue<DbObject>("chunks").Count, Endian.Big);
-    //                        nativeWriter.Write(dbObject.GetValue<DbObject>("ebx").Count, Endian.Big);
-    //                        nativeWriter.Write(dbObject.GetValue<DbObject>("res").Count, Endian.Big);
-    //                        nativeWriter.Write(dbObject.GetValue<DbObject>("chunks").Count, Endian.Big);
-    //                        nativeWriter.Write(3735927486u, Endian.Big);
-    //                        nativeWriter.Write(3735927486u, Endian.Big);
-    //                        nativeWriter.Write(3735927486u, Endian.Big);
-    //                        foreach (DbObject item7 in dbObject.GetValue<DbObject>("ebx"))
-    //                        {
-    //                            nativeWriter.Write(item7.GetValue<FMT.FileTools.Sha1>("sha1"));
-    //                        }
-    //                        foreach (DbObject item8 in dbObject.GetValue<DbObject>("res"))
-    //                        {
-    //                            nativeWriter.Write(item8.GetValue<FMT.FileTools.Sha1>("sha1"));
-    //                        }
-    //                        foreach (DbObject item9 in dbObject.GetValue<DbObject>("chunks"))
-    //                        {
-    //                            nativeWriter.Write(item9.GetValue<FMT.FileTools.Sha1>("sha1"));
-    //                        }
-    //                        long num6 = 0L;
-    //                        Dictionary<uint, long> dictionary2 = new Dictionary<uint, long>();
-    //                        List<string> list4 = new List<string>();
-    //                        foreach (DbObject item10 in dbObject.GetValue<DbObject>("ebx"))
-    //                        {
-    //                            uint key2 = (uint)Fnv1.HashString(item10.GetValue<string>("name"));
-    //                            if (!dictionary2.ContainsKey(key2))
-    //                            {
-    //                                list4.Add(item10.GetValue<string>("name"));
-    //                                dictionary2.Add(key2, num6);
-    //                                num6 += item10.GetValue<string>("name").Length + 1;
-    //                            }
-    //                            nativeWriter.Write((uint)dictionary2[key2], Endian.Big);
-    //                            nativeWriter.Write(item10.GetValue("originalSize", 0), Endian.Big);
-    //                        }
-    //                        foreach (DbObject item11 in dbObject.GetValue<DbObject>("res"))
-    //                        {
-    //                            uint key3 = (uint)Fnv1.HashString(item11.GetValue<string>("name"));
-    //                            if (!dictionary2.ContainsKey(key3))
-    //                            {
-    //                                list4.Add(item11.GetValue<string>("name"));
-    //                                dictionary2.Add(key3, num6);
-    //                                num6 += item11.GetValue<string>("name").Length + 1;
-    //                            }
-    //                            nativeWriter.Write((uint)dictionary2[key3], Endian.Big);
-    //                            nativeWriter.Write(item11.GetValue("originalSize", 0), Endian.Big);
-    //                        }
-    //                        foreach (DbObject item12 in dbObject.GetValue<DbObject>("res"))
-    //                        {
-    //                            nativeWriter.Write(item12.GetValue("resType", 0), Endian.Big);
-    //                        }
-    //                        foreach (DbObject item13 in dbObject.GetValue<DbObject>("res"))
-    //                        {
-    //                            nativeWriter.Write(item13.GetValue<byte[]>("resMeta"));
-    //                        }
-    //                        foreach (DbObject item14 in dbObject.GetValue<DbObject>("res"))
-    //                        {
-    //                            nativeWriter.Write(item14.GetValue("resRid", 0L), Endian.Big);
-    //                        }
-    //                        foreach (DbObject item15 in dbObject.GetValue<DbObject>("chunks"))
-    //                        {
-    //                            nativeWriter.Write(item15.GetValue<Guid>("id"), Endian.Big);
-    //                            nativeWriter.Write(item15.GetValue("logicalOffset", 0), Endian.Big);
-    //                            nativeWriter.Write(item15.GetValue("logicalSize", 0), Endian.Big);
-    //                        }
-    //                        long num7 = 0L;
-    //                        long num8 = 0L;
-    //                        if (dbObject.GetValue<DbObject>("chunkMeta") != null && dbObject.GetValue<DbObject>("chunks").Count != 0)
-    //                        {
-    //                            num7 = nativeWriter.BaseStream.Position - position;
-    //                            using (DbWriter dbWriter = new DbWriter(new MemoryStream()))
-    //                            {
-    //                                nativeWriter.Write(dbWriter.WriteDbObject("chunkMeta", dbObject.GetValue<DbObject>("chunkMeta")));
-    //                            }
-    //                            num8 = nativeWriter.BaseStream.Position - position - num7;
-    //                        }
-    //                        long num9 = nativeWriter.BaseStream.Position - position;
-    //                        foreach (string item16 in list4)
-    //                        {
-    //                            nativeWriter.WriteNullTerminatedString(item16);
-    //                        }
-    //                        while ((nativeWriter.BaseStream.Position - (position - 4)) % 16 != 0L)
-    //                        {
-    //                            nativeWriter.Write((byte)0);
-    //                        }
-    //                        long position2 = nativeWriter.BaseStream.Position;
-    //                        nativeWriter.BaseStream.Position = position + 20;
-    //                        nativeWriter.Write((uint)num9, Endian.Big);
-    //                        nativeWriter.Write((uint)num7, Endian.Big);
-    //                        nativeWriter.Write((uint)num8, Endian.Big);
-    //                        nativeWriter.BaseStream.Position = position - 4;
-    //                        nativeWriter.Write((uint)(position2 - 4), Endian.Big);
-    //                    }
-    //                    byte[] array = memoryStream.ToArray();
-    //                    Sha1 item = Utils.GenerateSha1(array);
-    //                    bundleRefs.Add(item);
-    //                    dataRefs.Add(item);
-    //                    fileInfos.Add(new CasFileEntry
-    //                    {
-    //                        Entry = null,
-    //                        FileInfo = manifestFileInfo
-    //                    });
-    //                    bundleBuffers.Add(array);
-    //                }
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                Exception ex2 = errorException = ex;
-    //            }
-    //        }
+        //        public void Run()
+        //        {
+        //            try
+        //            {
+        //                FileSystem fs = parent.fs;
+        //                foreach (ModBundleInfo bundle in bundles)
+        //                {
+        //                    ManifestBundleInfo manifestBundle = fs.GetManifestBundle(bundle.Name);
+        //                    ManifestFileInfo manifestFileInfo = null;
+        //                    DbObject dbObject = null;
+        //                    if (manifestBundle.files.Count == 0)
+        //                    {
+        //                        manifestFileInfo = new ManifestFileInfo
+        //                        {
+        //                            file = new ManifestFileRef(1, inPatch: false, inCasIndex: 0)
+        //                        };
+        //                        manifestBundle.files.Add(manifestFileInfo);
+        //                        dbObject = new DbObject();
+        //                        dbObject.SetValue("ebx", DbObject.CreateList());
+        //                        dbObject.SetValue("res", DbObject.CreateList());
+        //                        dbObject.SetValue("chunks", DbObject.CreateList());
+        //                        dbObject.SetValue("chunkMeta", DbObject.CreateList());
+        //                    }
+        //                    else
+        //                    {
+        //                        manifestFileInfo = manifestBundle.files[0];
+        //                        fs.GetCatalog(manifestFileInfo.file);
+        //                        List<ManifestFileInfo> list = new List<ManifestFileInfo>();
+        //                        for (int i = 1; i < manifestBundle.files.Count; i++)
+        //                        {
+        //                            ManifestFileInfo manifestFileInfo2 = manifestBundle.files[i];
+        //                            int key = Fnv1.HashString(fs.ResolvePath((manifestFileInfo2.file.IsInPatch ? "native_patch/" : "native_data/") + fs.GetCatalog(manifestFileInfo2.file) + "/cas.cat").ToLower());
+        //                            Dictionary<uint, CatResourceEntry> dictionary = parent.resources[key][manifestFileInfo2.file.CasIndex];
+        //                            List<uint> list2 = dictionary.Keys.ToList();
+        //                            uint num = 0u;
+        //                            uint num2 = manifestFileInfo2.offset;
+        //                            list.Add(manifestFileInfo2);
+        //                            if (!dictionary.ContainsKey(num2))
+        //                            {
+        //                                num2 = (uint)((int)num2 + (int)manifestFileInfo2.size);
+        //                                int num3 = (!dictionary.ContainsKey(num2)) ? dictionary.Count : list2.BinarySearch(num2);
+        //                                while (num2 > manifestFileInfo2.offset)
+        //                                {
+        //                                    num3--;
+        //                                    num2 = list2[num3];
+        //                                }
+        //                                manifestFileInfo2.size += manifestFileInfo2.offset - num2;
+        //                            }
+        //                            CatResourceEntry catResourceEntry = dictionary[num2];
+        //                            num += catResourceEntry.Size;
+        //                            num2 += catResourceEntry.Size;
+        //                            long size = manifestFileInfo2.size;
+        //                            manifestFileInfo2.size = num2 - manifestFileInfo2.offset;
+        //                            while (num != size)
+        //                            {
+        //                                CatResourceEntry catResourceEntry2 = dictionary[num2];
+        //                                ManifestFileInfo manifestFileInfo3 = new ManifestFileInfo();
+        //                                manifestFileInfo3.file = new ManifestFileRef(manifestFileInfo2.file.CatalogIndex, manifestFileInfo2.file.IsInPatch, manifestFileInfo2.file.CasIndex);
+        //                                manifestFileInfo3.offset = catResourceEntry2.Offset;
+        //                                manifestFileInfo3.size = catResourceEntry2.Size;
+        //                                list.Add(manifestFileInfo3);
+        //                                num += catResourceEntry2.Size;
+        //                                num2 += catResourceEntry2.Size;
+        //                            }
+        //                        }
+        //                        manifestBundle.files.Clear();
+        //                        manifestBundle.files.Add(manifestFileInfo);
+        //                        manifestBundle.files.AddRange(list);
+        //                        using (NativeReader nativeReader = new NativeReader(new FileStream(fs.ResolvePath(manifestFileInfo.file), FileMode.Open, FileAccess.Read)))
+        //                        {
+        //                            using (BinarySbReader binarySbReader = new BinarySbReader(nativeReader.CreateViewStream(manifestFileInfo.offset, manifestFileInfo.size), 0L, null))
+        //                            {
+        //                                dbObject = binarySbReader.ReadDbObject();
+        //                            }
+        //                        }
+        //                    }
+        //                    int num4 = 1;
+        //                    foreach (DbObject item2 in dbObject.GetValue<DbObject>("ebx"))
+        //                    {
+        //                        string value = item2.GetValue<string>("name");
+        //                        if (bundle.Modify.Ebx.Contains(value))
+        //                        {
+        //                            ManifestFileInfo fileInfo = manifestBundle.files[num4];
+        //                            EbxAssetEntry ebxAssetEntry = parent.modifiedEbx[value];
+        //                            item2.SetValue("sha1", ebxAssetEntry.Sha1);
+        //                            item2.SetValue("originalSize", ebxAssetEntry.OriginalSize);
+        //                            dataRefs.Add(ebxAssetEntry.Sha1);
+        //                            fileInfos.Add(new CasFileEntry
+        //                            {
+        //                                Entry = null,
+        //                                FileInfo = fileInfo
+        //                            });
+        //                        }
+        //                        num4++;
+        //                    }
+        //                    foreach (string item3 in bundle.Add.Ebx)
+        //                    {
+        //                        EbxAssetEntry ebxAssetEntry2 = parent.modifiedEbx[item3];
+        //                        DbObject dbObject3 = new DbObject();
+        //                        dbObject3.SetValue("name", ebxAssetEntry2.Name);
+        //                        dbObject3.SetValue("sha1", ebxAssetEntry2.Sha1);
+        //                        dbObject3.SetValue("originalSize", ebxAssetEntry2.OriginalSize);
+        //                        dbObject.GetValue<DbObject>("ebx").Add(dbObject3);
+        //                        ManifestFileInfo manifestFileInfo4 = new ManifestFileInfo();
+        //                        manifestFileInfo4.file = new ManifestFileRef(manifestFileInfo.file.CatalogIndex, inPatch: false, inCasIndex: 0);
+        //                        manifestBundle.files.Insert(num4++, manifestFileInfo4);
+        //                        dataRefs.Add(ebxAssetEntry2.Sha1);
+        //                        fileInfos.Add(new CasFileEntry
+        //                        {
+        //                            Entry = null,
+        //                            FileInfo = manifestFileInfo4
+        //                        });
+        //                    }
+        //                    foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
+        //                    {
+        //                        string value2 = item4.GetValue<string>("name");
+        //                        if (bundle.Modify.Res.Contains(value2))
+        //                        {
+        //                            ManifestFileInfo manifestFileInfo5 = manifestBundle.files[num4];
+        //                            ResAssetEntry resAssetEntry = parent.modifiedRes[value2];
+        //                            if (resAssetEntry.ExtraData != null)
+        //                            {
+        //                                lock (resourceLock)
+        //                                {
+        //                                    HandlerExtraData handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
+        //                                    if (handlerExtraData != null)
+        //                                    {
+        //                                        byte[] outData = null;
+        //                                        Stream resourceData = parent.rm.GetResourceData(parent.fs.GetFilePath(manifestFileInfo5.file.CatalogIndex, manifestFileInfo5.file.CasIndex, manifestFileInfo5.file.IsInPatch), manifestFileInfo5.offset, manifestFileInfo5.size);
+        //                                        ResAssetEntry resAssetEntry2 = (ResAssetEntry)handlerExtraData.Handler.Modify(resAssetEntry, resourceData, handlerExtraData.Data, out outData);
+        //                                        if (!parent.archiveData.ContainsKey(resAssetEntry2.Sha1))
+        //                                        {
+        //                                            parent.archiveData.TryAdd(resAssetEntry2.Sha1, new ArchiveInfo
+        //                                            {
+        //                                                Data = outData,
+        //                                                RefCount = 1
+        //                                            });
+        //                                        }
+        //                                        resAssetEntry.Sha1 = resAssetEntry2.Sha1;
+        //                                        resAssetEntry.OriginalSize = resAssetEntry2.OriginalSize;
+        //                                        resAssetEntry.ResMeta = resAssetEntry2.ResMeta;
+        //                                        resAssetEntry.ExtraData = null;
+        //                                    }
+        //                                }
+        //                            }
+        //                            item4.SetValue("sha1", resAssetEntry.Sha1);
+        //                            item4.SetValue("originalSize", resAssetEntry.OriginalSize);
+        //                            if (resAssetEntry.ResMeta != null)
+        //                            {
+        //                                item4.SetValue("resMeta", resAssetEntry.ResMeta);
+        //                            }
+        //                            dataRefs.Add(resAssetEntry.Sha1);
+        //                            fileInfos.Add(new CasFileEntry
+        //                            {
+        //                                Entry = null,
+        //                                FileInfo = manifestFileInfo5
+        //                            });
+        //                        }
+        //                        num4++;
+        //                    }
+        //                    foreach (string re in bundle.Add.Res)
+        //                    {
+        //                        ResAssetEntry resAssetEntry3 = parent.modifiedRes[re];
+        //                        DbObject dbObject5 = new DbObject();
+        //                        dbObject5.SetValue("name", resAssetEntry3.Name);
+        //                        dbObject5.SetValue("sha1", resAssetEntry3.Sha1);
+        //                        dbObject5.SetValue("originalSize", resAssetEntry3.OriginalSize);
+        //                        dbObject5.SetValue("resRid", (long)resAssetEntry3.ResRid);
+        //                        dbObject5.SetValue("resType", resAssetEntry3.ResType);
+        //                        dbObject5.SetValue("resMeta", resAssetEntry3.ResMeta);
+        //                        dbObject.GetValue<DbObject>("res").Add(dbObject5);
+        //                        ManifestFileInfo manifestFileInfo6 = new ManifestFileInfo();
+        //                        manifestFileInfo6.file = new ManifestFileRef(manifestFileInfo.file.CatalogIndex, inPatch: false, inCasIndex: 0);
+        //                        manifestBundle.files.Insert(num4++, manifestFileInfo6);
+        //                        dataRefs.Add(resAssetEntry3.Sha1);
+        //                        fileInfos.Add(new CasFileEntry
+        //                        {
+        //                            Entry = null,
+        //                            FileInfo = manifestFileInfo6
+        //                        });
+        //                    }
+        //                    DbObject value3 = dbObject.GetValue<DbObject>("chunkMeta");
+        //                    int num5 = 0;
+        //                    List<int> list3 = new List<int>();
+        //                    foreach (DbObject item5 in dbObject.GetValue<DbObject>("chunks"))
+        //                    {
+        //                        Guid value4 = item5.GetValue<Guid>("id");
+        //                        if (bundle.Remove.Chunks.Contains(value4))
+        //                        {
+        //                            list3.Add(num5);
+        //                        }
+        //                        else if (bundle.Modify.Chunks.Contains(value4))
+        //                        {
+        //                            ChunkAssetEntry entry = parent.ModifiedChunks[value4];
+        //                            DbObject dbObject7 = value3.Find<DbObject>((object a) => (a as DbObject).GetValue("h32", 0) == entry.H32);
+        //                            item5.SetValue("sha1", entry.Sha1);
+        //                            item5.SetValue("logicalOffset", entry.LogicalOffset);
+        //                            item5.SetValue("logicalSize", entry.LogicalSize);
+        //                            if (entry.FirstMip != -1)
+        //                            {
+        //                                item5.SetValue("rangeStart", entry.RangeStart);
+        //                                item5.SetValue("rangeEnd", entry.RangeEnd);
+        //                                dbObject7?.GetValue<DbObject>("meta").SetValue("firstMip", entry.FirstMip);
+        //                            }
+        //                            if (num4 < manifestBundle.files.Count)
+        //                            {
+        //                                dataRefs.Add(entry.Sha1);
+        //                                ManifestFileInfo fileInfo2 = manifestBundle.files[num4];
+        //                                fileInfos.Add(new CasFileEntry
+        //                                {
+        //                                    Entry = entry,
+        //                                    FileInfo = fileInfo2
+        //                                });
+        //                            }
+        //                        }
+        //                        num4++;
+        //                        num5++;
+        //                    }
+        //                    list3.Reverse();
+        //                    foreach (int item6 in list3)
+        //                    {
+        //                        dbObject.GetValue<DbObject>("chunks").RemoveAt(item6);
+        //                        dbObject.GetValue<DbObject>("chunkMeta").RemoveAt(item6);
+        //                        manifestBundle.files.RemoveAt(item6 + num4);
+        //                    }
+        //                    foreach (Guid chunk in bundle.Add.Chunks)
+        //                    {
+        //                        ChunkAssetEntry chunkAssetEntry = parent.ModifiedChunks[chunk];
+        //                        DbObject dbObject8 = new DbObject();
+        //                        dbObject8.SetValue("id", chunk);
+        //                        dbObject8.SetValue("sha1", chunkAssetEntry.Sha1);
+        //                        dbObject8.SetValue("logicalOffset", chunkAssetEntry.LogicalOffset);
+        //                        dbObject8.SetValue("logicalSize", chunkAssetEntry.LogicalSize);
+        //                        DbObject dbObject9 = new DbObject();
+        //                        dbObject9.SetValue("h32", chunkAssetEntry.H32);
+        //                        dbObject9.SetValue("meta", new DbObject());
+        //                        value3.Add(dbObject9);
+        //                        if (chunkAssetEntry.FirstMip != -1)
+        //                        {
+        //                            dbObject8.SetValue("rangeStart", chunkAssetEntry.RangeStart);
+        //                            dbObject8.SetValue("rangeEnd", chunkAssetEntry.RangeEnd);
+        //                            dbObject9.GetValue<DbObject>("meta").SetValue("firstMip", chunkAssetEntry.FirstMip);
+        //                        }
+        //                        dbObject.GetValue<DbObject>("chunks").Add(dbObject8);
+        //                        ManifestFileInfo manifestFileInfo7 = new ManifestFileInfo();
+        //                        manifestFileInfo7.file = new ManifestFileRef(manifestFileInfo.file.CatalogIndex, inPatch: false, inCasIndex: 0);
+        //                        manifestBundle.files.Insert(num4++, manifestFileInfo7);
+        //                        dataRefs.Add(chunkAssetEntry.Sha1);
+        //                        fileInfos.Add(new CasFileEntry
+        //                        {
+        //                            Entry = chunkAssetEntry,
+        //                            FileInfo = manifestFileInfo7
+        //                        });
+        //                    }
+        //                    MemoryStream memoryStream = new MemoryStream();
+        //                    using (NativeWriter nativeWriter = new NativeWriter(memoryStream, leaveOpen: true))
+        //                    {
+        //                        nativeWriter.Write(3735927486u, Endian.Big);
+        //                        long position = nativeWriter.BaseStream.Position;
+        //                        nativeWriter.Write(2641989333u, Endian.Big);
+        //                        nativeWriter.Write(dbObject.GetValue<DbObject>("ebx").Count + dbObject.GetValue<DbObject>("res").Count + dbObject.GetValue<DbObject>("chunks").Count, Endian.Big);
+        //                        nativeWriter.Write(dbObject.GetValue<DbObject>("ebx").Count, Endian.Big);
+        //                        nativeWriter.Write(dbObject.GetValue<DbObject>("res").Count, Endian.Big);
+        //                        nativeWriter.Write(dbObject.GetValue<DbObject>("chunks").Count, Endian.Big);
+        //                        nativeWriter.Write(3735927486u, Endian.Big);
+        //                        nativeWriter.Write(3735927486u, Endian.Big);
+        //                        nativeWriter.Write(3735927486u, Endian.Big);
+        //                        foreach (DbObject item7 in dbObject.GetValue<DbObject>("ebx"))
+        //                        {
+        //                            nativeWriter.Write(item7.GetValue<FMT.FileTools.Sha1>("sha1"));
+        //                        }
+        //                        foreach (DbObject item8 in dbObject.GetValue<DbObject>("res"))
+        //                        {
+        //                            nativeWriter.Write(item8.GetValue<FMT.FileTools.Sha1>("sha1"));
+        //                        }
+        //                        foreach (DbObject item9 in dbObject.GetValue<DbObject>("chunks"))
+        //                        {
+        //                            nativeWriter.Write(item9.GetValue<FMT.FileTools.Sha1>("sha1"));
+        //                        }
+        //                        long num6 = 0L;
+        //                        Dictionary<uint, long> dictionary2 = new Dictionary<uint, long>();
+        //                        List<string> list4 = new List<string>();
+        //                        foreach (DbObject item10 in dbObject.GetValue<DbObject>("ebx"))
+        //                        {
+        //                            uint key2 = (uint)Fnv1.HashString(item10.GetValue<string>("name"));
+        //                            if (!dictionary2.ContainsKey(key2))
+        //                            {
+        //                                list4.Add(item10.GetValue<string>("name"));
+        //                                dictionary2.Add(key2, num6);
+        //                                num6 += item10.GetValue<string>("name").Length + 1;
+        //                            }
+        //                            nativeWriter.Write((uint)dictionary2[key2], Endian.Big);
+        //                            nativeWriter.Write(item10.GetValue("originalSize", 0), Endian.Big);
+        //                        }
+        //                        foreach (DbObject item11 in dbObject.GetValue<DbObject>("res"))
+        //                        {
+        //                            uint key3 = (uint)Fnv1.HashString(item11.GetValue<string>("name"));
+        //                            if (!dictionary2.ContainsKey(key3))
+        //                            {
+        //                                list4.Add(item11.GetValue<string>("name"));
+        //                                dictionary2.Add(key3, num6);
+        //                                num6 += item11.GetValue<string>("name").Length + 1;
+        //                            }
+        //                            nativeWriter.Write((uint)dictionary2[key3], Endian.Big);
+        //                            nativeWriter.Write(item11.GetValue("originalSize", 0), Endian.Big);
+        //                        }
+        //                        foreach (DbObject item12 in dbObject.GetValue<DbObject>("res"))
+        //                        {
+        //                            nativeWriter.Write(item12.GetValue("resType", 0), Endian.Big);
+        //                        }
+        //                        foreach (DbObject item13 in dbObject.GetValue<DbObject>("res"))
+        //                        {
+        //                            nativeWriter.Write(item13.GetValue<byte[]>("resMeta"));
+        //                        }
+        //                        foreach (DbObject item14 in dbObject.GetValue<DbObject>("res"))
+        //                        {
+        //                            nativeWriter.Write(item14.GetValue("resRid", 0L), Endian.Big);
+        //                        }
+        //                        foreach (DbObject item15 in dbObject.GetValue<DbObject>("chunks"))
+        //                        {
+        //                            nativeWriter.Write(item15.GetValue<Guid>("id"), Endian.Big);
+        //                            nativeWriter.Write(item15.GetValue("logicalOffset", 0), Endian.Big);
+        //                            nativeWriter.Write(item15.GetValue("logicalSize", 0), Endian.Big);
+        //                        }
+        //                        long num7 = 0L;
+        //                        long num8 = 0L;
+        //                        if (dbObject.GetValue<DbObject>("chunkMeta") != null && dbObject.GetValue<DbObject>("chunks").Count != 0)
+        //                        {
+        //                            num7 = nativeWriter.BaseStream.Position - position;
+        //                            using (DbWriter dbWriter = new DbWriter(new MemoryStream()))
+        //                            {
+        //                                nativeWriter.Write(dbWriter.WriteDbObject("chunkMeta", dbObject.GetValue<DbObject>("chunkMeta")));
+        //                            }
+        //                            num8 = nativeWriter.BaseStream.Position - position - num7;
+        //                        }
+        //                        long num9 = nativeWriter.BaseStream.Position - position;
+        //                        foreach (string item16 in list4)
+        //                        {
+        //                            nativeWriter.WriteNullTerminatedString(item16);
+        //                        }
+        //                        while ((nativeWriter.BaseStream.Position - (position - 4)) % 16 != 0L)
+        //                        {
+        //                            nativeWriter.Write((byte)0);
+        //                        }
+        //                        long position2 = nativeWriter.BaseStream.Position;
+        //                        nativeWriter.BaseStream.Position = position + 20;
+        //                        nativeWriter.Write((uint)num9, Endian.Big);
+        //                        nativeWriter.Write((uint)num7, Endian.Big);
+        //                        nativeWriter.Write((uint)num8, Endian.Big);
+        //                        nativeWriter.BaseStream.Position = position - 4;
+        //                        nativeWriter.Write((uint)(position2 - 4), Endian.Big);
+        //                    }
+        //                    byte[] array = memoryStream.ToArray();
+        //                    Sha1 item = Utils.GenerateSha1(array);
+        //                    bundleRefs.Add(item);
+        //                    dataRefs.Add(item);
+        //                    fileInfos.Add(new CasFileEntry
+        //                    {
+        //                        Entry = null,
+        //                        FileInfo = manifestFileInfo
+        //                    });
+        //                    bundleBuffers.Add(array);
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Exception ex2 = errorException = ex;
+        //            }
+        //        }
 
-    //        public void ThreadPoolCallback(object threadContext)
-    //        {
-    //            Run();
-    //            if (Interlocked.Decrement(ref parent.numTasks) == 0)
-    //            {
-    //                doneEvent.Set();
-    //            }
-    //        }
-    //    }
+        //        public void ThreadPoolCallback(object threadContext)
+        //        {
+        //            Run();
+        //            if (Interlocked.Decrement(ref parent.numTasks) == 0)
+        //            {
+        //                doneEvent.Set();
+        //            }
+        //        }
+        //    }
 
         public FileSystem fs;
 
@@ -660,7 +658,7 @@ namespace ModdingSupport
             get
             {
                 Dictionary<string, AssetEntry> entries = new Dictionary<string, AssetEntry>();
-                foreach(var item in modifiedEbx)
+                foreach (var item in modifiedEbx)
                 {
                     entries.Add(item.Key, item.Value);
                 }
@@ -798,493 +796,439 @@ namespace ModdingSupport
             string patchPath = "Patch";
 
             string profileName = ProfileManager.ProfileName;
-            if(Process.GetProcesses().Any(x=>x.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase)))
+            if (Process.GetProcesses().Any(x => x.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase)))
                 throw new Exception("Game process is already running, please close and relaunch");
-
-            //if (ResourceManager.Instance == null)
-            //{
-            //    rm = new ResourceManager(fs);
-            //    rm.Initialize();
-            //}
-            //else
-            //{
-            //    rm = ResourceManager.Instance;
-            //}
-
 
             bool FrostyModsFound = false;
 
+            string[] allModPaths = modPaths;
+            var frostyMods = new Dictionary<Stream, IFrostbiteMod>();
+
+            Logger.Log("Deleting cached mods");
+
+            if (Directory.Exists(ApplicationDirectory + "TempMods"))
+                Directory.Delete(ApplicationDirectory + "TempMods", true);
+
+            var compatibleModExtensions = new List<string>() { ".fbmod", ".fifamod" };
+            Logger.Log("Loading mods");
+
+            foreach (var f in allModPaths.Select(x => new FileInfo(x)))
             {
-                string[] allModPaths = modPaths;
-                var frostyMods = new Dictionary<Stream, IFrostbiteMod>();
+                ReadFrostbiteMods(rootPath + f, ref FrostyModsFound, ref frostyMods);
+            }
 
-                // Sort out Zipped Files
-                //if (allModPaths.Contains(".zip"))
-                //{
+            foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
+            {
+                //Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
-                Logger.Log("Deleting cached mods");
 
-                if (Directory.Exists(ApplicationDirectory + "TempMods"))
-                    Directory.Delete(ApplicationDirectory + "TempMods", true);
-
-                var compatibleModExtensions = new List<string>() { ".fbmod", ".fifamod" };
-                Logger.Log("Loading mods");
-
-                foreach (var f in allModPaths.Select(x=> new FileInfo(x)))
+                int indexCompleted = -1;
+                var frostbiteMod = kvpMods.Value;
+                //Parallel.ForEach(frostbiteMod.Resources, (BaseModResource resource) =>
+                foreach (
+                    (BaseModResource, byte[]) r
+                    in
+                    frostbiteMod.Resources
+                    .Select(x => (x, frostbiteMod.GetResourceData(x)))
+                    .Where(x => x.Item2 != null)
+                    .OrderBy(x => x.Item2.Length)
+                    )
                 {
-                    // -------------------------------------------------------------------------------------------------
-                    // TODO: Remove
-                    // 23.16 - This is now handled by the Launch Window, which extracts mods to a temp file to load in.
-                    //if (f.Extension.Contains("zip", StringComparison.OrdinalIgnoreCase))
-                    //{
-                    //    var z = f.FullName;
+                    indexCompleted++;
 
-                    //    Logger.Log("Loading mods from " + z);
-
-                    //    using (FileStream fsModZipped = new FileStream(z, FileMode.Open))
-                    //    //FileStream fsModZipped = new FileStream(z, FileMode.Open);
-                    //    {
-                    //        ZipArchive zipArchive = new ZipArchive(fsModZipped);
-                    //        foreach (var zaentr in zipArchive.Entries
-                    //            .Where(x =>
-                    //            x.FullName.Contains(".fbmod", StringComparison.OrdinalIgnoreCase)
-                    //            || x.FullName.Contains(".fifamod", StringComparison.OrdinalIgnoreCase)))
-                    //        {
-                    //            Logger.Log("Loading mod " + zaentr.Name);
-                    //            FrostyModsFound = true;
-                    //            MemoryStream memoryStream = new MemoryStream();
-                    //            if (zaentr.Length > 1024 * 1024 || zaentr.Name.Contains(".fifamod"))
-                    //            {
-                    //                if (!Directory.Exists(ApplicationDirectory + "TempMods"))
-                    //                    Directory.CreateDirectory(ApplicationDirectory + "TempMods");
-                    //                zaentr.ExtractToFile(ApplicationDirectory + "TempMods/" + zaentr.Name);
-                    //                GatherFrostbiteMods(ApplicationDirectory + "TempMods/" + zaentr.Name, ref FrostyModsFound, ref frostyMods);
-                    //            }
-                    //            else
-                    //            {
-                    //                zaentr.Open().CopyTo(memoryStream);
-                    //                frostyMods.TryAdd(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //else
-                        ReadFrostbiteMods(rootPath + f, ref FrostyModsFound, ref frostyMods);
-                }
-
-                foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
-                {
-                    //Logger.Log("Compiling mod " + kvpMods.Value.Filename);
-
-
-                    int indexCompleted = -1;
-                    var frostbiteMod = kvpMods.Value;
-                    //Parallel.ForEach(frostbiteMod.Resources, (BaseModResource resource) =>
-                    foreach (
-                        (BaseModResource, byte[]) r 
-                        in 
-                        frostbiteMod.Resources
-                        .Select(x => (x, frostbiteMod.GetResourceData(x)))
-                        .Where(x => x.Item2 != null)
-                        .OrderBy(x => x.Item2.Length)
-                        )
+                    // ------------------------------------------------------------------
+                    // Get the Resource Data out of the mod
+                    BaseModResource resource = r.Item1;
+                    byte[] resourceData = r.Item2;
+                    // ------------------------------------------------------------------
+                    // Embedded Files
+                    // Export to the Game Directory and create sub folders if neccessary
+                    if (resource is BaseModReader.EmbeddedFileResource)
                     {
-                        indexCompleted++;
+                        EmbeddedFileEntry efAssetEntry = new EmbeddedFileEntry();
+                        resource.FillAssetEntry(efAssetEntry);
 
-                        // ------------------------------------------------------------------
-                        // Get the Resource Data out of the mod
-                        BaseModResource resource = r.Item1;
-                        byte[] resourceData = r.Item2;
-                        // ------------------------------------------------------------------
-                        // Embedded Files
-                        // Export to the Game Directory and create sub folders if neccessary
-                        if (resource is BaseModReader.EmbeddedFileResource)
+                        var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.ExportedRelativePath).FullName;
+                        if (!Directory.Exists(parentDirectoryPath))
+                            Directory.CreateDirectory(parentDirectoryPath);
+
+                        var exportedFilePath = GamePath + "//" + efAssetEntry.ExportedRelativePath;
+                        var exportedFileBackupPath = GamePath + "//" + efAssetEntry.ExportedRelativePath + ".bak";
+                        //File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
+                        if (!File.Exists(exportedFileBackupPath)
+                            && File.Exists(exportedFilePath)
+                            )
+                            File.Move(exportedFilePath, exportedFileBackupPath);
+
+                        await File.WriteAllBytesAsync(exportedFilePath, resourceData);
+
+                    }
+                    //
+                    // ------------------------------------------------------------------
+
+
+                    foreach (int modifiedBundle in resource.ModifiedBundles)
+                    {
+                        if (!modifiedBundles.ContainsKey(modifiedBundle))
                         {
-                            EmbeddedFileEntry efAssetEntry = new EmbeddedFileEntry();
-                            resource.FillAssetEntry(efAssetEntry);
-
-                            var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.ExportedRelativePath).FullName;
-                            if (!Directory.Exists(parentDirectoryPath))
-                                Directory.CreateDirectory(parentDirectoryPath);
-
-                            var exportedFilePath = GamePath + "//" + efAssetEntry.ExportedRelativePath;
-                            var exportedFileBackupPath = GamePath + "//" + efAssetEntry.ExportedRelativePath + ".bak";
-                            //File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
-                            if (!File.Exists(exportedFileBackupPath)
-                                && File.Exists(exportedFilePath)
-                                )
-                                File.Move(exportedFilePath, exportedFileBackupPath);
-
-                            await File.WriteAllBytesAsync(exportedFilePath, resourceData);
-
+                            modifiedBundles.Add(modifiedBundle, new ModBundleInfo
+                            {
+                                Name = modifiedBundle
+                            });
                         }
-                        //
-                        // ------------------------------------------------------------------
-
-
-                        foreach (int modifiedBundle in resource.ModifiedBundles)
-                        {
-                            if (!modifiedBundles.ContainsKey(modifiedBundle))
-                            {
-                                modifiedBundles.Add(modifiedBundle, new ModBundleInfo
-                                {
-                                    Name = modifiedBundle
-                                });
-                            }
-                            ModBundleInfo modBundleInfo = modifiedBundles[modifiedBundle];
-                            switch (resource.Type)
-                            {
-                                case ModResourceType.Ebx:
-                                    modBundleInfo.Modify.AddEbx(resource.Name);
-                                    break;
-                                case ModResourceType.Res:
-                                    modBundleInfo.Modify.AddRes(resource.Name);
-                                    break;
-                                case ModResourceType.Chunk:
-                                    modBundleInfo.Modify.AddChunk(new Guid(resource.Name));
-                                    break;
-                                case ModResourceType.Legacy:
-                                    modBundleInfo.Modify.AddLegacy(resource.Name);
-                                    break;
-                            }
-                        }
-
-
-                        foreach (int addedBundle in resource.AddedBundles)
-                        {
-                            if (!modifiedBundles.ContainsKey(addedBundle))
-                            {
-                                modifiedBundles.Add(addedBundle, new ModBundleInfo
-                                {
-                                    Name = addedBundle
-                                });
-                            }
-                            ModBundleInfo modBundleInfo2 = modifiedBundles[addedBundle];
-                            switch (resource.Type)
-                            {
-                                case ModResourceType.Ebx:
-                                    modBundleInfo2.Add.AddEbx(resource.Name);
-                                    break;
-                                case ModResourceType.Res:
-                                    modBundleInfo2.Add.AddRes(resource.Name);
-                                    break;
-                                case ModResourceType.Chunk:
-                                    modBundleInfo2.Add.AddChunk(new Guid(resource.Name));
-                                    break;
-                            }
-                        }
-
-
+                        ModBundleInfo modBundleInfo = modifiedBundles[modifiedBundle];
                         switch (resource.Type)
                         {
                             case ModResourceType.Ebx:
-                                if (modifiedEbx.ContainsKey(resource.Name))
-                                {
-                                    modifiedEbx.Remove(resource.Name);
-                                    if (archiveData.ContainsKey(resource.Sha1))
-                                        archiveData.Remove(resource.Sha1, out ArchiveInfo _);
-                                }
-                                EbxAssetEntry ebxEntry = new EbxAssetEntry();
-                                resource.FillAssetEntry(ebxEntry);
-                                ebxEntry.Size = resourceData.Length;
-                                modifiedEbx.Add(ebxEntry.Name, ebxEntry);
-                                if (!archiveData.ContainsKey(ebxEntry.Sha1))
-                                    archiveData.Add(ebxEntry.Sha1, new ArchiveInfo
-                                    {
-                                        Data = resourceData,
-                                        RefCount = 1
-                                    });
-
-
-                                archiveData[ebxEntry.Sha1].Data = resourceData;
-
+                                modBundleInfo.Modify.AddEbx(resource.Name);
                                 break;
                             case ModResourceType.Res:
-                                if (modifiedRes.ContainsKey(resource.Name))
-                                {
-                                    modifiedRes.Remove(resource.Name);
-                                    if (archiveData.ContainsKey(resource.Sha1))
-                                        archiveData.Remove(resource.Sha1, out ArchiveInfo _);
-
-                                }
-                                ResAssetEntry resEntry = new ResAssetEntry();
-                                resource.FillAssetEntry(resEntry);
-                                resEntry.Size = resourceData.Length;
-                                modifiedRes.Add(resEntry.Name, resEntry);
-                                if (!archiveData.ContainsKey(resEntry.Sha1))
-                                    archiveData.Add(resEntry.Sha1, new ArchiveInfo
-                                    {
-                                        Data = resourceData,
-                                        RefCount = 1
-                                    });
-
-
-                                archiveData[resEntry.Sha1].Data = resourceData;
-
+                                modBundleInfo.Modify.AddRes(resource.Name);
                                 break;
                             case ModResourceType.Chunk:
-                                Guid guid = new Guid(resource.Name);
-                                if (ModifiedChunks.ContainsKey(guid))
+                                modBundleInfo.Modify.AddChunk(new Guid(resource.Name));
+                                break;
+                            case ModResourceType.Legacy:
+                                modBundleInfo.Modify.AddLegacy(resource.Name);
+                                break;
+                        }
+                    }
+
+
+                    foreach (int addedBundle in resource.AddedBundles)
+                    {
+                        if (!modifiedBundles.ContainsKey(addedBundle))
+                        {
+                            modifiedBundles.Add(addedBundle, new ModBundleInfo
+                            {
+                                Name = addedBundle
+                            });
+                        }
+                        ModBundleInfo modBundleInfo2 = modifiedBundles[addedBundle];
+                        switch (resource.Type)
+                        {
+                            case ModResourceType.Ebx:
+                                modBundleInfo2.Add.AddEbx(resource.Name);
+                                break;
+                            case ModResourceType.Res:
+                                modBundleInfo2.Add.AddRes(resource.Name);
+                                break;
+                            case ModResourceType.Chunk:
+                                modBundleInfo2.Add.AddChunk(new Guid(resource.Name));
+                                break;
+                        }
+                    }
+
+
+                    switch (resource.Type)
+                    {
+                        case ModResourceType.Ebx:
+                            if (modifiedEbx.ContainsKey(resource.Name))
+                            {
+                                modifiedEbx.Remove(resource.Name);
+                                if (archiveData.ContainsKey(resource.Sha1))
+                                    archiveData.Remove(resource.Sha1, out ArchiveInfo _);
+                            }
+                            EbxAssetEntry ebxEntry = new EbxAssetEntry();
+                            resource.FillAssetEntry(ebxEntry);
+                            ebxEntry.Size = resourceData.Length;
+                            modifiedEbx.Add(ebxEntry.Name, ebxEntry);
+                            if (!archiveData.ContainsKey(ebxEntry.Sha1))
+                                archiveData.Add(ebxEntry.Sha1, new ArchiveInfo
                                 {
-                                    ModifiedChunks.Remove(guid);
-                                }
-                                ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                                resource.FillAssetEntry(chunkAssetEntry);
-                                chunkAssetEntry.Size = resourceData.Length;
+                                    Data = resourceData,
+                                    RefCount = 1
+                                });
+
+
+                            archiveData[ebxEntry.Sha1].Data = resourceData;
+
+                            break;
+                        case ModResourceType.Res:
+                            if (modifiedRes.ContainsKey(resource.Name))
+                            {
+                                modifiedRes.Remove(resource.Name);
+                                if (archiveData.ContainsKey(resource.Sha1))
+                                    archiveData.Remove(resource.Sha1, out ArchiveInfo _);
+
+                            }
+                            ResAssetEntry resEntry = new ResAssetEntry();
+                            resource.FillAssetEntry(resEntry);
+                            resEntry.Size = resourceData.Length;
+                            modifiedRes.Add(resEntry.Name, resEntry);
+                            if (!archiveData.ContainsKey(resEntry.Sha1))
+                                archiveData.Add(resEntry.Sha1, new ArchiveInfo
+                                {
+                                    Data = resourceData,
+                                    RefCount = 1
+                                });
+
+
+                            archiveData[resEntry.Sha1].Data = resourceData;
+
+                            break;
+                        case ModResourceType.Chunk:
+                            Guid guid = new Guid(resource.Name);
+                            if (ModifiedChunks.ContainsKey(guid))
+                            {
+                                ModifiedChunks.Remove(guid);
+                            }
+                            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                            resource.FillAssetEntry(chunkAssetEntry);
+                            chunkAssetEntry.Size = resourceData.Length;
+
+                            // -------------------------------------------------------------------------
+                            // If this is a legacy file here, it likely means its a *.fifamod
+                            // Ignore this chunk and send to the Legacy Mod system
+                            if (resource.IsLegacyFile && frostbiteMod is FIFAMod)
+                            {
+                                // -------------------------------------------------------------------------------------
+                                // Remove the Chunk File Collector changes. This is done ourselves via the Legacy System
+                                if (resource.LegacyFullName.Contains("CFC", StringComparison.OrdinalIgnoreCase)
+                                    || resource.LegacyFullName.Contains("Collector", StringComparison.OrdinalIgnoreCase)
+                                    //||
+                                    //    // -------------------------------------------------------------------------
+                                    //    // 
+                                    //    ProfileManager.CheckIsFIFA(ProfileManager.Game)
+                                    //    && 
+                                    //    (
+                                    //        resource.LegacyFullName.Contains("player.lua", StringComparison.OrdinalIgnoreCase)
+                                    //        || resource.LegacyFullName.Contains("player_kit.lua", StringComparison.OrdinalIgnoreCase)
+                                    //    )
+                                    )
+                                    continue;
 
                                 // -------------------------------------------------------------------------
-                                // If this is a legacy file here, it likely means its a *.fifamod
-                                // Ignore this chunk and send to the Legacy Mod system
-                                if (resource.IsLegacyFile && frostbiteMod is FIFAMod)
+                                // Create the Legacy Files from the Compressed Chunks
+                                LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
+                                legacyAssetEntry.Name = resource.LegacyFullName;
+                                legacyAssetEntry.Sha1 = resource.Sha1;
+                                // -------------------------------------------------------------------------
+                                // Decompress the Chunks back to their normal format
+                                var decompressedChunk = new CasReader(new MemoryStream(resourceData)).Read();
+                                legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = decompressedChunk };
+                                // -------------------------------------------------------------------------
+                                // Actual Size is the Decompressed Size
+                                legacyAssetEntry.Size = decompressedChunk.Length;
+
+                                if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
+                                    modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+                                else
+                                    modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
+                            }
+                            else
+                            {
+                                ModifiedChunks.Add(guid, chunkAssetEntry);
+                                if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
                                 {
-                                    // -------------------------------------------------------------------------------------
-                                    // Remove the Chunk File Collector changes. This is done ourselves via the Legacy System
-                                    if (resource.LegacyFullName.Contains("CFC", StringComparison.OrdinalIgnoreCase)
-                                        || resource.LegacyFullName.Contains("Collector", StringComparison.OrdinalIgnoreCase)
-                                        //||
-                                        //    // -------------------------------------------------------------------------
-                                        //    // 
-                                        //    ProfileManager.CheckIsFIFA(ProfileManager.Game)
-                                        //    && 
-                                        //    (
-                                        //        resource.LegacyFullName.Contains("player.lua", StringComparison.OrdinalIgnoreCase)
-                                        //        || resource.LegacyFullName.Contains("player_kit.lua", StringComparison.OrdinalIgnoreCase)
-                                        //    )
-                                        )
-                                        continue;
-
-                                    // -------------------------------------------------------------------------
-                                    // Create the Legacy Files from the Compressed Chunks
-                                    LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
-                                    legacyAssetEntry.Name = resource.LegacyFullName;
-                                    legacyAssetEntry.Sha1 = resource.Sha1;
-                                    // -------------------------------------------------------------------------
-                                    // Decompress the Chunks back to their normal format
-                                    var decompressedChunk = new CasReader(new MemoryStream(resourceData)).Read();
-                                    legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = decompressedChunk };
-                                    // -------------------------------------------------------------------------
-                                    // Actual Size is the Decompressed Size
-                                    legacyAssetEntry.Size = decompressedChunk.Length;
-
-                                    if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
-                                        modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
-                                    else
-                                        modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
+                                    archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
+                                    {
+                                        Data = resourceData,
+                                    });
                                 }
                                 else
                                 {
-                                    ModifiedChunks.Add(guid, chunkAssetEntry);
-                                    if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
-                                    {
-                                        archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
-                                        {
-                                            Data = resourceData,
-                                        });
-                                    }
-                                    else
-                                    {
-                                        archiveData[chunkAssetEntry.Sha1].Data = resourceData;
-                                    }
-                                }
-                                break;
-                        }
-
-                        
-                        //if (resource.Type == ModResourceType.Chunk)
-                        //{
-                        //    Guid guid = new Guid(resource.Name);
-                        //    if (ModifiedChunks.ContainsKey(guid))
-                        //    {
-                        //        ModifiedChunks.Remove(guid);
-                        //    }
-                        //    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                        //    resource.FillAssetEntry(chunkAssetEntry);
-                        //    chunkAssetEntry.Size = resourceData.Length;
-
-                        //    ModifiedChunks.Add(guid, chunkAssetEntry);
-                        //    if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
-                        //    {
-                        //        archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
-                        //        {
-                        //            Data = resourceData,
-                        //        });
-                        //    }
-                        //    else
-                        //    {
-                        //        archiveData[chunkAssetEntry.Sha1].Data = resourceData;
-                        //    }
-                        //}
-
-                        //else 
-                        if (resource.Type == ModResourceType.Legacy)
-                        {
-                            LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
-                            resource.FillAssetEntry(legacyAssetEntry);
-                            legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = resourceData };
-                            legacyAssetEntry.Size = resourceData.Length;
-
-                            if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
-                                modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
-                            else
-                                modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
-                        }
-                    }
-
-                }
-
-                // ----------------------------------------------------------------
-                // Clear out memory and mods
-                foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
-                {
-                    kvpMods.Key.Dispose();
-                    if (kvpMods.Value is FrostbiteMod)
-                    {
-                        kvpMods.Value.ModBytes = null;
-                    }
-                }
-                frostyMods.Clear();
-
-                //Logger.Log("Cleaning up mod data directory");
-                //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
-                fs.ResetManifest();
-
-
-                //Logger.Log("Creating mod data directory");
-
-                // ----------------------------------------------------------------
-                // Create ModData Directory in the Game Path
-                Directory.CreateDirectory(modPath);
-                Directory.CreateDirectory(Path.Combine(modPath, "Data"));
-                Directory.CreateDirectory(Path.Combine(modPath, "Patch"));
-                Directory.CreateDirectory(Path.Combine(modPath, "Update"));
-
-
-                int workerThreads = 0;
-                int completionPortThreads = 0;
-                ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
-                ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
-                //Logger.Log("Applying mods");
-                //SymbolicLinkList.Clear();
-
-
-                var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfileManager.AssetCompilerName);
-                if (pluginCompiler == null && !string.IsNullOrEmpty(ProfileManager.AssetCompilerName))
-                    throw new NotImplementedException($"Could not find class {ProfileManager.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
-
-                if (pluginCompiler != null)
-                {
-                    if(!((IAssetCompiler)pluginCompiler).Compile(fs, logger, this))
-                    {
-                        Logger.LogError("An error occurred within the Plugin Compiler. Stopping.");
-                        return false;
-                    }
-                }
-                else
-                {
-
-                    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
-                        .Where(x => x.FullName.ToLower().Contains("plugin")))
-                    {
-                        foreach (Type t in a.GetTypes())
-                        {
-                            if (t.GetInterface("IAssetCompiler") != null)
-                            {
-                                //try
-                                //{
-                                if (t.Name == ProfileManager.AssetCompilerName)
-                                {
-                                    Logger.Log("Attempting to load Compiler for " + GameEXEPath);
-
-                                    if (!((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this))
-                                    {
-                                        Logger.LogError("Unable to load Compiler. Stopping");
-                                        return false;
-                                    }
-                                }
-                                //}
-                                //catch (Exception e)
-                                //{
-                                //    Logger.LogError($"Error in Compiler :: {e.Message}");
-
-                                //}
-                            }
-                        }
-                    }
-                }
-
-                if (ProfileManager.IsFIFA20DataVersion())
-                {
-                    DbObject layoutToc = null;
-
-
-                    using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                    {
-                        layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                    }
-
-
-                    FifaBundleAction.CasFileCount = fs.CasFileCount;
-                    List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
-                    ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
-
-                    var numberOfCatalogs = fs.Catalogs.Count();
-                    var numberOfCatalogsCompleted = 0;
-
-                    foreach (Catalog catalogItem in fs.EnumerateCatalogInfos())
-                    {
-                        FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
-                        fifaBundleAction.Run();
-                        numberOfCatalogsCompleted++;
-                        logger.Log($"Compiling Mod Progress: {Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
-
-                        fifaBundleActions.Add(fifaBundleAction);
-                    }
-
-                    foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
-                    {
-                        if (bundleAction.HasErrored)
-                        {
-                            throw bundleAction.Exception;
-                        }
-                        if (bundleAction.CasFiles.Count > 0)
-                        {
-                            foreach (DbObject installManifestChunks in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
-                            {
-                                if (bundleAction.CatalogInfo.Name.Equals("win32/" + installManifestChunks.GetValue<string>("name")))
-                                {
-                                    foreach (int key in bundleAction.CasFiles.Keys)
-                                    {
-                                        DbObject dbObject6 = DbObject.CreateObject();
-                                        dbObject6.SetValue("id", key);
-                                        dbObject6.SetValue("path", bundleAction.CasFiles[key]);
-                                        installManifestChunks.GetValue<DbObject>("files").Add(dbObject6);
-
-
-                                    }
-                                    break;
+                                    archiveData[chunkAssetEntry.Sha1].Data = resourceData;
                                 }
                             }
-                        }
+                            break;
                     }
 
-                    logger.Log("Writing new Layout file to Game");
-                    using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+
+                    //if (resource.Type == ModResourceType.Chunk)
+                    //{
+                    //    Guid guid = new Guid(resource.Name);
+                    //    if (ModifiedChunks.ContainsKey(guid))
+                    //    {
+                    //        ModifiedChunks.Remove(guid);
+                    //    }
+                    //    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                    //    resource.FillAssetEntry(chunkAssetEntry);
+                    //    chunkAssetEntry.Size = resourceData.Length;
+
+                    //    ModifiedChunks.Add(guid, chunkAssetEntry);
+                    //    if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
+                    //    {
+                    //        archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
+                    //        {
+                    //            Data = resourceData,
+                    //        });
+                    //    }
+                    //    else
+                    //    {
+                    //        archiveData[chunkAssetEntry.Sha1].Data = resourceData;
+                    //    }
+                    //}
+
+                    //else 
+                    if (resource.Type == ModResourceType.Legacy)
                     {
-                        dbWriter.Write(layoutToc);
+                        LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
+                        resource.FillAssetEntry(legacyAssetEntry);
+                        legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = resourceData };
+                        legacyAssetEntry.Size = resourceData.Length;
+
+                        if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
+                            modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+                        else
+                            modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
                     }
-                }
-
-
-                if (UseModData)
-                {
-                    logger.Log("Copying initfs_win32");
-                    Directory.CreateDirectory(modPath + patchPath);
-                    CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
                 }
 
             }
 
-           
+            // ----------------------------------------------------------------
+            // Clear out memory and mods
+            foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
+            {
+                kvpMods.Key.Dispose();
+                if (kvpMods.Value is FrostbiteMod)
+                {
+                    kvpMods.Value.ModBytes = null;
+                }
+            }
+            frostyMods.Clear();
+
+            //Logger.Log("Cleaning up mod data directory");
+            //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
+            fs.ResetManifest();
+
+
+            //Logger.Log("Creating mod data directory");
+
+            // ----------------------------------------------------------------
+            // Create ModData Directory in the Game Path
+            Directory.CreateDirectory(modPath);
+            Directory.CreateDirectory(Path.Combine(modPath, "Data"));
+            Directory.CreateDirectory(Path.Combine(modPath, "Patch"));
+            Directory.CreateDirectory(Path.Combine(modPath, "Update"));
+
+
+            int workerThreads = 0;
+            int completionPortThreads = 0;
+            ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+            ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
+            //Logger.Log("Applying mods");
+            //SymbolicLinkList.Clear();
+
+
+            var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfileManager.AssetCompilerName);
+            if (pluginCompiler == null && !string.IsNullOrEmpty(ProfileManager.AssetCompilerName))
+                throw new NotImplementedException($"Could not find class {ProfileManager.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
+
+            if (pluginCompiler != null)
+            {
+                if (!((IAssetCompiler)pluginCompiler).Compile(fs, logger, this))
+                {
+                    Logger.LogError("An error occurred within the Plugin Compiler. Stopping.");
+                    return false;
+                }
+            }
+            else
+            {
+
+                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(x => x.FullName.ToLower().Contains("plugin")))
+                {
+                    foreach (Type t in a.GetTypes())
+                    {
+                        if (t.GetInterface("IAssetCompiler") != null)
+                        {
+                            //try
+                            //{
+                            if (t.Name == ProfileManager.AssetCompilerName)
+                            {
+                                Logger.Log("Attempting to load Compiler for " + GameEXEPath);
+
+                                if (!((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this))
+                                {
+                                    Logger.LogError("Unable to load Compiler. Stopping");
+                                    return false;
+                                }
+                            }
+                            //}
+                            //catch (Exception e)
+                            //{
+                            //    Logger.LogError($"Error in Compiler :: {e.Message}");
+
+                            //}
+                        }
+                    }
+                }
+            }
+
+            if (ProfileManager.IsFIFA20DataVersion())
+            {
+                DbObject layoutToc = null;
+
+
+                using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                {
+                    layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
+                }
+
+
+                FifaBundleAction.CasFileCount = fs.CasFileCount;
+                List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
+                ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
+
+                var numberOfCatalogs = fs.Catalogs.Count();
+                var numberOfCatalogsCompleted = 0;
+
+                foreach (Catalog catalogItem in fs.EnumerateCatalogInfos())
+                {
+                    FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
+                    fifaBundleAction.Run();
+                    numberOfCatalogsCompleted++;
+                    logger.Log($"Compiling Mod Progress: {Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+
+                    fifaBundleActions.Add(fifaBundleAction);
+                }
+
+                foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
+                {
+                    if (bundleAction.HasErrored)
+                    {
+                        throw bundleAction.Exception;
+                    }
+                    if (bundleAction.CasFiles.Count > 0)
+                    {
+                        foreach (DbObject installManifestChunks in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
+                        {
+                            if (bundleAction.CatalogInfo.Name.Equals("win32/" + installManifestChunks.GetValue<string>("name")))
+                            {
+                                foreach (int key in bundleAction.CasFiles.Keys)
+                                {
+                                    DbObject dbObject6 = DbObject.CreateObject();
+                                    dbObject6.SetValue("id", key);
+                                    dbObject6.SetValue("path", bundleAction.CasFiles[key]);
+                                    installManifestChunks.GetValue<DbObject>("files").Add(dbObject6);
+
+
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                logger.Log("Writing new Layout file to Game");
+                using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                {
+                    dbWriter.Write(layoutToc);
+                }
+            }
+
+
+            if (UseModData)
+            {
+                logger.Log("Copying initfs_win32");
+                Directory.CreateDirectory(modPath + patchPath);
+                CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+            }
+
+
+
 
             return FrostyModsFound;
         }
@@ -1537,9 +1481,6 @@ namespace ModdingSupport
             //else 
             //var dataPathArgument = "-dataPath \"" + modPath.Trim('\\') + "\" " + "";
             var dataPathArgument = "-dataPath ModData";
-            var fifaNonRetailArgument = "-FIFA.EnableLocalDiskAssetStream";
-            var dataModulesPathArgument = "-dataModulesPath ModData";
-            var noConfigArgument = "-noconfig";
             var arguments = dataPathArgument
                 //+ " " + fifaNonRetailArgument
                 //+ " " + dataModulesPathArgument
@@ -1647,7 +1588,7 @@ namespace ModdingSupport
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         FileLogger.WriteLine("ModExecutor:RunEADesktop: Unable to Kill EA Process. You may need to do this manually before running the game.");
                         FileLogger.WriteLine(ex.ToString());

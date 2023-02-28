@@ -1,13 +1,6 @@
 ﻿using CSharpImageLibrary.Headers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using UsefulThings;
 
 namespace CSharpImageLibrary.DDS
 {
@@ -86,7 +79,7 @@ namespace CSharpImageLibrary.DDS
 
                 // Get Red and Green on the range -1 - 1
                 // *2-1 moves the range from 0 - 1, to -1 - 1
-                double green = (destination[offset + 1] / 127.5d) - 1d; 
+                double green = (destination[offset + 1] / 127.5d) - 1d;
                 double red = (destination[offset + 2] / 127.5d) - 1d;
 
                 // Z solution for: x2 + y2 + z2 = 1, unit normal vectors. Only consider +ve root as ATI2 is a tangent space mapping and Z must be +ve.
@@ -191,10 +184,10 @@ namespace CSharpImageLibrary.DDS
             else if (oneChannel)
             {
                 // Decide whether it's alpha or not.
-                AIndex = AMask == 0 ? -1 : 0; 
-                RIndex = AMask == 0 ? 0 : -1; 
+                AIndex = AMask == 0 ? -1 : 0;
+                RIndex = AMask == 0 ? 0 : -1;
                 GIndex = AMask == 0 ? 0 : -1;
-                BIndex = AMask == 0 ? 0 : -1; 
+                BIndex = AMask == 0 ? 0 : -1;
             }
             else
             {
@@ -236,7 +229,7 @@ namespace CSharpImageLibrary.DDS
                     ReadFloats(source, sourceStart, sourceIncrement, new int[] { BIndex, GIndex, RIndex, AIndex }, destination, new int[] { destBInd, destGInd, destRInd, destAInd });
                     break;
             }
-            
+
             if (requiresSignedAdjustment)
             {
                 for (int i = 0; i < destination.Length; i += 4)

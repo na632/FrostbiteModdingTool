@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace FMT.FifaLibrary.CEM
 {
@@ -14,7 +12,7 @@ namespace FMT.FifaLibrary.CEM
     }
     public static class CEMUtilities
     {
-        
+
         public static DateTime FIFACoreDateTime
         {
             get

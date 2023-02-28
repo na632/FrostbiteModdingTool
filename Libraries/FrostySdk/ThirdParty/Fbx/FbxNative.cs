@@ -3,32 +3,32 @@ using System.Runtime.InteropServices;
 
 namespace FrostbiteSdk
 {
-	public class FbxNative
-	{
-		protected IntPtr pHandle;
+    public class FbxNative
+    {
+        protected IntPtr pHandle;
 
-		protected IntPtr vTable;
+        protected IntPtr vTable;
 
-		protected bool bNeedsFreeing;
+        protected bool bNeedsFreeing;
 
-		internal IntPtr Handle => pHandle;
+        internal IntPtr Handle => pHandle;
 
-		public FbxNative()
-		{
-		}
+        public FbxNative()
+        {
+        }
 
-		public FbxNative(IntPtr InHandle)
-		{
-			pHandle = InHandle;
-			vTable = Marshal.ReadIntPtr(pHandle, 0);
-		}
+        public FbxNative(IntPtr InHandle)
+        {
+            pHandle = InHandle;
+            vTable = Marshal.ReadIntPtr(pHandle, 0);
+        }
 
-		~FbxNative()
-		{
-			if (bNeedsFreeing)
-			{
-				FbxUtils.FbxFree(pHandle);
-			}
-		}
-	}
+        ~FbxNative()
+        {
+            if (bNeedsFreeing)
+            {
+                FbxUtils.FbxFree(pHandle);
+            }
+        }
+    }
 }

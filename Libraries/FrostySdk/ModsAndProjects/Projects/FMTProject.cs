@@ -3,17 +3,14 @@ using FMT.FileTools.Modding;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using FrostySdk.Frostbite.IO.Input;
 using FrostySdk.Frostbite.IO.Output;
-using FrostySdk.Frosty.FET;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using v2k4FIFAModding.Frosty;
 
 namespace FrostySdk.ModsAndProjects.Projects
@@ -47,8 +44,8 @@ namespace FrostySdk.ModsAndProjects.Projects
             if (string.IsNullOrEmpty(filePath))
                 throw new NullReferenceException(nameof(filePath));
 
-            if(!filePath.EndsWith(projectExtension, StringComparison.Ordinal))  
-                filePath += projectExtension;    
+            if (!filePath.EndsWith(projectExtension, StringComparison.Ordinal))
+                filePath += projectExtension;
 
             if (File.Exists(filePath))
                 File.Delete(filePath);
@@ -90,10 +87,10 @@ namespace FrostySdk.ModsAndProjects.Projects
                 ResourceAssetsRead(nr);
                 nr.Position = assetManagerPositions["chunks"];
                 ChunkAssetsRead(nr);
-                foreach(var kvp in assetManagerPositions.Skip(3))
+                foreach (var kvp in assetManagerPositions.Skip(3))
                 {
                     nr.Position = kvp.Value;
-                    if(kvp.Key == "legacy")
+                    if (kvp.Key == "legacy")
                     {
                     }
                 }
@@ -153,7 +150,7 @@ namespace FrostySdk.ModsAndProjects.Projects
                     // CHUNK
                     writePositions.Add("chunks", nw.Position);
                     ChunkAssetsWrite(nw);
-                   
+
                     // Legacy
                     writePositions.Add("legacy", nw.Position);
                     LegacyFilesModifiedWrite(nw);
@@ -211,7 +208,7 @@ namespace FrostySdk.ModsAndProjects.Projects
         {
             // EBX Count
             var count = nr.ReadInt();
-            for(var i = 0 ; i < count; i++) 
+            for (var i = 0; i < count; i++)
             {
                 // Item Name
                 //nw.WriteLengthPrefixedString(item.Name);
@@ -293,13 +290,13 @@ namespace FrostySdk.ModsAndProjects.Projects
             }
         }
 
-        private static void LegacyFilesAddedRead(NativeReader nr) 
+        private static void LegacyFilesAddedRead(NativeReader nr)
         {
             // -----------------------
             // Added Legacy Files
             nr.ReadLengthPrefixedString(); // CFC 
             var countAdded = nr.ReadInt(); // Count Added
-            for(var iCount = 0; iCount < countAdded; iCount++)
+            for (var iCount = 0; iCount < countAdded; iCount++)
             {
                 nr.ReadLengthPrefixedString();
             }
@@ -428,7 +425,7 @@ namespace FrostySdk.ModsAndProjects.Projects
                         AssetManager.Instance.ModifyEntry(entry, d2);
                         if (entry is ChunkAssetEntry)
                         {
-                            if(r.IsLegacyFile)
+                            if (r.IsLegacyFile)
                             {
 
                             }

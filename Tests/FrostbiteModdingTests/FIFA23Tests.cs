@@ -1,8 +1,4 @@
-﻿using FIFA23Plugin;
-using FifaLibrary;
-using FMT.FileTools;
-using FMT.FileTools.Modding;
-using Frostbite.Textures;
+﻿using FifaLibrary;
 using FrostbiteModdingUI.CEM;
 using FrostySdk;
 using FrostySdk.Frostbite;
@@ -11,9 +7,6 @@ using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.ModsAndProjects.Projects;
-using FrostySdk.Resources;
-using FrostySdk.ThirdParty;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using ProcessMemoryUtilities.Managed;
@@ -24,8 +17,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
-using System.Windows.Input;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -36,8 +27,8 @@ namespace FrostbiteModdingTests
     {
         private string prevText = string.Empty;
 
-        public string GamePath 
-        { 
+        public string GamePath
+        {
             get
             {
 
@@ -284,7 +275,7 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
-            
+
             var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
             Assert.IsNotNull(ebxEntry);
             Stopwatch sw = new Stopwatch();
@@ -756,23 +747,23 @@ namespace FrostbiteModdingTests
             //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("haircap_201942_0_0_mesh")).FirstOrDefault();
             //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("hair_201942_0_0_mesh")).FirstOrDefault();
             Assert.IsNotNull(skinnedMeshEntry);
-            
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
 
-                var skinnedMeshEbx = AssetManager.Instance.GetEbx(skinnedMeshEntry);
-                Assert.IsNotNull(skinnedMeshEbx);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
-                    var resentry = AssetManager.Instance.GetResEntry(skinnedMeshEntry.Name);
-                    var res = AssetManager.Instance.GetRes(resentry);
+            var skinnedMeshEbx = AssetManager.Instance.GetEbx(skinnedMeshEntry);
+            Assert.IsNotNull(skinnedMeshEbx);
 
-                    var exporter1 = new MeshSetToFbxExport();
-                    MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
+            var resentry = AssetManager.Instance.GetResEntry(skinnedMeshEntry.Name);
+            var res = AssetManager.Instance.GetRes(resentry);
 
-                    exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, Path.Combine(TestMeshesPath, "test.fbx"), "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+            var exporter1 = new MeshSetToFbxExport();
+            MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
 
-                sw.Stop();
-                Debug.WriteLine($"{sw.Elapsed}");
+            exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, Path.Combine(TestMeshesPath, "test.fbx"), "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+
+            sw.Stop();
+            Debug.WriteLine($"{sw.Elapsed}");
         }
 
         [TestMethod]

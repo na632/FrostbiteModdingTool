@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using v2k4FIFAModding.Career.CME.FIFA;
 
 namespace CareerExpansionMod.CEM.FIFA
@@ -25,7 +23,7 @@ namespace CareerExpansionMod.CEM.FIFA
             var pnames = new List<FIFAPlayerName>();
 
             var dlllocation = AppContext.BaseDirectory;
-            
+
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
 
             using (var reader = new StreamReader(fulllocation))

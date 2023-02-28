@@ -3,17 +3,17 @@ using System.IO;
 
 namespace FrostySdk.Resources
 {
-	public class HeightfieldDecal
-	{
-		private Stream data;
+    public class HeightfieldDecal
+    {
+        private Stream data;
 
-		public Stream Data => data;
+        public Stream Data => data;
 
-		public int Size => (int)Math.Sqrt(data.Length);
+        public int Size => (int)Math.Sqrt(data.Length);
 
-		public HeightfieldDecal(Stream stream)
-		{
-			data = stream;
-		}
-	}
+        public HeightfieldDecal(Stream stream)
+        {
+            data = stream;
+        }
+    }
 }

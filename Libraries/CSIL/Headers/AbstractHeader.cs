@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static CSharpImageLibrary.ImageFormats;
+﻿using System.IO;
 
 namespace CSharpImageLibrary.Headers
 {
@@ -51,6 +44,6 @@ namespace CSharpImageLibrary.Headers
             return base.ToString();
         }
 
-        
+
     }
 }

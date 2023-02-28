@@ -1,43 +1,28 @@
-﻿using CareerExpansionMod.CEM;
-using FIFAModdingUI;
-using FIFAModdingUI.Windows;
+﻿using FIFAModdingUI;
 using FIFAModdingUI.Windows.Profile;
+using FMT.FileTools.Modding;
 using FMT.Mods;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostbiteSdk;
 using FrostySdk;
-using FrostySdk.Frosty;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
-using Newtonsoft.Json;
-using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using FrostySdk.Frostbite;
-using FMT.FileTools.Modding;
 
 //namespace FIFAModdingUI
 namespace FMT
@@ -48,6 +33,8 @@ namespace FMT
     public partial class LaunchWindow : MetroWindow, ILogger
     {
         public string WindowTitle { get; set; }
+
+        public string GameLocation { get; set; }
 
         public ModListProfile Profile { get; set; }
 
@@ -63,40 +50,17 @@ namespace FMT
         private async void LaunchWindow_Loaded(object sender, RoutedEventArgs e)
         {
             WindowTitle = "FMT Launcher - " + App.ProductVersion;
+            GameLocation = AppSettings.Settings.GameInstallEXEPath;
+
             DataContext = this;
 
-            //App.AppInsightClient.TrackPageView("Launcher Window - " + WindowTitle);
+            await InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
 
-            //try
+            //BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
+            //if (CacheManager.DoesCacheNeedsRebuilding())
             //{
-            //    if (AppSettings.Settings.GameInstallEXEPath == null)
-            //    {
-            //        var bS = new FindGameEXEWindow().ShowDialog();
-            //        if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
-            //        {
-            //        }
-            //        else
-            //        {
-            //            MessageBox.Show("You must select an EXE to launch a game. Close this screen and reopen to select one");
-            //            throw new Exception("Unable to start up Game");
-            //        }
-            //    }
-
-                await InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
-
+            //    buildSDKAndCacheWindow.ShowDialog();
             //}
-            //catch (Exception ex)
-            //{
-            //    Trace.WriteLine(ex.ToString());
-            //    //this.Close();
-            //    return;
-            //}
-
-            BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
-            if (CacheManager.DoesCacheNeedsRebuilding())
-            {
-                buildSDKAndCacheWindow.ShowDialog();
-            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -110,6 +74,7 @@ namespace FMT
                 AssetManager.Instance = null;
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
+                GC.WaitForFullGCComplete(-1);
             }
             AppSettings.Settings.GameInstallEXEPath = null;
             Owner.Visibility = Visibility.Visible;
@@ -131,7 +96,7 @@ namespace FMT
                 this.listMods.SelectedIndex = selectedIndex - 1;
 
                 var mL = new Mods.ModList(Profile);
-                mL.ModListItems.Swap(selectedIndex -1, selectedIndex);
+                mL.ModListItems.Swap(selectedIndex - 1, selectedIndex);
                 mL.Save();
             }
         }
@@ -161,7 +126,7 @@ namespace FMT
 
             // get profile list
             var items = ModListProfile.LoadAll().Select(x => x.ProfileName).ToList();
-            foreach(var i in items)
+            foreach (var i in items)
             {
                 var profButton = new Button() { Content = i };
                 profButton.Click += (object sender, RoutedEventArgs e) => { };
@@ -176,7 +141,7 @@ namespace FMT
             var modItems = new ModList(Profile).ModListItems;
             ListOfMods = new ObservableCollection<ModList.ModItem>(modItems);
             listMods.ItemsSource = ListOfMods;
-            
+
         }
 
         private void Addnewprofilebutton_Click(object sender, RoutedEventArgs e)
@@ -205,7 +170,7 @@ namespace FMT
                 }
                 baseDir.Delete(true);
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -218,7 +183,7 @@ namespace FMT
             if (stopLoggingUntilComplete)
                 return;
 
-            if(in_text.Contains("Read out of Cache"))
+            if (in_text.Contains("Read out of Cache"))
             {
                 stopLoggingUntilComplete = true;
 
@@ -229,7 +194,8 @@ namespace FMT
             }
 
             var txt = string.Empty;
-            await Dispatcher.InvokeAsync(() => {
+            await Dispatcher.InvokeAsync(() =>
+            {
                 txt = txtLog.Text;
             });
 
@@ -239,7 +205,7 @@ namespace FMT
 
                 stringBuilder.Append(txt);
                 stringBuilder.AppendLine(in_text);
-                if(stopLoggingUntilComplete)
+                if (stopLoggingUntilComplete)
                 {
                     stringBuilder.AppendLine("Please wait for compiler to finish first load. This may take 10-20 minutes");
                 }
@@ -257,7 +223,8 @@ namespace FMT
 
         public void LogSync(string in_text)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 var stringBuilder = new StringBuilder();
                 stringBuilder.Append(txtLog.Text);
                 stringBuilder.AppendLine(in_text);
@@ -282,7 +249,7 @@ namespace FMT
 
             if (switchUseLegacyModSupport.IsOn)
             {
-                foreach (var lmodZipped in ListOfMods.Select(x=>x.Path).Where(x => x.Contains(".zip")))
+                foreach (var lmodZipped in ListOfMods.Select(x => x.Path).Where(x => x.Contains(".zip")))
                 {
                     using (FileStream fsZip = new FileStream(lmodZipped, FileMode.Open))
                     {
@@ -351,7 +318,7 @@ namespace FMT
                 loadingDialog.Update("Launching", "Copying locale.ini");
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
-                if (ProfileManager.IsFIFA21DataVersion() 
+                if (ProfileManager.IsFIFA21DataVersion()
                     || ProfileManager.IsFIFA22DataVersion()
                     || ProfileManager.IsFIFA23DataVersion())
                 {
@@ -361,7 +328,7 @@ namespace FMT
                         if (Directory.Exists(GameInstanceSingleton.Instance.ModDataPath))
                         {
                             FileInfo localeIniModData = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIModDataPath);
-                            if(localeIniModData.Exists)
+                            if (localeIniModData.Exists)
                                 File.Copy(localeIni.FullName, localeIniModData.FullName, true);
                         }
                     }
@@ -372,7 +339,7 @@ namespace FMT
                 var useSymbolicLink = switchUseSymbolicLink.IsOn;
                 var forceReinstallOfMods = switchForceReinstallMods.IsOn;
                 var useModData = switchUseModData.IsOn;
-                if(!useModData)
+                if (!useModData)
                 {
                     Dispatcher.Invoke(() =>
                     {
@@ -395,17 +362,18 @@ namespace FMT
                 await new TaskFactory().StartNew(async () =>
                 {
 
-                Dispatcher.Invoke(() =>
-                {
-                    btnLaunch.IsEnabled = false;
-                    //btnLaunchOtherTool.IsEnabled = false;
-                });
-                await Task.Delay(500);
+                    Dispatcher.Invoke(() =>
+                    {
+                        btnLaunch.IsEnabled = false;
+                        //btnLaunchOtherTool.IsEnabled = false;
+                    });
+                    await Task.Delay(500);
 
 
                     Log("Mod Compiler Started for " + GameInstanceSingleton.Instance.GAMEVERSION);
 
-                    Dispatcher.Invoke(() => {
+                    Dispatcher.Invoke(() =>
+                    {
 
                         DiscordInterop.DiscordRpcClient.UpdateDetails("Launching " + GameInstanceSingleton.Instance.GAMEVERSION + " with " + ListOfMods.Count + " mods");
                         DiscordInterop.DiscordRpcClient.UpdateState("V." + App.ProductVersion);
@@ -425,7 +393,7 @@ namespace FMT
                         var launchTask = LaunchGame.LaunchAsync(
                             GameInstanceSingleton.Instance.GAMERootPath
                             , ""
-                            , new Mods.ModList(Profile).ModListItems.Select(x=>x.Path).ToList()
+                            , new Mods.ModList(Profile).ModListItems.Select(x => x.Path).ToList()
                             , this
                             , GameInstanceSingleton.Instance.GAMEVERSION
                             , forceReinstallOfMods
@@ -527,7 +495,7 @@ namespace FMT
                             if (liveEditorResult)
                             {
                                 Log("Live Editor - Injected");
-                                if(File.Exists(App.ApplicationDirectory + "\\CEM\\Data\\fifa_ng_db-meta.XML"))
+                                if (File.Exists(App.ApplicationDirectory + "\\CEM\\Data\\fifa_ng_db-meta.XML"))
                                 {
                                     if (!Directory.Exists(GameInstanceSingleton.Instance.GAMERootPath + @"LiveEditorMods\root\Legacy\data\db"))
                                         Directory.CreateDirectory(GameInstanceSingleton.Instance.GAMERootPath + @"LiveEditorMods\root\Legacy\data\db");
@@ -546,7 +514,8 @@ namespace FMT
                             switchForceReinstallMods.IsOn = false;
                             switchForceReinstallMods.IsEnabled = true;
                         });
-                        Dispatcher.Invoke(() => {
+                        Dispatcher.Invoke(() =>
+                        {
                             //var presence = new DiscordRPC.RichPresence();
                             //presence.Details = "Playing " + GameInstanceSingleton.Instance.GAMEVERSION + " with " + ListOfMods.Count + " mods";
                             //presence.State = "V." + App.ProductVersion;
@@ -573,7 +542,8 @@ namespace FMT
                     }
                     else
                     {
-                        Dispatcher.Invoke(() => {
+                        Dispatcher.Invoke(() =>
+                        {
                             DiscordInterop.DiscordRpcClient.ClearPresence();
                         });
                     }
@@ -650,7 +620,7 @@ namespace FMT
                 var filePath = dialog.FileName;
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    
+
                     // If a zip file, extract them first
                     if (new FileInfo(filePath).Extension.Contains("zip", StringComparison.OrdinalIgnoreCase))
                     {
@@ -661,7 +631,7 @@ namespace FMT
                                 Directory.CreateDirectory(temporaryModsDirectory);
 
                             ZipFile.ExtractToDirectory(filePath, temporaryModsDirectory, true);
-                            foreach(var zippedFile in Directory.GetFiles(temporaryModsDirectory))
+                            foreach (var zippedFile in Directory.GetFiles(temporaryModsDirectory))
                             {
                                 if (!ImportModFromPath(zippedFile))
                                 {
@@ -676,10 +646,10 @@ namespace FMT
                             return;
                         }
                     }
-                    
+
 
                     // If a mod, import as normal
-                    if(!ImportModFromPath(filePath))
+                    if (!ImportModFromPath(filePath))
                     {
                         LogError($"Unable to import {filePath}.");
                     }
@@ -820,7 +790,7 @@ namespace FMT
                 }
 
                 launcherOptions = await LauncherOptions.LoadAsync();
-                switchUseModData.IsOn = launcherOptions.UseModData.HasValue 
+                switchUseModData.IsOn = launcherOptions.UseModData.HasValue
                                                 ? launcherOptions.UseModData.Value : ProfileManager.LoadedProfile.CanUseModData;
                 switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue && GameInstanceSingleton.IsCompatibleWithLegacyMod()
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
@@ -837,7 +807,7 @@ namespace FMT
 
         public void Log(string text, params object[] vars)
         {
-            if(loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
+            if (loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
             {
                 loadingDialog.Update("Loading", text);
             }
@@ -896,7 +866,7 @@ namespace FMT
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogError(ex.ToString());
             }
@@ -945,7 +915,8 @@ namespace FMT
 
         private void switchUseModData_Toggled(object sender, RoutedEventArgs e)
         {
-            Dispatcher.Invoke(() => { 
+            Dispatcher.Invoke(() =>
+            {
                 switchUseSymbolicLink.IsEnabled = switchUseModData.IsOn;
 
                 // Cannot use symbolic link if there is no Mod Data folder

@@ -1,6 +1,5 @@
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
-using FrostyEditor.IO;
 using FrostySdk;
 using System;
 using System.Collections.Generic;
@@ -73,10 +72,10 @@ namespace SdkGenerator.BaseInfo
                 reader.Position = position;
                 nameSpace = reader.ReadNullTerminatedString();
                 bool flag2 = false;
-                if (ProfileManager.DataVersion == 20170929 
-                    || ProfileManager.DataVersion == 20171117 
-                    || ProfileManager.DataVersion == 20171110 
-                    || ProfileManager.DataVersion == 20180807 
+                if (ProfileManager.DataVersion == 20170929
+                    || ProfileManager.DataVersion == 20171117
+                    || ProfileManager.DataVersion == 20171110
+                    || ProfileManager.DataVersion == 20180807
                     || ProfileManager.DataVersion == 20180628
                     || ProfileManager.IsFIFA19DataVersion()
                     )
@@ -126,7 +125,7 @@ namespace SdkGenerator.BaseInfo
                         FieldInfo fieldInfo2 = new FieldInfo();
                         fieldInfo2.Read(reader);
                         fieldInfo2.index = j;
-                        if(fieldInfo2.name == "")
+                        if (fieldInfo2.name == "")
                         {
 
                         }

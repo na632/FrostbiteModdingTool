@@ -1,5 +1,4 @@
-﻿using CareerExpansionMod.CEM;
-using CareerExpansionMod.CEM.FIFA;
+﻿using CareerExpansionMod.CEM.FIFA;
 using FifaLibrary;
 using FMT.FileTools;
 using System;
@@ -9,7 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using v2k4FIFAModding.Career.CME.FIFA;
 
@@ -80,7 +78,7 @@ namespace FMT.FifaLibrary.CEM
             public int TransferBudget
             {
                 get { return transferBudget; }
-                set { transferBudget = value;  }
+                set { transferBudget = value; }
             }
 
         }
@@ -152,7 +150,7 @@ namespace FMT.FifaLibrary.CEM
 
         public static CareerFile SetupCareerFile(Stream stream, string filePathOrName)
         {
-            
+
             if (CurrentCareerFile == null)
                 CurrentCareerFile = new CareerFile(stream, XmlDbMetaStream, filePathOrName);
 
@@ -197,10 +195,10 @@ namespace FMT.FifaLibrary.CEM
         }
         public static CareerFile SetupCareerFile(string inCareerFilePath)
         {
-            if(fsDB != null)
+            if (fsDB != null)
             {
                 fsDB.Close();
-                fsDB.Dispose(); 
+                fsDB.Dispose();
             }
 
             if (XmlDbMetaStream != null)
@@ -220,20 +218,20 @@ namespace FMT.FifaLibrary.CEM
         public static CareerFile CurrentCareerFile
         {
             get { return careerFile; }
-            set 
-            { 
-                if(careerFile != null)
+            set
+            {
+                if (careerFile != null)
                 {
                     careerFile = null;
                 }
 
-                careerFile = value; 
-            
+                careerFile = value;
+
             }
         }
 
 
-        public MemoryStream GetCopyOfCareerFile() 
+        public MemoryStream GetCopyOfCareerFile()
         {
             MemoryStream msCurrentfile = new MemoryStream();
             using (var fsCurrentFile = new FileStream(CareerFile.Current.OriginalFileName, FileMode.Open))
@@ -245,7 +243,7 @@ namespace FMT.FifaLibrary.CEM
         }
 
 
-    public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync(int? teamId = null)
+        public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync(int? teamId = null)
         {
             return await Task.Run(() => { return GetPlayerStats(teamId); });
         }
@@ -336,7 +334,7 @@ namespace FMT.FifaLibrary.CEM
 
                 // found a match on first byte, it tries to match rest of the pattern
                 for (j = pattern.Length - 1; j >= 1 && src[i + j] == pattern[j]; j--) ;
-                if (j == 0)  yield return i;
+                if (j == 0) yield return i;
             }
             yield return null;
         }
@@ -346,7 +344,8 @@ namespace FMT.FifaLibrary.CEM
 
         public int? GetFinancesOffset(int? teamId = null)
         {
-            if (teamId == null) {
+            if (teamId == null)
+            {
                 var fifaUser = CareerDB1.FIFAUser;
                 teamId = fifaUser.clubteamid;
             }
@@ -368,7 +367,8 @@ namespace FMT.FifaLibrary.CEM
             if (!userFinanceOffset.HasValue)
                 return null;
 
-            return await Task.Run(() => {
+            return await Task.Run(() =>
+            {
                 userFinances = new Finances();
                 using (NativeReader nr = new NativeReader(GetCopyOfCareerFile()))
                 {
@@ -401,17 +401,17 @@ namespace FMT.FifaLibrary.CEM
             //    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
             //    userFinanceLocation = boyerMoore2.Search(rBytes);
 
-                //}
+            //}
 
-                //using (NativeWriter nw = new NativeWriter(CurrentCareerFile.DbStream))
-                //{
-                //    nw.Position = userFinanceLocation;
-                //    nw.Position += 6;
-                //    nw.Position += 8;
-                //    nw.Write(userFinances.StartingBudget);
-                //    nw.Position += 16;
-                //    nw.Write(userFinances.TransferBudget);
-                //}
+            //using (NativeWriter nw = new NativeWriter(CurrentCareerFile.DbStream))
+            //{
+            //    nw.Position = userFinanceLocation;
+            //    nw.Position += 6;
+            //    nw.Position += 8;
+            //    nw.Write(userFinances.StartingBudget);
+            //    nw.Position += 16;
+            //    nw.Write(userFinances.TransferBudget);
+            //}
         }
 
         public IEnumerable<FileInfo> CareerFileInfos
@@ -436,13 +436,13 @@ namespace FMT.FifaLibrary.CEM
             }
         }
 
-        public IEnumerable<CareerFile> CareerFiles 
-        { 
+        public IEnumerable<CareerFile> CareerFiles
+        {
             get
             {
                 //return CareerFileInfos.Select(x => new CareerFile(x.FullName, CEMInternalDataDirectory + "fifa_ng_db-meta.XML"));
                 return null;
-            } 
+            }
         }
 
         /// <summary>
@@ -536,13 +536,13 @@ namespace FMT.FifaLibrary.CEM
 
         public void Dispose()
         {
-            if(FileSystemWatcher != null) 
-                FileSystemWatcher.Dispose();  
+            if (FileSystemWatcher != null)
+                FileSystemWatcher.Dispose();
 
-            if(DbStream != null)
+            if (DbStream != null)
                 DbStream.Dispose();
 
-            if(XmlDbMetaStream != null) 
+            if (XmlDbMetaStream != null)
                 XmlDbMetaStream.Dispose();
         }
     }

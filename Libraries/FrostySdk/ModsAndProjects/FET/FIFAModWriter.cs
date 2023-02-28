@@ -1,41 +1,35 @@
 ﻿using FMT.FileTools;
-using Frostbite.FileManagers;
-using FrostbiteSdk.Frostbite.FileManagers;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using Standart.Hash.xxHash;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using static FrostySdk.FrostbiteModWriter;
 
 namespace FrostySdk.Frosty.FET
 {
-	public class FIFAModWriter : FrostbiteModWriter
-	{
-		private readonly AssetManager assetManager;
+    public class FIFAModWriter : FrostbiteModWriter
+    {
+        private readonly AssetManager assetManager;
 
-		private readonly FileSystem fileSystem;
+        private readonly FileSystem fileSystem;
 
-		private readonly string gameName;
+        private readonly string gameName;
 
-		private ModSettings overrideSettings;
+        private ModSettings overrideSettings;
 
         private long positionOfPlaceholders;
 
         private long positionOfEndOfHeader;
 
         public FIFAModWriter(string gameName, AssetManager assetManager, FileSystem fileSystem, Stream inStream, ModSettings inOverrideSettings = null)
-			: base(inStream)
-		{
-			this.gameName = gameName;
-			this.assetManager = assetManager ?? throw new ArgumentNullException("assetManager");
-			this.fileSystem = fileSystem ?? throw new ArgumentNullException("fileSystem");
-			overrideSettings = inOverrideSettings;
-		}
+            : base(inStream)
+        {
+            this.gameName = gameName;
+            this.assetManager = assetManager ?? throw new ArgumentNullException("assetManager");
+            this.fileSystem = fileSystem ?? throw new ArgumentNullException("fileSystem");
+            overrideSettings = inOverrideSettings;
+        }
 
         public override void WriteProject(FrostbiteProject project)
         {
@@ -57,7 +51,7 @@ namespace FrostySdk.Frosty.FET
             ModSettings modSettings = overrideSettings ?? project.ModSettings;
             WriteLengthPrefixedString(modSettings.Title);
             WriteLengthPrefixedString(modSettings.Author);
-            Write((byte)byte.MaxValue);
+            Write(byte.MaxValue);
             Write(Convert.ToByte(1));
             WriteLengthPrefixedString(string.Empty);
             WriteLengthPrefixedString(string.Empty);
@@ -72,7 +66,7 @@ namespace FrostySdk.Frosty.FET
             WriteLengthPrefixedString(string.Empty);
             WriteLengthPrefixedString(string.Empty);
             AddResource(new EmbeddedResource("Icon", modSettings.Icon, ResourceManifest));
-            WriteUInt32LittleEndian((uint)0);
+            WriteUInt32LittleEndian(0);
             //Write7BitEncodedInt(0); // locale ini
             Write7BitEncodedInt(AssetManager.Instance.LocaleINIMod.HasUserData ? 1 : 0);
             if (AssetManager.Instance.LocaleINIMod.HasUserData)
@@ -111,7 +105,7 @@ namespace FrostySdk.Frosty.FET
             //}
             foreach (BundleEntry item in assetManager.EnumerateBundles(BundleType.None, modifiedOnly: true))
             {
-                
+
             }
             foreach (EbxAssetEntry ebxAssetEntry in assetManager.EnumerateEbx("", modifiedOnly: true))
             {
@@ -224,5 +218,5 @@ namespace FrostySdk.Frosty.FET
 
     }
 
-    
+
 }

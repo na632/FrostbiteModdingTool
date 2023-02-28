@@ -1,15 +1,8 @@
 ﻿using FMT.FileTools;
-using FrostySdk;
-using FrostySdk.Deobfuscators;
-using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.FrostySdk.IO.Readers;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -53,9 +46,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             {
                 nr_cas.Position = 0;
                 int index = 0;
-                foreach (CASBundle casBundle in casBundles.Where(x=>x.TotalSize > 0))
+                foreach (CASBundle casBundle in casBundles.Where(x => x.TotalSize > 0))
                 {
-                    if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
+                    if (AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
                         AssetManager.Instance.Logger.Log($"{path} [{Math.Round(((double)index / casBundles.Count) * 100).ToString()}%]");
 
                     //AssetManager.Instance.Bundles.Add(new BundleEntry() { });
@@ -84,11 +77,11 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         //binaryReader.BinaryRead_FIFA21((int)baseBundleInfo.Offset, ref binaryObject, inner_reader, false);
                         //inner_reader.Position = pos;
                         nr_cas.Position = baseBundleInfo.Offset;
-                        if(binaryReader.BinaryRead(0, ref binaryObject, nr_cas, false) == null)
+                        if (binaryReader.BinaryRead(0, ref binaryObject, nr_cas, false) == null)
                         {
                             if (AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
                                 AssetManager.Instance.Logger.LogError("Unable to find data in " + casBundle.ToString());
-                            
+
                             continue;
                         }
 
@@ -180,7 +173,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                             if (AssociatedTOCFile.ProcessData)
                             {
-                                foreach (DbObject item in 
+                                foreach (DbObject item in
                                     EbxObjectList.List
                                     .Union(ResObjectList.List)
                                     .Union(ChunkObjectList.List)
@@ -208,7 +201,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                     asset.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                                     if (AssociatedTOCFile.ProcessData)
                                     {
-                                        if(asset is EbxAssetEntry ebxAssetEntry)
+                                        if (asset is EbxAssetEntry ebxAssetEntry)
                                             AssetManager.Instance.AddEbx(ebxAssetEntry);
                                         else if (asset is ResAssetEntry resAssetEntry)
                                             AssetManager.Instance.AddRes(resAssetEntry);

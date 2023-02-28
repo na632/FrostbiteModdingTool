@@ -1,9 +1,9 @@
 namespace FrostySdk.Interfaces
 {
-	public interface ILoggable
-	{
-		void SetLogger(ILogger inLogger);
+    public interface ILoggable
+    {
+        void SetLogger(ILogger inLogger);
 
-		void ClearLogger();
-	}
+        void ClearLogger();
+    }
 }

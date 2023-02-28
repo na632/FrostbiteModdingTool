@@ -1,65 +1,46 @@
 ﻿using FMT.FileTools;
 using FMT.Models;
-using FrostbiteModdingUI.Pages.Common.EBX;
 using FrostbiteModdingUI.Windows;
 using FrostbiteSdk;
 using FrostySdk;
-using FrostySdk.FrostySdk.Ebx;
-
-using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
-using Microsoft.Identity.Client;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using v2k4FIFAModding;
 
 namespace FIFAModdingUI.Pages.Common
 {
-	/// <summary>
-	/// Interaction logic for Editor.xaml
-	/// </summary>
-	public partial class Editor : UserControl, INotifyPropertyChanged
-	{
+    /// <summary>
+    /// Interaction logic for Editor.xaml
+    /// </summary>
+    public partial class Editor : UserControl, INotifyPropertyChanged
+    {
 
-		public static readonly DependencyProperty AssetEntryProperty;
+        public static readonly DependencyProperty AssetEntryProperty;
 
-		public static readonly DependencyProperty AssetModifiedProperty;
+        public static readonly DependencyProperty AssetModifiedProperty;
 
-		protected IEditorWindow EditorWindow;
+        protected IEditorWindow EditorWindow;
 
-		protected List<object> objects;
+        protected List<object> objects;
 
-		protected List<object> rootObjects;
+        protected List<object> rootObjects;
 
-		protected Dictionary<Guid, EbxAsset> dependentObjects = new Dictionary<Guid, EbxAsset>();
+        protected Dictionary<Guid, EbxAsset> dependentObjects = new Dictionary<Guid, EbxAsset>();
 
-		protected EbxAsset asset;
+        protected EbxAsset asset;
 
-		public object RootObject { get { return asset.RootObject; } }
+        public object RootObject { get { return asset.RootObject; } }
 
-		private List<ModdableProperty> _rootObjProps;
+        private List<ModdableProperty> _rootObjProps;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -72,42 +53,42 @@ namespace FIFAModdingUI.Pages.Common
         {
             get
             {
-				if (_rootObjProps == null)
-				{
-					_rootObjProps = new List<ModdableProperty>();
-					if (RootObject != null)
-					{
-						var vanillaRootObject = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false).RootObject;
+                if (_rootObjProps == null)
+                {
+                    _rootObjProps = new List<ModdableProperty>();
+                    if (RootObject != null)
+                    {
+                        var vanillaRootObject = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false).RootObject;
 
                         _rootObjProps = ModdableProperty.GetModdableProperties(RootObject, Modprop_PropertyChanged, vanillaRootObject).ToList();
-						return _rootObjProps
-							.OrderBy(x => x.PropertyName == "BaseField")
+                        return _rootObjProps
+                            .OrderBy(x => x.PropertyName == "BaseField")
                             .ThenBy(x => x.PropertyName == "Name")
-							.ThenBy(x => x.PropertyName).ToList();
-					}
-				}
-				return _rootObjProps;
-			}
-			set
+                            .ThenBy(x => x.PropertyName).ToList();
+                    }
+                }
+                return _rootObjProps;
+            }
+            set
             {
-				_rootObjProps = value;
-				foreach(var item in _rootObjProps.Where(x=> !x.PropertyName.StartsWith("__")))
+                _rootObjProps = value;
+                foreach (var item in _rootObjProps.Where(x => !x.PropertyName.StartsWith("__")))
                 {
-					Utilities.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
+                    Utilities.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
                 }
 
-				AssetManager.Instance.ModifyEbx(AssetEntry.Name, asset);
-			}
+                AssetManager.Instance.ModifyEbx(AssetEntry.Name, asset);
+            }
         }
 
-		private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-			var index = _rootObjProps.FindIndex(x => x.PropertyName == ((ModdableProperty)sender).PropertyName);
-			var o = _rootObjProps[index];
-			o.PropertyValue = ((ModdableProperty)sender).PropertyValue;
-			var robjs = RootObjectProperties;
-			robjs[index] = o;
-			RootObjectProperties = robjs;
+            var index = _rootObjProps.FindIndex(x => x.PropertyName == ((ModdableProperty)sender).PropertyName);
+            var o = _rootObjProps[index];
+            o.PropertyValue = ((ModdableProperty)sender).PropertyValue;
+            var robjs = RootObjectProperties;
+            robjs[index] = o;
+            RootObjectProperties = robjs;
 
             //if(EditorWindow != null)
             //	EditorWindow.UpdateAllBrowsers();
@@ -116,60 +97,61 @@ namespace FIFAModdingUI.Pages.Common
                 EditorWindow.Log($"[{DateTime.Now.ToString("t")}] {asset.RootObject} Saved");
         }
 
-		public void RevertAsset() {
-			AssetManager.Instance.RevertAsset(AssetEntry);
-			this.Visibility = Visibility.Collapsed;
-		}
+        public void RevertAsset()
+        {
+            AssetManager.Instance.RevertAsset(AssetEntry);
+            this.Visibility = Visibility.Collapsed;
+        }
 
-		public IEnumerable<object> RootObjects => asset.RootObjects;
+        public IEnumerable<object> RootObjects => asset.RootObjects;
 
-		public IEnumerable<object> Objects => asset.Objects;
+        public IEnumerable<object> Objects => asset.Objects;
 
-		public IAssetEntry AssetEntry { get; set; }
+        public IAssetEntry AssetEntry { get; set; }
 
-		//public EbxAsset Asset { get { return asset; } set { asset = value; if(PropertyChanged != null) PropertyChanged.Invoke(this, null); } }
-		public EbxAsset Asset { get { return asset; } set { asset = value; } }
+        //public EbxAsset Asset { get { return asset; } set { asset = value; if(PropertyChanged != null) PropertyChanged.Invoke(this, null); } }
+        public EbxAsset Asset { get { return asset; } set { asset = value; } }
 
-		[Obsolete("Incorrect usage of Editor Windows")]
+        [Obsolete("Incorrect usage of Editor Windows")]
 
-		public Editor()
-		{
+        public Editor()
+        {
             InitializeComponent();
-			this.DataContext = this;
-		}
+            this.DataContext = this;
+        }
 
-		//[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
-		public Editor(EbxAsset ebx
-			)
-		{
-			InitializeComponent();
-			PropertyChanged += Editor_PropertyChanged;
-			// intialise objs
-			Asset = ebx;
-			this.DataContext = this;
-			this.TreeView1.DataContext = RootObject;
-			//this.TreeViewOriginal.DataContext = RootObject;
-			//this.TreeViewOriginal.IsEnabled = false;
-		}
+        //[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
+        public Editor(EbxAsset ebx
+            )
+        {
+            InitializeComponent();
+            PropertyChanged += Editor_PropertyChanged;
+            // intialise objs
+            Asset = ebx;
+            this.DataContext = this;
+            this.TreeView1.DataContext = RootObject;
+            //this.TreeViewOriginal.DataContext = RootObject;
+            //this.TreeViewOriginal.IsEnabled = false;
+        }
 
-		public static Editor CurrentEditorInstance { get; set; }
+        public static Editor CurrentEditorInstance { get; set; }
 
-		//public Editor(AssetEntry inAssetEntry
-		//	, EbxAsset inAsset
-		//	, FrostbiteProject frostyProject
-		//	, IEditorWindow inEditorWindow)
-		//{
-		//	InitializeComponent();
-		//	CurrentEditorInstance = this;
-		//	PropertyChanged += Editor_PropertyChanged;
-		//	LoadEbx(inAssetEntry, inAsset, frostyProject, inEditorWindow);
-			
-		//}
+        //public Editor(AssetEntry inAssetEntry
+        //	, EbxAsset inAsset
+        //	, FrostbiteProject frostyProject
+        //	, IEditorWindow inEditorWindow)
+        //{
+        //	InitializeComponent();
+        //	CurrentEditorInstance = this;
+        //	PropertyChanged += Editor_PropertyChanged;
+        //	LoadEbx(inAssetEntry, inAsset, frostyProject, inEditorWindow);
 
-		public async Task<bool> LoadEbx(
+        //}
+
+        public async Task<bool> LoadEbx(
             IAssetEntry inAssetEntry
-			, EbxAsset inAsset
-			, IEditorWindow inEditorWindow)
+            , EbxAsset inAsset
+            , IEditorWindow inEditorWindow)
         {
 
             if (inAssetEntry == null)
@@ -181,33 +163,33 @@ namespace FIFAModdingUI.Pages.Common
                 return false;
             }
 
-			CurrentEditorInstance = this;
-			
-			_rootObjProps = null;
-			PropertyChanged += Editor_PropertyChanged;
-			AssetEntry = inAssetEntry;
-			Asset = inAsset;
-			EditorWindow = inEditorWindow;
+            CurrentEditorInstance = this;
 
-			bool success = true;
-			
-			await Dispatcher.InvokeAsync(() =>
-			{
+            _rootObjProps = null;
+            PropertyChanged += Editor_PropertyChanged;
+            AssetEntry = inAssetEntry;
+            Asset = inAsset;
+            EditorWindow = inEditorWindow;
+
+            bool success = true;
+
+            await Dispatcher.InvokeAsync(() =>
+            {
                 success = CreateEditor(RootObjectProperties, TreeView1).Result;
                 this.DataContext = null;
                 this.DataContext = this;
             });
-		
-			return success;
-		}
+
+            return success;
+        }
 
         private void Editor_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
         }
 
-		public Control GetMatchingTypedControl(object d)
-		{
-            var propertyNSearch = ((Type)d.GetType()).ToString().ToLower().Replace(".", "_", StringComparison.OrdinalIgnoreCase);
+        public Control GetMatchingTypedControl(object d)
+        {
+            var propertyNSearch = d.GetType().ToString().ToLower().Replace(".", "_", StringComparison.OrdinalIgnoreCase);
 
             if (UsableTypes == null)
                 UsableTypes = Assembly.GetExecutingAssembly().GetTypes();
@@ -219,15 +201,15 @@ namespace FIFAModdingUI.Pages.Common
                 Control control = Activator.CreateInstance(ty) as Control;
                 if (control != null)
                 {
-					return control;
+                    return control;
                 }
             }
 
-			return null;
+            return null;
         }
 
-		public Control GetMatchingTypedControl(ModdableProperty moddableProperty)
-		{
+        public Control GetMatchingTypedControl(ModdableProperty moddableProperty)
+        {
             var propertyNSearch = moddableProperty.PropertyType.Replace(".", "_", StringComparison.OrdinalIgnoreCase);
 
             if (UsableTypes == null)
@@ -251,15 +233,15 @@ namespace FIFAModdingUI.Pages.Common
         public static IEnumerable<Type> UsableTypes { get; private set; }
 
         public async Task<bool> CreateEditor(ModdableProperty d, TreeView treeView)
-		{
-			Control control = GetMatchingTypedControl(d);
-			if (control != null)
-			{
+        {
+            Control control = GetMatchingTypedControl(d);
+            if (control != null)
+            {
                 control.DataContext = null;
                 control.DataContext = d;
-				treeView.Items.Add(control);
-				return true;
-			}
+                treeView.Items.Add(control);
+                return true;
+            }
 
             //if (d is ModdableProperty)
             //{
@@ -280,16 +262,16 @@ namespace FIFAModdingUI.Pages.Common
             //}
 
             Debug.WriteLine($"ERROR: Failed to create EBX Editor for {d.GetType()}");
-			Console.WriteLine($"ERROR: Failed to create EBX Editor for {d.GetType()}");
-			EditorWindow.LogError($"ERROR: Failed to create EBX Editor for {d.GetType()}");
+            Console.WriteLine($"ERROR: Failed to create EBX Editor for {d.GetType()}");
+            EditorWindow.LogError($"ERROR: Failed to create EBX Editor for {d.GetType()}");
 
-			return false;
-		}
+            return false;
+        }
 
         public bool CreateEditor(ModdableProperty d, TreeViewItem treeViewItem, TreeView treeView = null)
-		{
-			if(treeViewItem.ToolTip == null)
-				treeViewItem.ToolTip = d.PropertyDescription;
+        {
+            if (treeViewItem.ToolTip == null)
+                treeViewItem.ToolTip = d.PropertyDescription;
 
             Control control = GetMatchingTypedControl(d);
             if (control != null)
@@ -304,23 +286,23 @@ namespace FIFAModdingUI.Pages.Common
                 return true;
 
             switch (d.PropertyType)
-			{
-				case "FrostySdk.Ebx.PointerRef":
-					CreatePointerRefControl(d, ref treeViewItem);
-					break;
-				// Unknown/Other Struct
-				default:
-                    var structProperties = ModdableProperty.GetModdableProperties(d.PropertyValue, (s,n) => 
-					{
-						_ = SaveToRootObject();
-					}).ToList();
-					TreeViewItem structTreeView = new TreeViewItem();
-					structTreeView.ToolTip = d.PropertyDescription;
-					structTreeView.Header = d.PropertyName;
-                    foreach (var property in structProperties) 
-					{
-						_ = CreateEditor(property, structTreeView);
-					}
+            {
+                case "FrostySdk.Ebx.PointerRef":
+                    CreatePointerRefControl(d, ref treeViewItem);
+                    break;
+                // Unknown/Other Struct
+                default:
+                    var structProperties = ModdableProperty.GetModdableProperties(d.PropertyValue, (s, n) =>
+                    {
+                        _ = SaveToRootObject();
+                    }).ToList();
+                    TreeViewItem structTreeView = new TreeViewItem();
+                    structTreeView.ToolTip = d.PropertyDescription;
+                    structTreeView.Header = d.PropertyName;
+                    foreach (var property in structProperties)
+                    {
+                        _ = CreateEditor(property, structTreeView);
+                    }
                     treeViewItem.ToolTip = d.PropertyDescription;
                     treeViewItem.Items.Add(structTreeView);
                     break;
@@ -331,21 +313,21 @@ namespace FIFAModdingUI.Pages.Common
 
 
         public bool IsList(object o)
-		{
-			return o is IList &&
-			   o.GetType().IsGenericType &&
-			   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
-		}
+        {
+            return o is IList &&
+               o.GetType().IsGenericType &&
+               o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+        }
 
-		public bool IsDictionary(object o)
-		{
-			return o is IDictionary &&
-			   o.GetType().IsGenericType &&
-			   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<object, object>));
-		}
+        public bool IsDictionary(object o)
+        {
+            return o is IDictionary &&
+               o.GetType().IsGenericType &&
+               o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<object, object>));
+        }
 
-		public bool CreateEditorByList(ModdableProperty p, TreeViewItem propTreeViewParent, TreeView treeView = null)
-		{
+        public bool CreateEditorByList(ModdableProperty p, TreeViewItem propTreeViewParent, TreeView treeView = null)
+        {
             // Is a list / array property
             if (p.PropertyType.Contains("List`1"))
             {
@@ -385,28 +367,28 @@ namespace FIFAModdingUI.Pages.Common
                         , treeView);
                 }
 
-				if(treeView != null)
-					treeView.Items.Add(propTreeViewParent);
+                if (treeView != null)
+                    treeView.Items.Add(propTreeViewParent);
 
-				return true;
+                return true;
             }
 
-			return false;
+            return false;
         }
 
-		public async Task<bool> CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
+        public async Task<bool> CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
         {
-			bool success = true;
+            bool success = true;
 
-			treeView.Items.Clear();
-			foreach (var p in moddableProperties)
-			{
-				TreeViewItem propTreeViewParent = new TreeViewItem();
+            treeView.Items.Clear();
+            foreach (var p in moddableProperties)
+            {
+                TreeViewItem propTreeViewParent = new TreeViewItem();
 
-				//await Dispatcher.InvokeAsync(() =>
-				//{
-					propTreeViewParent.Header = p.PropertyName;
-				//});
+                //await Dispatcher.InvokeAsync(() =>
+                //{
+                propTreeViewParent.Header = p.PropertyName;
+                //});
 
                 bool AddToPropTreeViewParent = true;
 
@@ -416,42 +398,42 @@ namespace FIFAModdingUI.Pages.Common
                 {
                     control.DataContext = p;
                     AddToPropTreeViewParent = false;
-					treeView.Items.Add(control);
+                    treeView.Items.Add(control);
                     continue;
                 }
 
-				if (CreateEditorByList(p, propTreeViewParent, treeView))
-					continue;
+                if (CreateEditorByList(p, propTreeViewParent, treeView))
+                    continue;
 
                 //if (!CreateEditor(p.PropertyValue))
                 {
-					// if unable to use prebuilt controls, use old system
-					switch (p.PropertyType)
-					{
-						case "FrostySdk.Ebx.PointerRef":
-							CreatePointerRefControl(p, ref propTreeViewParent);
-							break;
-						//case "System.Collections.Generic.List`1[System.Boolean]":
+                    // if unable to use prebuilt controls, use old system
+                    switch (p.PropertyType)
+                    {
+                        case "FrostySdk.Ebx.PointerRef":
+                            CreatePointerRefControl(p, ref propTreeViewParent);
+                            break;
+                        //case "System.Collections.Generic.List`1[System.Boolean]":
 
-						//	var listBool = p.PropertyValue as List<System.Boolean>;
+                        //	var listBool = p.PropertyValue as List<System.Boolean>;
 
-						//	for (var i = 0; i < listBool.Count; i++)
-						//	{
-						//		var point = listBool[i];
+                        //	for (var i = 0; i < listBool.Count; i++)
+                        //	{
+                        //		var point = listBool[i];
 
-						//		var chk = new CheckBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Value", IsChecked = listBool[i] };
-						//                          chk.Checked += (object sender, RoutedEventArgs e) =>
-						//		{
-						//		};
-						//		propTreeViewParent.Items.Add(chk);
-						//	}
-
-
-						//	break;
+                        //		var chk = new CheckBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Value", IsChecked = listBool[i] };
+                        //                          chk.Checked += (object sender, RoutedEventArgs e) =>
+                        //		{
+                        //		};
+                        //		propTreeViewParent.Items.Add(chk);
+                        //	}
 
 
-						// Unknown/Other Struct
-						default:
+                        //	break;
+
+
+                        // Unknown/Other Struct
+                        default:
                             var structProperties = ModdableProperty.GetModdableProperties(p.PropertyValue, (s, n) =>
                             {
                                 _ = SaveToRootObject();
@@ -466,148 +448,148 @@ namespace FIFAModdingUI.Pages.Common
 
 
                     }
-				}
-				if (AddToPropTreeViewParent)
-					treeView.Items.Add(propTreeViewParent);
+                }
+                if (AddToPropTreeViewParent)
+                    treeView.Items.Add(propTreeViewParent);
 
-			}
-			return success;
-		}
+            }
+            return success;
+        }
 
 
-		public bool CreatePointerRefControl(ModdableProperty p, ref TreeViewItem propTreeViewParent)
-		{
+        public bool CreatePointerRefControl(ModdableProperty p, ref TreeViewItem propTreeViewParent)
+        {
 
             if (Utilities.HasProperty(p.PropertyValue, "Internal"))
             {
                 var Internal = p.PropertyValue.GetPropertyValue("Internal");
                 if (Internal != null && Utilities.HasProperty(Internal, "Points"))
                 {
-					//var props = Utilities.GetProperties(Internal);
-					var interalsMP = ModdableProperty.GetModdableProperties(Internal, Modprop_PropertyChanged).ToList();
+                    //var props = Utilities.GetProperties(Internal);
+                    var interalsMP = ModdableProperty.GetModdableProperties(Internal, Modprop_PropertyChanged).ToList();
 
-					//propTreeViewParent.Header = p.PropertyName;
-					foreach (var property in interalsMP)
-					{
-						_ = CreateEditor(property, propTreeViewParent);
-					}
+                    //propTreeViewParent.Header = p.PropertyName;
+                    foreach (var property in interalsMP)
+                    {
+                        _ = CreateEditor(property, propTreeViewParent);
+                    }
 
-					//// Must be Float Curve if it has Points
-					//var FloatCurve = Internal;
-     //               // Guid
-     //               var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
-     //               var lblGuid = new Label() { Content = "__Guid" };
-     //               spGuid.Children.Add(lblGuid);
-     //               var txtGuid = new Label() { Name = p.PropertyName + "___Guid", Content = FloatCurve.GetPropertyValue("__InstanceGuid").ToString() };
-     //               spGuid.Children.Add(txtGuid);
-     //               propTreeViewParent.Items.Add(spGuid);
-
-
-     //               // Min X
-     //               var spMinX = new StackPanel() { Orientation = Orientation.Horizontal };
-     //               var lblMinX = new Label() { Content = "MinX" };
-     //               spMinX.Children.Add(lblMinX);
-     //               var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.GetPropertyValue("MinX").ToString() };
-
-     //               spMinX.Children.Add(txtMinX);
-     //               propTreeViewParent.Items.Add(spMinX);
-
-     //               // Max X 
-     //               var spMaxX = new StackPanel() { Orientation = Orientation.Horizontal };
-     //               var lblMaxX = new Label() { Content = "MaxX" };
-     //               spMaxX.Children.Add(lblMaxX);
-     //               var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.GetPropertyValue("MaxX").ToString() };
-     //               spMaxX.Children.Add(txtMaxX);
-     //               propTreeViewParent.Items.Add(spMaxX);
-
-     //               TreeViewItem PointsTreeViewParent = new TreeViewItem();
-     //               PointsTreeViewParent.Name = "Points";
-     //               PointsTreeViewParent.Header = "Points";
-     //               propTreeViewParent.Items.Add(PointsTreeViewParent);
+                    //// Must be Float Curve if it has Points
+                    //var FloatCurve = Internal;
+                    //               // Guid
+                    //               var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
+                    //               var lblGuid = new Label() { Content = "__Guid" };
+                    //               spGuid.Children.Add(lblGuid);
+                    //               var txtGuid = new Label() { Name = p.PropertyName + "___Guid", Content = FloatCurve.GetPropertyValue("__InstanceGuid").ToString() };
+                    //               spGuid.Children.Add(txtGuid);
+                    //               propTreeViewParent.Items.Add(spGuid);
 
 
-     //               var numberOfPoints = (int)FloatCurve.GetPropertyValue("Points").GetPropertyValue("Count");
-     //               // Number of Points
-     //               var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = numberOfPoints.ToString() };
-     //               txtNumberOfPoints.TextChanged += (object sender, TextChangedEventArgs e) =>
-     //               {
-     //                   AssetHasChanged(sender as TextBox, p.PropertyName);
-     //               };
+                    //               // Min X
+                    //               var spMinX = new StackPanel() { Orientation = Orientation.Horizontal };
+                    //               var lblMinX = new Label() { Content = "MinX" };
+                    //               spMinX.Children.Add(lblMinX);
+                    //               var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.GetPropertyValue("MinX").ToString() };
 
-     //               Grid gridNumberOfPoints = new Grid();
-     //               gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
-     //               gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
-     //               Label lblNumberOfPoints = new Label() { Content = "Point Count: " };
-     //               Grid.SetColumn(lblNumberOfPoints, 0);
-     //               Grid.SetColumn(txtNumberOfPoints, 1);
-     //               gridNumberOfPoints.Children.Add(lblNumberOfPoints);
-     //               gridNumberOfPoints.Children.Add(txtNumberOfPoints);
-     //               PointsTreeViewParent.Items.Add(gridNumberOfPoints);
+                    //               spMinX.Children.Add(txtMinX);
+                    //               propTreeViewParent.Items.Add(spMinX);
 
-     //               for (var i = 0; i < numberOfPoints; i++)
-     //               {
-     //                   var point = ((IList)FloatCurve.GetPropertyValue("Points"))[i];
-     //                   if (point != null)
-     //                   {
-     //                       TreeViewItem Child1Item = new TreeViewItem();
-     //                       Child1Item.Header = "[" + i.ToString() + "]";
-     //                       Child1Item.IsExpanded = true;
+                    //               // Max X 
+                    //               var spMaxX = new StackPanel() { Orientation = Orientation.Horizontal };
+                    //               var lblMaxX = new Label() { Content = "MaxX" };
+                    //               spMaxX.Children.Add(lblMaxX);
+                    //               var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.GetPropertyValue("MaxX").ToString() };
+                    //               spMaxX.Children.Add(txtMaxX);
+                    //               propTreeViewParent.Items.Add(spMaxX);
 
-     //                       var txtPointX = new TextBox()
-     //                       {
-     //                           Name = p.PropertyName + "_Points_" + i.ToString() + "_X"
-     //                           ,
-     //                           Text = point.GetPropertyValue("X").ToString()
-     //                       };
-     //                       txtPointX.LostFocus += (object sender, RoutedEventArgs e) =>
-     //                       {
-     //                           AssetHasChanged(sender as TextBox, p.PropertyName);
-     //                       };
-     //                       Child1Item.Items.Add(txtPointX);
+                    //               TreeViewItem PointsTreeViewParent = new TreeViewItem();
+                    //               PointsTreeViewParent.Name = "Points";
+                    //               PointsTreeViewParent.Header = "Points";
+                    //               propTreeViewParent.Items.Add(PointsTreeViewParent);
 
-     //                       var txtPointY = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Y", Text = point.GetPropertyValue("Y").ToString() };
-     //                       //txtPointY.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
-     //                       //{
-     //                       txtPointY.LostFocus += (object sender, RoutedEventArgs e) =>
-     //                       {
-     //                           AssetHasChanged(sender as TextBox, p.PropertyName);
-     //                       };
-     //                       Child1Item.Items.Add(txtPointY);
 
-     //                       PointsTreeViewParent.Items.Add(Child1Item);
-     //                   }
-     //               }
+                    //               var numberOfPoints = (int)FloatCurve.GetPropertyValue("Points").GetPropertyValue("Count");
+                    //               // Number of Points
+                    //               var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = numberOfPoints.ToString() };
+                    //               txtNumberOfPoints.TextChanged += (object sender, TextChangedEventArgs e) =>
+                    //               {
+                    //                   AssetHasChanged(sender as TextBox, p.PropertyName);
+                    //               };
+
+                    //               Grid gridNumberOfPoints = new Grid();
+                    //               gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
+                    //               gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
+                    //               Label lblNumberOfPoints = new Label() { Content = "Point Count: " };
+                    //               Grid.SetColumn(lblNumberOfPoints, 0);
+                    //               Grid.SetColumn(txtNumberOfPoints, 1);
+                    //               gridNumberOfPoints.Children.Add(lblNumberOfPoints);
+                    //               gridNumberOfPoints.Children.Add(txtNumberOfPoints);
+                    //               PointsTreeViewParent.Items.Add(gridNumberOfPoints);
+
+                    //               for (var i = 0; i < numberOfPoints; i++)
+                    //               {
+                    //                   var point = ((IList)FloatCurve.GetPropertyValue("Points"))[i];
+                    //                   if (point != null)
+                    //                   {
+                    //                       TreeViewItem Child1Item = new TreeViewItem();
+                    //                       Child1Item.Header = "[" + i.ToString() + "]";
+                    //                       Child1Item.IsExpanded = true;
+
+                    //                       var txtPointX = new TextBox()
+                    //                       {
+                    //                           Name = p.PropertyName + "_Points_" + i.ToString() + "_X"
+                    //                           ,
+                    //                           Text = point.GetPropertyValue("X").ToString()
+                    //                       };
+                    //                       txtPointX.LostFocus += (object sender, RoutedEventArgs e) =>
+                    //                       {
+                    //                           AssetHasChanged(sender as TextBox, p.PropertyName);
+                    //                       };
+                    //                       Child1Item.Items.Add(txtPointX);
+
+                    //                       var txtPointY = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Y", Text = point.GetPropertyValue("Y").ToString() };
+                    //                       //txtPointY.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+                    //                       //{
+                    //                       txtPointY.LostFocus += (object sender, RoutedEventArgs e) =>
+                    //                       {
+                    //                           AssetHasChanged(sender as TextBox, p.PropertyName);
+                    //                       };
+                    //                       Child1Item.Items.Add(txtPointY);
+
+                    //                       PointsTreeViewParent.Items.Add(Child1Item);
+                    //                   }
+                    //               }
                 }
-                
-				// This is external?
-				else
+
+                // This is external?
+                else
                 {
-					TextBox externalTextbox = new TextBox();
-					externalTextbox.Text = "External PointerRef is not Supported";
-					externalTextbox.IsEnabled = false;
-					propTreeViewParent.Items.Add(externalTextbox);
+                    TextBox externalTextbox = new TextBox();
+                    externalTextbox.Text = "External PointerRef is not Supported";
+                    externalTextbox.IsEnabled = false;
+                    propTreeViewParent.Items.Add(externalTextbox);
                 }
             }
 
-			return true;
+            return true;
         }
 
         public async Task SaveToRootObject(bool forceReload = false)
         {
-			await Task.Run(() =>
-			{
-				try
-				{
-					AssetManager.Instance.ModifyEbx(AssetEntry.Name, Asset);
+            await Task.Run(() =>
+            {
+                try
+                {
+                    AssetManager.Instance.ModifyEbx(AssetEntry.Name, Asset);
                 }
-                catch(Exception ex) 
-				{
-					//AssetManager.Instance.LogError($"Unable to modify EBX {AssetEntry.Name}");
-				}
-				//FrostyProject.Save("GameplayProject.fbproject", true);
-			});
+                catch (Exception)
+                {
+                    //AssetManager.Instance.LogError($"Unable to modify EBX {AssetEntry.Name}");
+                }
+                //FrostyProject.Save("GameplayProject.fbproject", true);
+            });
 
-			//await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
+            //await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
 
             //await Dispatcher.InvokeAsync(() =>
             //{
@@ -616,39 +598,39 @@ namespace FIFAModdingUI.Pages.Common
             //});
 
             await Dispatcher.InvokeAsync(() =>
-			{
+            {
                 if (EditorWindow != null)
                     EditorWindow.Log($"[{DateTime.Now.ToString("t")}] {asset.RootObject} Saved");
 
             });
 
-			if (forceReload)
-			{
-				await LoadEbx(AssetEntry, Asset, EditorWindow);
-			}
-			//await CreateEditor(RootObjectProperties.OrderBy(x => x.PropertyName), TreeView1);
+            if (forceReload)
+            {
+                await LoadEbx(AssetEntry, Asset, EditorWindow);
+            }
+            //await CreateEditor(RootObjectProperties.OrderBy(x => x.PropertyName), TreeView1);
 
-		}
+        }
 
 
-		private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
+        private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
         {
-			var listoffiles = FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse;
+            var listoffiles = FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse;
 
-			if (((CheckBox)sender).IsChecked.Value)
-			{
-				if (!listoffiles.Contains(AssetEntry.Filename))
-					listoffiles.Add(AssetEntry.Filename);
-			}
-			else
-			{
-				if (listoffiles.Contains(AssetEntry.Filename))
-					listoffiles.RemoveAll(x => x.ToLower() == AssetEntry.Filename.ToLower());
-			}
+            if (((CheckBox)sender).IsChecked.Value)
+            {
+                if (!listoffiles.Contains(AssetEntry.Filename))
+                    listoffiles.Add(AssetEntry.Filename);
+            }
+            else
+            {
+                if (listoffiles.Contains(AssetEntry.Filename))
+                    listoffiles.RemoveAll(x => x.ToLower() == AssetEntry.Filename.ToLower());
+            }
 
-			FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse = listoffiles;
-		}
+            FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse = listoffiles;
+        }
     }
 
-   
+
 }

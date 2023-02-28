@@ -1,11 +1,9 @@
 ﻿using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using static FIFA21Plugin.SBFile;
 
 namespace FIFA21Plugin
@@ -66,11 +64,11 @@ namespace FIFA21Plugin
 
             private Dictionary<string, List<string>> listOfItems;
 
-            public Dictionary<string, List<string>> ListOfItems 
+            public Dictionary<string, List<string>> ListOfItems
             {
                 get
                 {
-                    if(listOfItems == null)
+                    if (listOfItems == null)
                     {
                         listOfItems = new Dictionary<string, List<string>>();
                         listOfItems.Add("ebx", new List<string>());
@@ -94,7 +92,7 @@ namespace FIFA21Plugin
 
         public Bundle GetLastBundle()
         {
-            if(Bundles.Count > 0)
+            if (Bundles.Count > 0)
             {
                 return Bundles.OrderByDescending(x => x.StartOffset).FirstOrDefault();
             }
@@ -106,7 +104,7 @@ namespace FIFA21Plugin
 
         public override string ToString()
         {
-            if(SBFile != null)
+            if (SBFile != null)
             {
                 return SBFile + $" - Count: {Bundles.Count}";
             }

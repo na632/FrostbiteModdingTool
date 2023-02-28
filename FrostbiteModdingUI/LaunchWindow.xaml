@@ -63,6 +63,7 @@
             <StackPanel Orientation="Horizontal">
                 <Label FontSize="14" FontWeight="Bold">Profile:</Label>
                 <Label FontSize="14" FontWeight="Bold" Content="{Binding Profile.ProfileName}"></Label>
+                <Label FontSize="13" FontWeight="Bold" Content="{Binding GameLocation}"></Label>
             </StackPanel>
             <Button Grid.Column="2" x:Name="btnLaunch" Height="30" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">

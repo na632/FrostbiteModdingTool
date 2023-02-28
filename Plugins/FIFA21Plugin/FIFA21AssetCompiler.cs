@@ -1,6 +1,4 @@
 ﻿using FMT.FileTools;
-using Frostbite.FileManagers;
-using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.Compilers;
@@ -14,9 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Markup;
 
 namespace FIFA21Plugin
 {
@@ -494,7 +490,7 @@ namespace FIFA21Plugin
                                     var assetBundleToCAS = new Dictionary<string, List<AssetEntry>>();
                                     foreach (var assetBundle in tocGroup.Value)
                                     {
-                                        
+
 
                                         var casPath = string.Empty;
                                         if (assetBundle.Key is EbxAssetEntry)

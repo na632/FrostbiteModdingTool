@@ -1,13 +1,6 @@
 ﻿using FMT.FileTools;
-using FrostbiteSdk;
-using FrostySdk;
-using FrostySdk.IO;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using v2k4FIFAModdingCL;
 
 namespace SdkGenerator
@@ -20,7 +13,7 @@ namespace SdkGenerator
 
             //FrostySdk.IO.EbxSharedTypeDescriptorV2 std1 = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors.ebx", false);
             //FrostySdk.IO.EbxSharedTypeDescriptorV2 std2 = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors_patch.ebx", true);
-           
+
             byte[] exeData = File.ReadAllBytes(exeLocation);
             if (exeData == null || exeData.Length == 0)
                 return false;
@@ -48,6 +41,6 @@ namespace SdkGenerator
             return true;
         }
 
-        
+
     }
 }

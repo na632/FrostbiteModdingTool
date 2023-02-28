@@ -2,8 +2,6 @@ using FMT.FifaLibrary.CEM;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace FIFACareerDBTests
 {
@@ -16,8 +14,8 @@ namespace FIFACareerDBTests
         //        return Path.Combine(AppContext.BaseDirectory, "TestCareerSaveFile", "Career20220930102999");
         //    } }
 
-        public Stream FIFA23TestCareerResource 
-        { 
+        public Stream FIFA23TestCareerResource
+        {
             get
             {
                 return FMT.FileTools.EmbeddedResourceHelper.GetEmbeddedResourceByName("Career20220930102999");

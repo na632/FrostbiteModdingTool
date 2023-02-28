@@ -1,54 +1,37 @@
 ﻿using AvalonDock.Layout;
-using FIFAModdingUI.Models;
 using FIFAModdingUI.Pages.Common;
 using FMT;
 using FMT.Controls.Pages;
 using FMT.FileTools;
-using FMT.Pages.Common;
 using FMT.Windows;
 using FolderBrowserEx;
 using Frostbite.FileManagers;
-using Frostbite.Textures;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostbiteSdk;
-using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Ebx;
 using FrostySdk.Frostbite;
-using FrostySdk.Frosty.FET;
-
-using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.ModsAndProjects.Projects;
-using FrostySdk.Resources;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -84,7 +67,7 @@ namespace FIFAModdingUI.Windows
                 var dir = ProfileManager.GetModProfileParentDirectoryPath() + "\\FIFA21\\";
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
-                
+
                 return dir + "LastLocation.json";
             }
         }
@@ -97,12 +80,12 @@ namespace FIFAModdingUI.Windows
 
         public List<FileInfo> RecentProjectFiles
         {
-            get 
-            { 
-                if(recentProjectFiles == null)
+            get
+            {
+                if (recentProjectFiles == null)
                 {
                     recentProjectFiles = new List<FileInfo>();
-                    if(new FileInfo(RecentFilesLocation).Exists)
+                    if (new FileInfo(RecentFilesLocation).Exists)
                     {
                         var allText = File.ReadAllText(RecentFilesLocation);
                         var items = JsonConvert.DeserializeObject<List<string>>(allText);
@@ -112,11 +95,11 @@ namespace FIFAModdingUI.Windows
 
                 return recentProjectFiles.OrderByDescending(x => x.LastWriteTime).Take(5).ToList();
             }
-            set 
+            set
             {
                 recentProjectFiles = value;
 
-                var str = JsonConvert.SerializeObject(recentProjectFiles.Select(x=>x.FullName));
+                var str = JsonConvert.SerializeObject(recentProjectFiles.Select(x => x.FullName));
                 File.WriteAllText(RecentFilesLocation, str);
 
                 DataContext = null;
@@ -167,11 +150,11 @@ namespace FIFAModdingUI.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if(ProjectManagement != null)
+            if (ProjectManagement != null)
             {
                 if (ProjectManagement.Project != null && ProjectManagement.Project.IsDirty)
                 {
-                    if(MessageBox.Show("Your project has been changed. Would you still like to close?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    if (MessageBox.Show("Your project has been changed. Would you still like to close?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
                         e.Cancel = true;
                         EnableEditor();
@@ -203,9 +186,9 @@ namespace FIFAModdingUI.Windows
         }
 
         public string AdditionalTitle { get; set; }
-        public string WindowTitle 
-        { 
-            get 
+        public string WindowTitle
+        {
+            get
             {
                 var gv = GameInstanceSingleton.GetGameVersion() ?? "FIFA";
                 var initialTitle = $"FMT [{gv}] Editor - {App.ProductVersion} - ";
@@ -252,7 +235,7 @@ namespace FIFAModdingUI.Windows
             await Task.Run(
                 () =>
             {
-                
+
 
                 ProjectManagement = new ProjectManagement(filePath, loadingDialog);
                 ProjectManagement.StartNewProject();
@@ -308,7 +291,7 @@ namespace FIFAModdingUI.Windows
 
         }
 
-       
+
 
         public static readonly DependencyProperty ProfileSupportsLegacyModsProperty = DependencyProperty.Register(
             "CanUseLiveLegacyMods", typeof(bool),
@@ -344,10 +327,10 @@ namespace FIFAModdingUI.Windows
             var filePath = dialog.FileName;
             if (!string.IsNullOrEmpty(filePath))
             {
-                
 
 
-                    //BuildTextureBrowser(null);
+
+                //BuildTextureBrowser(null);
 
                 //Dispatcher.BeginInvoke((Action)(() =>
                 //{
@@ -356,7 +339,7 @@ namespace FIFAModdingUI.Windows
 
             }
 
-            
+
             //_ = Start();
         }
 
@@ -401,7 +384,8 @@ namespace FIFAModdingUI.Windows
             var stringBuilder = new StringBuilder();
 
             var txt = string.Empty;
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 txt = txtLog.Text;
             });
             stringBuilder.Append(txt);
@@ -429,7 +413,8 @@ namespace FIFAModdingUI.Windows
                 return;
 
             var txt = string.Empty;
-            await Dispatcher.InvokeAsync(() => {
+            await Dispatcher.InvokeAsync(() =>
+            {
                 txt = txtLog.Text;
             });
 
@@ -487,14 +472,14 @@ namespace FIFAModdingUI.Windows
                 if (resultValue.HasValue && resultValue.Value)
                 {
                     ProjectManagement.Project.WriteToMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
-                    if(File.Exists(saveFileDialog.FileName))
+                    if (File.Exists(saveFileDialog.FileName))
                     {
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
                     }
                 }
-             
+
             }
-            catch(Exception SaveException)
+            catch (Exception SaveException)
             {
                 LogError(SaveException.ToString());
             }
@@ -520,7 +505,7 @@ namespace FIFAModdingUI.Windows
                     loadingDialog.Update("Saving", "Saving to FIFAMod");
 
                     ProjectManagement.Project.WriteToFIFAMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
-                    if(File.Exists(saveFileDialog.FileName))
+                    if (File.Exists(saveFileDialog.FileName))
                     {
                         Log($"[{DateTime.Now.ToShortTimeString()}] Saved mod successfully to {saveFileDialog.FileName}");
                     }
@@ -713,13 +698,13 @@ namespace FIFAModdingUI.Windows
                     await Task.Delay(1);
 
                     var fiFile = new FileInfo(openFileDialog.FileName);
-                    if (!fiFile.Exists) 
+                    if (!fiFile.Exists)
                     {
                         LogError("Unable to load project. The file doesn't exist");
                         return;
                     }
                     var fileExtension = fiFile.Extension.ToLower();
-                    switch(fileExtension)
+                    switch (fileExtension)
                     {
                         case ".fbproject":
                             ProjectManagement.Project.ModifiedAssetEntries = null;
@@ -764,7 +749,7 @@ namespace FIFAModdingUI.Windows
                             }
                             break;
                     }
-                    
+
                     // A chunk clean up of bad and broken projects
                     await Task.Run(() =>
                     {
@@ -811,7 +796,7 @@ namespace FIFAModdingUI.Windows
                 Log("Autosaving Project");
                 bool saved = await Task.Run(() =>
                 {
-                // Delete old Autosaves
+                    // Delete old Autosaves
                     foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbproject"))
                     {
                         if (File.GetLastWriteTime(tFile) < DateTime.Now.AddDays(-2))
@@ -866,9 +851,9 @@ namespace FIFAModdingUI.Windows
                     frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                LogError("Error when trying to compile mod and launch game. Message: " + ex.Message);   
+                LogError("Error when trying to compile mod and launch game. Message: " + ex.Message);
             }
 
             await InjectLegacyDLL();
@@ -876,7 +861,7 @@ namespace FIFAModdingUI.Windows
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = true; });
 
             //LegacyFileManager_FMTV2.CleanUpChunks();
-            loadingDialog.Update("","");
+            loadingDialog.Update("", "");
 
         }
 
@@ -917,7 +902,7 @@ namespace FIFAModdingUI.Windows
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogError(e.ToString());
             }
@@ -965,96 +950,96 @@ namespace FIFAModdingUI.Windows
                 return false;
             }
 
-                await Task.Run(() =>
+            await Task.Run(() =>
+            {
+                DirectoryInfo directoryInfoTemp = new DirectoryInfo(LegacyTempFolder);
+                if (directoryInfoTemp.Exists)
                 {
-                    DirectoryInfo directoryInfoTemp = new DirectoryInfo(LegacyTempFolder);
-                    if (directoryInfoTemp.Exists)
+                    RecursiveDelete(directoryInfoTemp);
+                }
+
+                DirectoryCopy(legacyDirectory, LegacyTempFolder, true);
+                List<string> listOfCompilableFiles = new List<string>();
+
+                var allFiles = Directory.GetFiles(LegacyTempFolder, "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
+                Task[] tasks = new Task[allFiles.Count()];
+                foreach (var file in allFiles)
+                {
+                    var fIFile = new FileInfo(file);
+                    //tasks[index] = Task.Run(() =>
+                    //{
+                    StringBuilder sbFinalResult = new StringBuilder();
+
+                    var encrypt = !fIFile.Extension.Contains(".dds", StringComparison.OrdinalIgnoreCase)
+                        && !fIFile.Extension.Contains(".db", StringComparison.OrdinalIgnoreCase)
+                        && !fIFile.Extension.Contains(".loc", StringComparison.OrdinalIgnoreCase);
+
+                    if (encrypt)
                     {
-                        RecursiveDelete(directoryInfoTemp);
+                        var lastIndexOfDot = fIFile.FullName.LastIndexOf('.');
+                        var newFile = fIFile.FullName.Substring(0, lastIndexOfDot) + ".mod";
+                        sbFinalResult.Append(newFile);
+                    }
+                    else
+                    {
+                        sbFinalResult.Append(file);
                     }
 
-                    DirectoryCopy(legacyDirectory, LegacyTempFolder, true);
-                    List<string> listOfCompilableFiles = new List<string>();
+                    //if (encrypt)
+                    //{
+                    //    var fI = new FileInfo(file);
+                    //    if (fI != null && fI.Extension.Contains("mod"))
+                    //    {
+                    //        fI.Delete();
+                    //    }
+                    //    Log("Encrypting " + file);
+                    //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                    //}
 
-                    var allFiles = Directory.GetFiles(LegacyTempFolder, "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
-                    Task[] tasks = new Task[allFiles.Count()];
-                    foreach (var file in allFiles)
+                    listOfCompilableFiles.Add(sbFinalResult.ToString());
+                }
+
+                Log("Legacy Compiler :: Compilation Complete");
+
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Legacy Mod Files|.lmod";
+                var saveFileDialogResult = saveFileDialog.ShowDialog();
+                if (saveFileDialogResult.HasValue && saveFileDialogResult.Value)
+                {
+                    if (File.Exists(saveFileDialog.FileName))
+                        File.Delete(saveFileDialog.FileName);
+
+                    using (ZipArchive zipArchive = new ZipArchive(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate), ZipArchiveMode.Create))
                     {
-                        var fIFile = new FileInfo(file);
-                        //tasks[index] = Task.Run(() =>
-                        //{
-                        StringBuilder sbFinalResult = new StringBuilder();
-
-                        var encrypt = !fIFile.Extension.Contains(".dds", StringComparison.OrdinalIgnoreCase)
-                            && !fIFile.Extension.Contains(".db", StringComparison.OrdinalIgnoreCase)
-                            && !fIFile.Extension.Contains(".loc", StringComparison.OrdinalIgnoreCase);
-
-                        if (encrypt)
+                        foreach (var compatFile in listOfCompilableFiles)
                         {
-                            var lastIndexOfDot = fIFile.FullName.LastIndexOf('.');
-                            var newFile = fIFile.FullName.Substring(0, lastIndexOfDot) + ".mod";
-                            sbFinalResult.Append(newFile);
+                            var indexOfTemp = compatFile.LastIndexOf("TEMP\\");
+                            var newZipLocation = compatFile.Substring(indexOfTemp + 5, compatFile.Length - (indexOfTemp + 5));
+                            zipArchive.CreateEntryFromFile(compatFile, newZipLocation);
                         }
-                        else
+                    }
+                    Log("Legacy Compiler :: Legacy Mod file saved");
+
+                    foreach (var f in listOfCompilableFiles.Where(x => x.EndsWith(".mod")))
+                    {
+                        var fI = new FileInfo(f);
+                        if (fI != null)
                         {
-                            sbFinalResult.Append(file);
+                            fI.Delete();
                         }
-
-                        //if (encrypt)
-                        //{
-                        //    var fI = new FileInfo(file);
-                        //    if (fI != null && fI.Extension.Contains("mod"))
-                        //    {
-                        //        fI.Delete();
-                        //    }
-                        //    Log("Encrypting " + file);
-                        //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                        //}
-
-                        listOfCompilableFiles.Add(sbFinalResult.ToString());
                     }
 
-                    Log("Legacy Compiler :: Compilation Complete");
+                }
+
+                if (directoryInfoTemp.Exists)
+                {
+                    RecursiveDelete(directoryInfoTemp);
+                    Log("Legacy Compiler :: Cleaned up encrypted files");
+                }
 
 
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.Filter = "Legacy Mod Files|.lmod";
-                    var saveFileDialogResult = saveFileDialog.ShowDialog();
-                    if (saveFileDialogResult.HasValue && saveFileDialogResult.Value)
-                    {
-                        if (File.Exists(saveFileDialog.FileName))
-                            File.Delete(saveFileDialog.FileName);
-
-                        using (ZipArchive zipArchive = new ZipArchive(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate), ZipArchiveMode.Create))
-                        {
-                            foreach (var compatFile in listOfCompilableFiles)
-                            {
-                                var indexOfTemp = compatFile.LastIndexOf("TEMP\\");
-                                var newZipLocation = compatFile.Substring(indexOfTemp + 5, compatFile.Length - (indexOfTemp + 5));
-                                zipArchive.CreateEntryFromFile(compatFile, newZipLocation);
-                            }
-                        }
-                        Log("Legacy Compiler :: Legacy Mod file saved");
-
-                        foreach (var f in listOfCompilableFiles.Where(x => x.EndsWith(".mod")))
-                        {
-                            var fI = new FileInfo(f);
-                            if (fI != null)
-                            {
-                                fI.Delete();
-                            }
-                        }
-
-                    }
-
-                    if (directoryInfoTemp.Exists)
-                    {
-                        RecursiveDelete(directoryInfoTemp);
-                        Log("Legacy Compiler :: Cleaned up encrypted files");
-                    }
-
-
-                });
+            });
 
             return true;
         }
@@ -1160,9 +1145,12 @@ namespace FIFAModdingUI.Windows
                 testDList.Add(new
                 {
                     Bounds = new { x = 0, y = 0, z = 0, w = i }
-                    , Group = new CString("Test G " + i.ToString())
-                    , Name = new CString("Test N " + i.ToString())
-                    , Rotation = (float)1.45 + i
+                    ,
+                    Group = new CString("Test G " + i.ToString())
+                    ,
+                    Name = new CString("Test N " + i.ToString())
+                    ,
+                    Rotation = (float)1.45 + i
                 });
             }
             dHotspotObject.Name = "Test Obj";
@@ -1187,9 +1175,9 @@ namespace FIFAModdingUI.Windows
 
         public async Task UpdateAllBrowsersFull()
         {
-             var dataBrowserData = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx()
-                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+            var dataBrowserData = ProjectManagement.Project.AssetManager
+                                  .EnumerateEbx()
+                                  .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
             // Kit Browser
             var kitList = ProjectManagement.Project.AssetManager
@@ -1222,17 +1210,17 @@ namespace FIFAModdingUI.Windows
             await Dispatcher.InvokeAsync(() =>
             {
                 dataBrowser.AllAssetEntries = dataBrowserData;
-                
+
                 kitBrowser.AllAssetEntries = kitList;
 
                 gameplayBrowser.AllAssetEntries = gpBrowserData;
 
                 legacyBrowser.AllAssetEntries = legacyFiles;
-             
+
                 textureBrowser.AllAssetEntries = textureAssets;
-               
+
                 faceBrowser.AllAssetEntries = faceList;
-              
+
                 bootsBrowser.AllAssetEntries = bootList;
             });
 
@@ -1306,7 +1294,7 @@ namespace FIFAModdingUI.Windows
 
         private void btnImportKitCreatorZip_Click(object sender, RoutedEventArgs e)
         {
-            KitCreatorImport kitCreatorImport= new KitCreatorImport();
+            KitCreatorImport kitCreatorImport = new KitCreatorImport();
             kitCreatorImport.ShowDialog();
         }
 
@@ -1314,7 +1302,7 @@ namespace FIFAModdingUI.Windows
         {
             loadingDialog.Update("Loading Project", "");
             await Task.Delay(100);
-            
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";
             var result = openFileDialog.ShowDialog();
@@ -1386,7 +1374,7 @@ namespace FIFAModdingUI.Windows
                     FIFADBEditor dbEditor = new FIFADBEditor();
                     dbEditor.EditorMode = FIFADBEditor.DBEditorMode.Career;
                     await dbEditor.Load(fileInfo.FullName);
-					newLayoutDoc.Content = dbEditor;
+                    newLayoutDoc.Content = dbEditor;
                     LayoutDocumentGroupPaneDatabases.Children.Insert(0, newLayoutDoc);
                     LayoutDocumentGroupPaneDatabases.SelectedContentIndex = 0;
                 }
@@ -1415,7 +1403,7 @@ namespace FIFAModdingUI.Windows
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log(ex.Message);
             }

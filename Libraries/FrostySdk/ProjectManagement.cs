@@ -1,15 +1,9 @@
 ﻿using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using v2k4FIFAModdingCL;
 
@@ -91,7 +85,7 @@ namespace v2k4FIFAModding.Frosty
 
         public void Log(string text, params object[] vars)
         {
-            if(text != lastMessage)
+            if (text != lastMessage)
             {
                 Debug.WriteLine(text);
 
@@ -99,7 +93,7 @@ namespace v2k4FIFAModding.Frosty
                 Console.WriteLine(text);
                 lastMessage = text;
 
-                if(Logger != null)
+                if (Logger != null)
                 {
                     Logger.Log(text, vars);
                 }
@@ -156,7 +150,7 @@ namespace v2k4FIFAModding.Frosty
 
         public FrostbiteProject StartNewProject()
         {
-            if(AssetManager.Instance == null)
+            if (AssetManager.Instance == null)
             {
                 CacheManager buildCache = new CacheManager();
                 buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, Logger, false, true);

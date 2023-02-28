@@ -1,12 +1,6 @@
-﻿using CsvHelper;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FifaLibrary
 {
@@ -41,8 +35,8 @@ namespace FifaLibrary
 
         public static void ToCSV(this DataTable dtDataTable, string path)
         {
-            if(File.Exists(path))
-                File.Delete(path);  
+            if (File.Exists(path))
+                File.Delete(path);
 
             dtDataTable.ToCSV(new FileStream(path, FileMode.Create));
         }

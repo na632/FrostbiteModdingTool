@@ -22,20 +22,20 @@ namespace FrostySdk.IO
         }
 
         //public uint NameHash;
-        public uint NameHash { get; set; }   
+        public uint NameHash { get; set; }
 
-        public uint NameHashU => (uint)NameHash;
+        public uint NameHashU => NameHash;
         //public ulong NameHash;
 
         public ushort Type { get; set; }
 
-		public ushort ClassRef;
+        public ushort ClassRef;
 
-		public uint DataOffset;
+        public uint DataOffset;
 
-		public uint SecondOffset;
+        public uint SecondOffset;
 
-		public uint ThirdOffset;
+        public uint ThirdOffset;
 
         public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
         public EbxFieldType? DebugTypeOverride { get; set; }
@@ -47,7 +47,7 @@ namespace FrostySdk.IO
 
         public override bool Equals(object obj)
         {
-            if(obj is EbxField)
+            if (obj is EbxField)
             {
                 EbxField other = (EbxField)obj;
                 return other.NameHash == NameHash && (other.DebugType == this.DebugType || other.DebugType == this.InternalType);
@@ -62,7 +62,7 @@ namespace FrostySdk.IO
         }
         public override string ToString()
         {
-            if(!string.IsNullOrEmpty(Name))
+            if (!string.IsNullOrEmpty(Name))
             {
                 return Name;
             }

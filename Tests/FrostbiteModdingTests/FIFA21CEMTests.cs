@@ -2,17 +2,9 @@
 //using CareerExpansionMod.CEM.FIFA;
 //using FrostbiteModdingUI.CEM;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using v2k4FIFAModdingCL;
 //using v2k4FIFAModdingCL.MemHack.Core;
 
 namespace FrostbiteModdingTests
@@ -153,7 +145,7 @@ namespace FrostbiteModdingTests
 
         public byte[] HexStringToByte(string param1, string param2)
         {
-            return new byte[] { 
+            return new byte[] {
                 Convert.ToByte("0x" + param1.Substring(6, 2))
                 , Convert.ToByte("0x" + param1.Substring(4, 2))
                 , Convert.ToByte("0x" + param1.Substring(2, 2))

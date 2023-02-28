@@ -2,9 +2,9 @@ using System;
 
 namespace FrostySdk.Resources
 {
-	[Flags]
-	public enum EMeshLayout : ulong
-	{
+    [Flags]
+    public enum EMeshLayout : ulong
+    {
         IsBaseLod = 1u,
         StreamInstancingEnable = 0x10u,
         StreamingEnable = 0x40u,

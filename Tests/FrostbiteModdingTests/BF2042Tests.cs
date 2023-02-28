@@ -3,11 +3,8 @@ using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SdkGenerator;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace FrostbiteModdingTests
 {

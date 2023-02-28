@@ -1,21 +1,21 @@
 namespace FrostySdk.Resources
 {
-	internal class HuffmanNode
-	{
-		public uint value;
+    internal class HuffmanNode
+    {
+        public uint value;
 
-		public HuffmanNode left;
+        public HuffmanNode left;
 
-		public HuffmanNode right;
+        public HuffmanNode right;
 
-		public char Letter => (char)(~value);
+        public char Letter => (char)(~value);
 
-		public uint Value => ~value;
+        public uint Value => ~value;
 
-		public object Data
-		{
-			get;
-			set;
-		}
-	}
+        public object Data
+        {
+            get;
+            set;
+        }
+    }
 }

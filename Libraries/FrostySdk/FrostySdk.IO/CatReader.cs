@@ -1,6 +1,6 @@
-using System.IO;
 using FMT.FileTools;
 using FrostySdk.Interfaces;
+using System.IO;
 
 namespace FrostySdk.IO
 {
@@ -50,7 +50,7 @@ namespace FrostySdk.IO
             };
 
             //if (ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed)
-                entry.LogicalOffset = ReadUInt();
+            entry.LogicalOffset = ReadUInt();
             entry.ArchiveIndex = ReadInt() & 0xFF;
             return entry;
         }

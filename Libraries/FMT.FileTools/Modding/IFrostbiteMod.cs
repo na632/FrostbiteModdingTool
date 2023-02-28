@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FrostySdk;
 
 namespace FMT.FileTools.Modding
 {
@@ -25,9 +22,9 @@ namespace FMT.FileTools.Modding
 
         public EGame Game { get; set; }
         public string Filename { get; set; }
-        public IEnumerable<BaseModResource> Resources 
-        { 
-            get; 
+        public IEnumerable<BaseModResource> Resources
+        {
+            get;
             set;
         }
 

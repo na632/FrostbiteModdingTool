@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging; 
+using System.Windows.Media.Imaging;
 
 
 namespace UsefulThings
@@ -393,7 +391,7 @@ namespace UsefulThings
         public static byte[] GetPixelsAsBGRA32(this BitmapSource bmp)
         {
             // KFreon: Read pixel data from image.
-            int size = (int)(4 * bmp.PixelWidth * bmp.PixelHeight);
+            int size = 4 * bmp.PixelWidth * bmp.PixelHeight;
             byte[] pixels = new byte[size];
             BitmapSource source = bmp;
 

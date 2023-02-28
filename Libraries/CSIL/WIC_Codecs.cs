@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using UsefulThings;
-using System.Windows.Media;
-using System.Windows;
 
 namespace CSharpImageLibrary
 {
@@ -111,7 +107,7 @@ namespace CSharpImageLibrary
                     // KFreon: Skip mipmaps that are too big if asked to load a smaller image
                     if (alternateDecodeDimensions)
                     {
-                        if ((alternateWidth != 0 && mipmap.Width > alternateWidth) || 
+                        if ((alternateWidth != 0 && mipmap.Width > alternateWidth) ||
                             (alternateHeight != 0 && mipmap.Height > alternateHeight))
                             continue;
                     }
@@ -263,8 +259,8 @@ namespace CSharpImageLibrary
                 if (!anyAlpha)
                     frame = BitmapFrame.Create(new FormatConvertedBitmap(image, PixelFormats.Bgr32, image.Palette, 0));
             }
-                
-            if(frame == null)
+
+            if (frame == null)
                 frame = BitmapFrame.Create(image);
 
             frame.Freeze();
@@ -307,7 +303,7 @@ namespace CSharpImageLibrary
                 encoder.Save(ms);
                 return ms.ToArray();
             }
-                
+
         }
     }
 }

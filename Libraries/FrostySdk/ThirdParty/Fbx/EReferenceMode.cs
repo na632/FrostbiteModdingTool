@@ -1,9 +1,9 @@
 namespace FrostbiteSdk
 {
-	public enum EReferenceMode
-	{
-		eDirect,
-		eIndex,
-		eIndexToDirect
-	}
+    public enum EReferenceMode
+    {
+        eDirect,
+        eIndex,
+        eIndexToDirect
+    }
 }

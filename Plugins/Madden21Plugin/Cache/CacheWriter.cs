@@ -1,12 +1,9 @@
 ﻿using FMT.FileTools;
 using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Madden21Plugin.Cache
 {
@@ -218,7 +215,7 @@ namespace Madden21Plugin.Cache
             if (!string.IsNullOrEmpty(chunkEntry.Bundle))
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
 
-            if(chunkEntry.Id.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
+            if (chunkEntry.Id.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
             {
 
             }

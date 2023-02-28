@@ -1,19 +1,16 @@
-﻿using FrostbiteSdk.SdkGenerator;
-using FrostbiteSdk;
+﻿using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 using FrostyEditor.Windows;
 using FrostySdk;
+using FrostySdk.IO;
 using FrostySdk.Managers;
+using SdkGenerator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using SdkGenerator;
-using FrostySdk.IO;
-using System.Xml.Linq;
 
 namespace SDKGenerator
 {
@@ -57,9 +54,9 @@ namespace SDKGenerator
                     var classesTxtFilePath = AppContext.BaseDirectory + "/SdkGen/" + ProfileManager.SDKClassesFile;
                     classesStream = new FileStream(classesTxtFilePath, FileMode.Open);
                 }
-                if(classesStream != null)
+                if (classesStream != null)
                 {
-                    using(classesStream)
+                    using (classesStream)
                         classMetaList = TypeLibrary.LoadClassesSDK(classesStream);
 
                 }

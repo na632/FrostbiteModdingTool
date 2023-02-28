@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FrostySdk.Frostbite.IO
+﻿namespace FrostySdk.Frostbite.IO
 {
     public class LocaleINIMod
     {
@@ -16,12 +10,12 @@ namespace FrostySdk.Frostbite.IO
 
         public bool HasUserData { get { return UserData != null && UserData.Length > 0; } }
 
-        public byte[] UserDataEncrypted 
-        { 
-            get 
+        public byte[] UserDataEncrypted
+        {
+            get
             {
                 return FileSystem.Instance.WriteLocaleIni(UserData, false);
-            } 
+            }
         }
 
 
@@ -40,7 +34,7 @@ namespace FrostySdk.Frostbite.IO
             if (FileSystem.Instance == null)
                 return null;
 
-            if(OriginalData == null || OriginalData.Length == 0)
+            if (OriginalData == null || OriginalData.Length == 0)
                 OriginalData = FileSystem.Instance.ReadLocaleIni();
 
 

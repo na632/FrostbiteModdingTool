@@ -4,7 +4,6 @@ using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace FIFA21Plugin
 {
@@ -206,16 +205,16 @@ namespace FIFA21Plugin
                 var ebxCount = obj.GetValue<DbObject>("ebx").Count;
                 var resCount = obj.GetValue<DbObject>("res").Count;
                 var chunkCount = obj.GetValue<DbObject>("chunks").Count;
-                writer.Write((int)0, Endian.Big); // size
-                writer.Write((uint)3599661469, Endian.Big); // hash
+                writer.Write(0, Endian.Big); // size
+                writer.Write(3599661469, Endian.Big); // hash
                 var totalCount = ebxCount + resCount + chunkCount;
-                writer.Write((int)totalCount); // total count
-                writer.Write((int)ebxCount); // ebx count
-                writer.Write((int)resCount); // res count
-                writer.Write((int)chunkCount); // chunk count
-                writer.Write((int)0); // string offset
-                writer.Write((int)0); // meta offset
-                writer.Write((int)0); // meta size
+                writer.Write(totalCount); // total count
+                writer.Write(ebxCount); // ebx count
+                writer.Write(resCount); // res count
+                writer.Write(chunkCount); // chunk count
+                writer.Write(0); // string offset
+                writer.Write(0); // meta offset
+                writer.Write(0); // meta size
 
                 List<FMT.FileTools.Sha1> sha1s = obj.GetValue<List<FMT.FileTools.Sha1>>("sha1s");
                 for (int i = 0; i < totalCount; i++)
@@ -252,12 +251,12 @@ namespace FIFA21Plugin
                 foreach (DbObject o in obj.GetValue<DbObject>("ebx"))
                 {
                     writer.Position = o.GetValue<int>("StringOffsetPosition");
-                    writer.Write((int)o.GetValue<int>("StringOffset"));
+                    writer.Write(o.GetValue<int>("StringOffset"));
                 }
                 foreach (DbObject o in obj.GetValue<DbObject>("res"))
                 {
                     writer.Position = o.GetValue<int>("StringOffsetPosition");
-                    writer.Write((int)o.GetValue<int>("StringOffset"));
+                    writer.Write(o.GetValue<int>("StringOffset"));
                 }
             }
 
@@ -280,8 +279,8 @@ namespace FIFA21Plugin
             foreach (DbObject o in obj.GetValue<DbObject>("ebx"))
             {
                 o.SetValue("StringOffsetPosition", writer.Position);
-                writer.Write((int)0); // string offset
-                writer.Write((int)o.GetValue<int>("originalSize")); // original size
+                writer.Write(0); // string offset
+                writer.Write(o.GetValue<int>("originalSize")); // original size
             }
         }
 
@@ -297,13 +296,13 @@ namespace FIFA21Plugin
 
             foreach (DbObject o in obj.GetValue<DbObject>("res"))
             {
-                var restypeid = (uint)o.GetValue<uint>("resType");
+                var restypeid = o.GetValue<uint>("resType");
                 writer.Write(restypeid, Endian.Big);
             }
 
             foreach (DbObject o in obj.GetValue<DbObject>("res"))
             {
-                writer.Write((byte[])o.GetValue<byte[]>("resMeta"));
+                writer.Write(o.GetValue<byte[]>("resMeta"));
             }
 
             foreach (DbObject o in obj.GetValue<DbObject>("res"))
@@ -327,8 +326,8 @@ namespace FIFA21Plugin
             foreach (DbObject o in obj.GetValue<DbObject>("chunks"))
             {
                 writer.Write(o.GetValue<Guid>("id")); // guid
-                writer.Write((uint)o.GetValue<uint>("logicalOffset")); // logical offset
-                writer.Write((uint)o.GetValue<uint>("logicalSize")); // logical size
+                writer.Write(o.GetValue<uint>("logicalOffset")); // logical offset
+                writer.Write(o.GetValue<uint>("logicalSize")); // logical size
             }
         }
 

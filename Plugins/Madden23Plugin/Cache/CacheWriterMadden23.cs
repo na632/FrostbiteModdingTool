@@ -1,13 +1,11 @@
 ﻿using FMT.FileTools;
 using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Madden23Plugin.Cache
 {
@@ -77,7 +75,7 @@ namespace Madden23Plugin.Cache
 
                 var nameToPositionOffsets = nativeWriter.Position;
                 nativeWriter.Write(EbxNameToPosition.Count);
-                foreach(var kvp in EbxNameToPosition)
+                foreach (var kvp in EbxNameToPosition)
                 {
                     nativeWriter.WriteLengthPrefixedString(kvp.Key);
                     nativeWriter.Write(kvp.Value);

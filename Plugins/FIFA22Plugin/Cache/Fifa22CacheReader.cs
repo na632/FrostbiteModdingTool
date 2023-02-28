@@ -1,12 +1,8 @@
 ﻿using FMT.FileTools;
 using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace FIFA22Plugin.Cache
 {

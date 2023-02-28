@@ -1,19 +1,19 @@
 namespace FrostySdk.IO
 {
-	public struct EbxClass
-	{
+    public struct EbxClass
+    {
         private string name;
 
         public string Name
         {
-            get 
+            get
             {
-                if(!string.IsNullOrEmpty(name))
+                if (!string.IsNullOrEmpty(name))
                     return name;
 
                 //name = this.ToString();
                 return !string.IsNullOrEmpty(name) && !name.Contains("EbxClass") ? name : string.Empty;
-            
+
             }
             set { name = value; }
         }
@@ -21,21 +21,21 @@ namespace FrostySdk.IO
 
         public uint NameHash;
 
-		public int FieldIndex;
+        public int FieldIndex;
 
-		public byte FieldCount;
+        public byte FieldCount;
 
-		public byte Alignment;
+        public byte Alignment;
 
-		public ushort Type;
+        public ushort Type;
 
-		public ushort Size;
+        public ushort Size;
 
-		public ushort SecondSize { get; set; }
+        public ushort SecondSize { get; set; }
 
-		public string Namespace;
+        public string Namespace;
 
-		public int Index;
+        public int Index;
 
         //public EbxFieldType DebugType => (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
         public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((Type >> 4) & 0x1Fu);
@@ -44,9 +44,9 @@ namespace FrostySdk.IO
 
         public override string ToString()
         {
-            if(!string.IsNullOrEmpty(EbxSharedTypeDescriptors.GetClassName(NameHash)))
+            if (!string.IsNullOrEmpty(EbxSharedTypeDescriptors.GetClassName(NameHash)))
             {
-                if(NameHash > 0)
+                if (NameHash > 0)
                 {
                     return EbxSharedTypeDescriptors.GetClassName(NameHash) + " - " + NameHash;
                 }
@@ -55,7 +55,7 @@ namespace FrostySdk.IO
                     return EbxSharedTypeDescriptors.GetClassName(NameHash);
                 }
             }
-            if(!string.IsNullOrEmpty(Name))
+            if (!string.IsNullOrEmpty(Name))
                 return Name.ToString();
 
             return base.ToString();
@@ -63,7 +63,7 @@ namespace FrostySdk.IO
 
         public override bool Equals(object obj)
         {
-            if(obj is EbxClass other)
+            if (obj is EbxClass other)
             {
                 return (other.NameHash == NameHash && other.name == name);
             }

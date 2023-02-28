@@ -1,46 +1,40 @@
 ﻿using FMT.FileTools;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using ModdingSupport;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
-	public interface Importer
-	{
-		public void DoImport(string path, AssetEntry assetEntry);
-
-	}
-
-	public interface ITextureImporter : Importer
-	{
-		public void DoImport(string path, EbxAssetEntry assetEntry, ref Texture textureAsset);
-
-	}
-
-	public interface ICacheWriter
+    public interface Importer
     {
-		void Write();
-		void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry);
-		void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry);
-		void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry);
-	}
+        public void DoImport(string path, AssetEntry assetEntry);
 
-	public interface ICacheReader
-	{
+    }
+
+    public interface ITextureImporter : Importer
+    {
+        public void DoImport(string path, EbxAssetEntry assetEntry, ref Texture textureAsset);
+
+    }
+
+    public interface ICacheWriter
+    {
+        void Write();
+        void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry);
+        void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry);
+        void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry);
+    }
+
+    public interface ICacheReader
+    {
         public ulong EbxDataOffset { get; set; }
         public ulong ResDataOffset { get; set; }
         public ulong ChunkDataOffset { get; set; }
         public ulong NameToPositionOffset { get; set; }
 
         public bool Read();
-	}
+    }
 
     public interface IAssetLoader
     {

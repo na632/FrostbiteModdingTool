@@ -2,11 +2,8 @@
 using CSharpImageLibrary.Headers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 //using System.Windows.Media;
 //using System.Windows.Media.Imaging;
@@ -74,7 +71,7 @@ namespace CSharpImageLibrary
         /// </summary>
         public ImageFormats.ImageEngineFormatDetails FormatDetails { get; private set; }
 
-        
+
         /// <summary>
         /// List of mipmaps. Single level images only have one mipmap.
         /// </summary>
@@ -118,17 +115,17 @@ namespace CSharpImageLibrary
         /// <summary>
         /// Number of bits per colour.
         /// </summary>
-        public int BitCount =>  FormatDetails.BitCount; 
+        public int BitCount => FormatDetails.BitCount;
 
         /// <summary>
         /// Number of bytes per colour. i.e. 1 byte, 4 bytes (int), etc
         /// </summary>
-        public int ComponentSize => FormatDetails.ComponentSize; 
+        public int ComponentSize => FormatDetails.ComponentSize;
 
         /// <summary>
         /// True = Image is a block compressed DDS.
         /// </summary>
-        public bool IsBlockCompressed => FormatDetails.IsBlockCompressed; 
+        public bool IsBlockCompressed => FormatDetails.IsBlockCompressed;
 
         /// <summary>
         /// Size of compressed blocks. Affected by component size. Default is 1 for normal images (jpg, etc)
@@ -467,7 +464,7 @@ namespace CSharpImageLibrary
                 // Header
                 tempHeader = new DDS_Header(mipCount, newHeight, newWidth, destFormatDetails.Format, destFormatDetails.DX10Format);
             }
-            
+
             // Use existing array, otherwise create one.
             data = data ?? new byte[length];
             Array.Copy(tempOriginalData, start, data, destStart, length - destStart);
@@ -544,7 +541,7 @@ namespace CSharpImageLibrary
         {
             var top = MipMaps[0];
             var determiningDimension = top.Width > top.Height ? top.Width : top.Height;
-            double scale = (double)DesiredDimension / determiningDimension;  
+            double scale = (double)DesiredDimension / determiningDimension;
             Resize(scale);
         }
 

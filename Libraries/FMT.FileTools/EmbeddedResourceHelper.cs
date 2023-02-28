@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FMT.FileTools
 {
@@ -49,12 +47,12 @@ namespace FMT.FileTools
                 allResources = allResources.Where(x => x.Contains(filter[0])).ToList();
                 if (filter.Length > 1)
                 {
-                    for(var iFilter = 1; iFilter < filter.Length; iFilter++) 
-                    { 
+                    for (var iFilter = 1; iFilter < filter.Length; iFilter++)
+                    {
                         allResources = allResources.Where(x => x.Contains(filter[iFilter])).ToList();
                     }
                 }
-                foreach(var resourceName in allResources)
+                foreach (var resourceName in allResources)
                 {
                     Stream stream = a.GetManifestResourceStream(resourceName);
                     // there should only be 1 of the key
@@ -64,7 +62,7 @@ namespace FMT.FileTools
                     }
                 }
             }
-            
+
             return resourceDict;
         }
     }

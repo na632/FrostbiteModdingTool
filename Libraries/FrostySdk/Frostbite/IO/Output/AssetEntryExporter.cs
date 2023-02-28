@@ -1,13 +1,8 @@
 ﻿using FMT.FileTools;
 using FrostySdk.Managers;
-using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostySdk.Frostbite.IO.Output
 {
@@ -17,12 +12,13 @@ namespace FrostySdk.Frostbite.IO.Output
 
         private IAssetEntry Entry { get; set; }
 
-        public AssetEntryExporter(IAssetEntry entry) { 
-        
+        public AssetEntryExporter(IAssetEntry entry)
+        {
+
             Entry = entry;
         }
 
-        public void Export(string filePath) 
+        public void Export(string filePath)
         {
             if (Entry == null)
                 return;

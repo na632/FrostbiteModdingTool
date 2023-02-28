@@ -1,6 +1,5 @@
 ﻿using CSharpImageLibrary;
 using FifaLibrary;
-using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.Managers;
 using System;
@@ -9,17 +8,9 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace FMT.Controls.Pages
 {
@@ -33,11 +24,15 @@ namespace FMT.Controls.Pages
         {
             public int TeamId { get; set; }
             public int LeagueId { get; set; }
-            public string Name {  get; set; }
-            public string DisplayName { get {
+            public string Name { get; set; }
+            public string DisplayName
+            {
+                get
+                {
 
                     return Name + " {" + TeamId + "} ";
-                } }
+                }
+            }
         }
 
         public struct LeagueItem
@@ -163,7 +158,7 @@ namespace FMT.Controls.Pages
                 }
 
                 TeamItems = TeamItems.OrderBy(x => x.Name).ToList();
-               
+
 
             });
 
@@ -206,7 +201,7 @@ namespace FMT.Controls.Pages
             var imgCrestEntry = await AssetManager.Instance.GetCustomAssetEntryAsync("legacy", "data/ui/imgAssets/crest/light/l" + SelectedTeamItem.TeamId + ".dds") as LegacyFileEntry;
             var stream = await AssetManager.Instance.GetCustomAssetAsync("legacy", imgCrestEntry);
 
-            ImageEngineImage imageEngineImage = new ImageEngineImage(((MemoryStream)stream).ToArray());
+            ImageEngineImage imageEngineImage = new ImageEngineImage(stream.ToArray());
             var iData = imageEngineImage.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.BMP), MipHandling.KeepTopOnly, removeAlpha: false);
             imgTeamCrest.Source = LoadImage(iData);
 
@@ -214,7 +209,7 @@ namespace FMT.Controls.Pages
             {
                 foreach (DataRow dr in DB.GetTable("leagueteamlinks").ConvertToDataTable().Rows)
                 {
-                    LeagueTeamLinkItems.Add(new LeagueTeamLinkItem(){ TeamId = int.Parse(dr["teamid"].ToString()), LeagueId = int.Parse(dr["leagueid"].ToString()) });
+                    LeagueTeamLinkItems.Add(new LeagueTeamLinkItem() { TeamId = int.Parse(dr["teamid"].ToString()), LeagueId = int.Parse(dr["leagueid"].ToString()) });
                 }
             }
 
@@ -257,17 +252,17 @@ namespace FMT.Controls.Pages
             var selectedLeague = (LeagueItem)((ComboBox)sender).SelectedItem;
 
             var dt_ltl = DB.GetTable("leagueteamlinks").ConvertToDataTable();
-            foreach(DataRow item in dt_ltl.Rows)
+            foreach (DataRow item in dt_ltl.Rows)
             {
-                if(int.Parse(item["teamid"].ToString()) == SelectedTeamItem.TeamId)
+                if (int.Parse(item["teamid"].ToString()) == SelectedTeamItem.TeamId)
                 {
-                    if(int.Parse(item["leagueid"].ToString()) != selectedLeague.LeagueId)
+                    if (int.Parse(item["leagueid"].ToString()) != selectedLeague.LeagueId)
                     {
                         item["leagueid"] = selectedLeague.LeagueId;
                         madeChange = true;
                         break;
                     }
-                   
+
                 }
             }
             //DB.GetTable("leagueteamlinks").ConvertFromDataTable(dt_ltl);

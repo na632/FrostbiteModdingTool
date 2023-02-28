@@ -4,118 +4,118 @@ using System.Runtime.InteropServices;
 
 namespace FrostySdk
 {
-	public static class ZStd
-	{
-		public enum ZSTD_error
-		{
-			ZSTD_error_no_error = 0,
-			ZSTD_error_GENERIC = 1,
-			ZSTD_error_prefix_unknown = 10,
-			ZSTD_error_version_unsupported = 12,
-			ZSTD_error_frameParameter_unsupported = 14,
-			ZSTD_error_frameParameter_windowTooLarge = 0x10,
-			ZSTD_error_corruption_detected = 20,
-			ZSTD_error_checksum_wrong = 22,
-			ZSTD_error_dictionary_corrupted = 30,
-			ZSTD_error_dictionary_wrong = 0x20,
-			ZSTD_error_dictionaryCreation_failed = 34,
-			ZSTD_error_parameter_unsupported = 40,
-			ZSTD_error_parameter_outOfBound = 42,
-			ZSTD_error_tableLog_tooLarge = 44,
-			ZSTD_error_maxSymbolValue_tooLarge = 46,
-			ZSTD_error_maxSymbolValue_tooSmall = 48,
-			ZSTD_error_stage_wrong = 60,
-			ZSTD_error_init_missing = 62,
-			ZSTD_error_memory_allocation = 0x40,
-			ZSTD_error_dstSize_tooSmall = 70,
-			ZSTD_error_srcSize_wrong = 72,
-			ZSTD_error_frameIndex_tooLarge = 100,
-			ZSTD_error_seekableIO = 102,
-			ZSTD_error_maxCode = 120
-		}
+    public static class ZStd
+    {
+        public enum ZSTD_error
+        {
+            ZSTD_error_no_error = 0,
+            ZSTD_error_GENERIC = 1,
+            ZSTD_error_prefix_unknown = 10,
+            ZSTD_error_version_unsupported = 12,
+            ZSTD_error_frameParameter_unsupported = 14,
+            ZSTD_error_frameParameter_windowTooLarge = 0x10,
+            ZSTD_error_corruption_detected = 20,
+            ZSTD_error_checksum_wrong = 22,
+            ZSTD_error_dictionary_corrupted = 30,
+            ZSTD_error_dictionary_wrong = 0x20,
+            ZSTD_error_dictionaryCreation_failed = 34,
+            ZSTD_error_parameter_unsupported = 40,
+            ZSTD_error_parameter_outOfBound = 42,
+            ZSTD_error_tableLog_tooLarge = 44,
+            ZSTD_error_maxSymbolValue_tooLarge = 46,
+            ZSTD_error_maxSymbolValue_tooSmall = 48,
+            ZSTD_error_stage_wrong = 60,
+            ZSTD_error_init_missing = 62,
+            ZSTD_error_memory_allocation = 0x40,
+            ZSTD_error_dstSize_tooSmall = 70,
+            ZSTD_error_srcSize_wrong = 72,
+            ZSTD_error_frameIndex_tooLarge = 100,
+            ZSTD_error_seekableIO = 102,
+            ZSTD_error_maxCode = 120
+        }
 
-		public delegate ulong DecompressFunc(IntPtr outputBuffer, ulong outputSize, IntPtr inputBuffer, ulong inputSize);
+        public delegate ulong DecompressFunc(IntPtr outputBuffer, ulong outputSize, IntPtr inputBuffer, ulong inputSize);
 
-		public delegate IntPtr CreateFunc();
+        public delegate IntPtr CreateFunc();
 
-		public delegate ulong FreeFunc(IntPtr handle);
+        public delegate ulong FreeFunc(IntPtr handle);
 
-		public delegate ulong DecompressUsingDictFunc(IntPtr dctx, IntPtr outBuf, ulong outSize, IntPtr inBuf, ulong inSize, IntPtr dict);
+        public delegate ulong DecompressUsingDictFunc(IntPtr dctx, IntPtr outBuf, ulong outSize, IntPtr inBuf, ulong inSize, IntPtr dict);
 
-		public delegate ulong CompressFunc(IntPtr Dst, ulong DstCapacity, IntPtr Src, ulong SrcSize, int CompressionLevel);
+        public delegate ulong CompressFunc(IntPtr Dst, ulong DstCapacity, IntPtr Src, ulong SrcSize, int CompressionLevel);
 
-		public delegate ulong CompressBoundFunc(ulong srcSize);
+        public delegate ulong CompressBoundFunc(ulong srcSize);
 
-		public delegate bool IsErrorFunc(ulong errorCode);
+        public delegate bool IsErrorFunc(ulong errorCode);
 
-		public delegate ZSTD_error GetErrorCodeFunc(ulong errorCode);
+        public delegate ZSTD_error GetErrorCodeFunc(ulong errorCode);
 
-		public delegate IntPtr GetErrorNameFunc(ulong errorCode);
+        public delegate IntPtr GetErrorNameFunc(ulong errorCode);
 
-		public delegate IntPtr CreateDigestedDictFunc(IntPtr dictBuffer, int dictSize);
+        public delegate IntPtr CreateDigestedDictFunc(IntPtr dictBuffer, int dictSize);
 
-		public delegate ulong FreeDigestedDictFunc(IntPtr dict);
+        public delegate ulong FreeDigestedDictFunc(IntPtr dict);
 
-		public static DecompressFunc Decompress;
+        public static DecompressFunc Decompress;
 
-		public static CreateFunc Create;
+        public static CreateFunc Create;
 
-		public static FreeFunc Free;
+        public static FreeFunc Free;
 
-		public static DecompressUsingDictFunc DecompressUsingDict;
+        public static DecompressUsingDictFunc DecompressUsingDict;
 
-		public static CompressFunc Compress;
+        public static CompressFunc Compress;
 
-		public static CompressBoundFunc CompressBound;
+        public static CompressBoundFunc CompressBound;
 
-		public static IsErrorFunc IsError;
+        public static IsErrorFunc IsError;
 
-		public static GetErrorCodeFunc GetErrorCode;
+        public static GetErrorCodeFunc GetErrorCode;
 
-		public static GetErrorNameFunc GetErrorName;
+        public static GetErrorNameFunc GetErrorName;
 
-		public static CreateDigestedDictFunc CreateDigestedDict;
+        public static CreateDigestedDictFunc CreateDigestedDict;
 
-		public static FreeDigestedDictFunc FreeDigestedDict;
+        public static FreeDigestedDictFunc FreeDigestedDict;
 
-		internal static LoadLibraryHandle handle;
+        internal static LoadLibraryHandle handle;
 
-		private static byte[] digestedDict;
+        private static byte[] digestedDict;
 
-		public static void Bind()
-		{
-			if (handle != null)
-				return;
+        public static void Bind()
+        {
+            if (handle != null)
+                return;
 
-			string parentDirectory = Utilities.ApplicationDirectory + "thirdparty/";
+            string parentDirectory = Utilities.ApplicationDirectory + "thirdparty/";
             string lib = "libzstd.1.5.0.dll";
             handle = new LoadLibraryHandle(parentDirectory + lib);
-			if (handle == IntPtr.Zero)
-			{
-				return;
-			}
-			Create = Marshal.GetDelegateForFunctionPointer<CreateFunc>(Kernel32.GetProcAddress(handle, "ZSTD_createDCtx"));
-			Free = Marshal.GetDelegateForFunctionPointer<FreeFunc>(Kernel32.GetProcAddress(handle, "ZSTD_freeDCtx"));
-			Decompress = Marshal.GetDelegateForFunctionPointer<DecompressFunc>(Kernel32.GetProcAddress(handle, "ZSTD_decompress"));
-			Compress = Marshal.GetDelegateForFunctionPointer<CompressFunc>(Kernel32.GetProcAddress(handle, "ZSTD_compress"));
-			CompressBound = Marshal.GetDelegateForFunctionPointer<CompressBoundFunc>(Kernel32.GetProcAddress(handle, "ZSTD_compressBound"));
-			IsError = Marshal.GetDelegateForFunctionPointer<IsErrorFunc>(Kernel32.GetProcAddress(handle, "ZSTD_isError"));
-			if (ProfileManager.DataVersion != 20160927)
-			{
-				GetErrorCode = Marshal.GetDelegateForFunctionPointer<GetErrorCodeFunc>(Kernel32.GetProcAddress(handle, "ZSTD_getErrorCode"));
-				GetErrorName = Marshal.GetDelegateForFunctionPointer<GetErrorNameFunc>(Kernel32.GetProcAddress(handle, "ZSTD_getErrorName"));
-				if (ProfileManager.DataVersion == 20170929
-					|| ProfileManager.DataVersion == 20180914 
-					|| ProfileManager.IsFIFA20DataVersion() // FIFA 20
-					|| ProfileManager.IsFIFA21DataVersion() // FIFA 21
-					|| ProfileManager.IsFIFA22DataVersion() // FIFA 22
-					)
-				{
-					DecompressUsingDict = Marshal.GetDelegateForFunctionPointer<DecompressUsingDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_decompress_usingDDict"));
-					CreateDigestedDict = Marshal.GetDelegateForFunctionPointer<CreateDigestedDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_createDDict"));
-					FreeDigestedDict = Marshal.GetDelegateForFunctionPointer<FreeDigestedDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_freeDDict"));
-				}
-			}
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+            Create = Marshal.GetDelegateForFunctionPointer<CreateFunc>(Kernel32.GetProcAddress(handle, "ZSTD_createDCtx"));
+            Free = Marshal.GetDelegateForFunctionPointer<FreeFunc>(Kernel32.GetProcAddress(handle, "ZSTD_freeDCtx"));
+            Decompress = Marshal.GetDelegateForFunctionPointer<DecompressFunc>(Kernel32.GetProcAddress(handle, "ZSTD_decompress"));
+            Compress = Marshal.GetDelegateForFunctionPointer<CompressFunc>(Kernel32.GetProcAddress(handle, "ZSTD_compress"));
+            CompressBound = Marshal.GetDelegateForFunctionPointer<CompressBoundFunc>(Kernel32.GetProcAddress(handle, "ZSTD_compressBound"));
+            IsError = Marshal.GetDelegateForFunctionPointer<IsErrorFunc>(Kernel32.GetProcAddress(handle, "ZSTD_isError"));
+            if (ProfileManager.DataVersion != 20160927)
+            {
+                GetErrorCode = Marshal.GetDelegateForFunctionPointer<GetErrorCodeFunc>(Kernel32.GetProcAddress(handle, "ZSTD_getErrorCode"));
+                GetErrorName = Marshal.GetDelegateForFunctionPointer<GetErrorNameFunc>(Kernel32.GetProcAddress(handle, "ZSTD_getErrorName"));
+                if (ProfileManager.DataVersion == 20170929
+                    || ProfileManager.DataVersion == 20180914
+                    || ProfileManager.IsFIFA20DataVersion() // FIFA 20
+                    || ProfileManager.IsFIFA21DataVersion() // FIFA 21
+                    || ProfileManager.IsFIFA22DataVersion() // FIFA 22
+                    )
+                {
+                    DecompressUsingDict = Marshal.GetDelegateForFunctionPointer<DecompressUsingDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_decompress_usingDDict"));
+                    CreateDigestedDict = Marshal.GetDelegateForFunctionPointer<CreateDigestedDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_createDDict"));
+                    FreeDigestedDict = Marshal.GetDelegateForFunctionPointer<FreeDigestedDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_freeDDict"));
+                }
+            }
 
             if ((ProfileManager.DataVersion == 20170929
                 || ProfileManager.DataVersion == 20180914
@@ -131,14 +131,14 @@ namespace FrostySdk
             }
         }
 
-		internal static void SetDictionary(byte[] data)
-		{
-			digestedDict = data;
-		}
+        internal static void SetDictionary(byte[] data)
+        {
+            digestedDict = data;
+        }
 
-		internal static byte[] GetDictionary()
-		{
-			return digestedDict;
-		}
-	}
+        internal static byte[] GetDictionary()
+        {
+            return digestedDict;
+        }
+    }
 }

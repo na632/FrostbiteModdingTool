@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
+﻿using FMT.FileTools;
+using FrostbiteSdk;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using FMT.FileTools;
-using FrostbiteSdk;
-using Microsoft.Identity.Client;
 
 //namespace FIFAModdingUI
 namespace FMT
@@ -152,7 +147,7 @@ namespace FMT
 
             foreach (var file in new DirectoryInfo(AppContext.BaseDirectory).GetFiles())
             {
-                if(file.Name.Contains("temp_") && file.Name.Contains(".DDS"))
+                if (file.Name.Contains("temp_") && file.Name.Contains(".DDS"))
                 {
                     try
                     {
@@ -164,9 +159,9 @@ namespace FMT
                     }
                 }
 
-                if(file.Name.Contains("autosave", StringComparison.OrdinalIgnoreCase))
+                if (file.Name.Contains("autosave", StringComparison.OrdinalIgnoreCase))
                 {
-                    if(file.CreationTime < DateTime.Now.AddDays(-2))
+                    if (file.CreationTime < DateTime.Now.AddDays(-2))
                     {
                         file.Delete();
                     }
@@ -207,7 +202,7 @@ namespace FMT
 
                 // clear all ResourceDictionaries
                 var currentLanguage = Application.Current.Resources.MergedDictionaries.FirstOrDefault(x => x.Source != null && x.Source.ToString().Contains("Languages"));
-                if (currentLanguage != null) 
+                if (currentLanguage != null)
                 {
                     Application.Current.Resources.MergedDictionaries.Remove(currentLanguage);
                 }

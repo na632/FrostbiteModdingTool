@@ -1,25 +1,14 @@
-﻿using FIFAModdingUI.Pages.Common;
-using FolderBrowserEx;
-using Frostbite.Textures;
+﻿using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Ionic.Zip;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace FMT.Windows
 {
@@ -183,8 +172,8 @@ namespace FMT.Windows
                             }
 
                         }
-                        else if(entry.FileName == "minikit.png")
-                        { 
+                        else if (entry.FileName == "minikit.png")
+                        {
                             var miniKitLocation = "data/ui/imgAssets/kits/j" + txtKitType.Text + "_" + txtTeamId.Text + "_0.dds";
                             var miniKitLegacyAsset = AssetManager.Instance.GetCustomAssetEntry("legacy", miniKitLocation);
                             if (miniKitLegacyAsset != null)
@@ -212,7 +201,7 @@ namespace FMT.Windows
                                 }
                             }
                         }
-                        
+
                     }
 
                 }

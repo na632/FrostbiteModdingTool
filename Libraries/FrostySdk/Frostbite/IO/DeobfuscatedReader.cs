@@ -1,12 +1,7 @@
 ﻿using FMT.FileTools;
-using FrostySdk.Deobfuscators;
 using FrostySdk.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostySdk.Frostbite.IO
 {
@@ -25,7 +20,7 @@ namespace FrostySdk.Frostbite.IO
 
         public DeobfuscatedReader(Stream stream, IDeobfuscator deobfuscator) : base(stream)
         {
-            if(stream == null)
+            if (stream == null)
                 throw new ArgumentNullException("stream");
 
             //if (deobfuscator == null)

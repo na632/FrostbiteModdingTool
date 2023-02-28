@@ -1,11 +1,7 @@
-﻿using FIFAModdingUI;
-using FMT;
-using FrostySdk;
+﻿using FrostySdk;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FrostbiteModdingUI.Models
@@ -19,7 +15,7 @@ namespace FrostbiteModdingUI.Models
 
         public bool? UseModData
         {
-            get 
+            get
             {
                 if (ProfileManager.LoadedProfile.CanUseModData)
                     return useModData;
@@ -54,9 +50,9 @@ namespace FrostbiteModdingUI.Models
 
             }
         }
-        public static string SaveFileLocation 
-        { 
-            get 
+        public static string SaveFileLocation
+        {
+            get
             {
                 var dir = AppContext.BaseDirectory + "/Mods/Profiles/" + ProfileManager.ProfileName + "/";
                 if (!Directory.Exists(dir))
@@ -64,7 +60,7 @@ namespace FrostbiteModdingUI.Models
 
                 return dir + "/LauncherOptions.json";
 
-            } 
+            }
         }
 
         public static LauncherOptions Load()

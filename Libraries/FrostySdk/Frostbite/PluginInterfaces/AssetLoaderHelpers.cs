@@ -3,10 +3,6 @@ using FMT.FileTools.Modding;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -14,7 +10,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
     {
         public static AssetEntry ConvertDbObjectToAssetEntry(DbObject item, AssetEntry assetEntry)
         {
-            if(ProfileManager.IsLoaded(EGame.StarWarsSquadrons))
+            if (ProfileManager.IsLoaded(EGame.StarWarsSquadrons))
                 assetEntry.Sha1 = item.GetValue<Sha1>("sha1");
             else
                 assetEntry.Sha1 = new FMT.FileTools.Sha1(item.GetValue<byte[]>("sha1"));
@@ -61,7 +57,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             assetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
             assetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-            if(item.HasValue("SBFileLocation"))
+            if (item.HasValue("SBFileLocation"))
                 assetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
 
             if (item.HasValue("TOCFileLocation"))

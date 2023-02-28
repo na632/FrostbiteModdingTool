@@ -1,11 +1,8 @@
 ﻿using FMT.FileTools;
-using FrostySdk;
-using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -72,9 +69,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 //        - SBHeaderInformation.metaOffset)
                 //    , new NullDeobfuscator()))
                 //{
-                    var o = new DbReader(binarySbReader2.BaseStream).ReadDbObject();
-                    if(o != null)
-                        dbObject.AddValue("chunkMeta", o);
+                var o = new DbReader(binarySbReader2.BaseStream).ReadDbObject();
+                if (o != null)
+                    dbObject.AddValue("chunkMeta", o);
                 //}
             }
 
@@ -102,7 +99,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", Sha1[i]);
-              
+
                 dbObject.AddValue("name", name);
                 //dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
                 dbObject.AddValue("originalSize", originalSize);
@@ -114,7 +111,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         private List<object> ReadRes(SBHeaderInformation information, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
-            int shaCount = (int)information.ebxCount;
+            int shaCount = information.ebxCount;
             for (int i = 0; i < information.resCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
@@ -167,7 +164,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         private List<object> ReadChunks(SBHeaderInformation information, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
-            int shaCount = (int)(information.ebxCount + information.resCount);
+            int shaCount = information.ebxCount + information.resCount;
             for (int i = 0; i < information.chunkCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());

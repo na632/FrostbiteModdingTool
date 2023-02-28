@@ -1,17 +1,10 @@
 ﻿using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA23Plugin
 {
@@ -69,26 +62,26 @@ namespace FIFA23Plugin
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 List<DbObject> objs = new List<DbObject>();
-               
-                    TOCFile = new TOCFile(nativePath, DoLogging, ProcessData, false);
-                    if (TOCFile.TOCObjects != null && TOCFile.TOCObjects.Count > 0)
+
+                TOCFile = new TOCFile(nativePath, DoLogging, ProcessData, false);
+                if (TOCFile.TOCObjects != null && TOCFile.TOCObjects.Count > 0)
+                {
+                    if (!ProcessData)
+                        objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
+                    else
                     {
-                        if (!ProcessData)
-                            objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
-                        else
+                        foreach (var obj in TOCFile.Bundles)
+
                         {
-                            foreach (var obj in TOCFile.Bundles)
-
-                            {
-                                AssetManager.Instance.AddBundle(obj.Name, BundleType.None, sbIndex);
-                            }
+                            AssetManager.Instance.AddBundle(obj.Name, BundleType.None, sbIndex);
                         }
+                    }
 
-//#if DEBUG
-//                    var firstEntry = AssetManager.Instance.EBX.First();
-//                    //AssetManager.Instance.AddEbx();
-//                    var e = AssetManager.Instance.GetEbx(firstEntry.Value);
-//#endif
+                    //#if DEBUG
+                    //                    var firstEntry = AssetManager.Instance.EBX.First();
+                    //                    //AssetManager.Instance.AddEbx();
+                    //                    var e = AssetManager.Instance.GetEbx(firstEntry.Value);
+                    //#endif
                 }
 
 

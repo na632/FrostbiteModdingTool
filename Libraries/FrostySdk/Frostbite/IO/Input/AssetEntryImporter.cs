@@ -3,22 +3,16 @@ using Frostbite.Textures;
 using FrostbiteSdk;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
-using Ionic.Zlib;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 //using System.Text.Json;
 using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Shapes;
 using v2k4FIFAModding.Frosty;
 
 namespace FrostySdk.Frostbite.IO.Input
@@ -31,7 +25,7 @@ namespace FrostySdk.Frostbite.IO.Input
 
         public AssetEntry AssetEntry { get; }
         public AssetEntry SelectedEntry => AssetEntry;
-        
+
         public AssetEntryImporter(AssetEntry assetEntry) { AssetEntry = assetEntry; }
 
         /// <summary>
@@ -39,9 +33,9 @@ namespace FrostySdk.Frostbite.IO.Input
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public bool Import(string path) 
-        { 
-            if(AssetEntry is LegacyFileEntry)
+        public bool Import(string path)
+        {
+            if (AssetEntry is LegacyFileEntry)
             {
                 return ImportChunkFileAsset(path);
             }
@@ -53,7 +47,7 @@ namespace FrostySdk.Frostbite.IO.Input
             if (entryType.StartsWith("SkinnedMeshAsset", StringComparison.OrdinalIgnoreCase))
                 return ImportEbxSkinnedMesh(path);
 
-            if(new FileInfo(path).Extension.ToLower() == ".json")
+            if (new FileInfo(path).Extension.ToLower() == ".json")
                 return ImportWithJSON(path);
 
             return ImportBinary(path);
@@ -75,7 +69,7 @@ namespace FrostySdk.Frostbite.IO.Input
 
         public bool ImportWithJSON(string path)
         {
-            if(new FileInfo(path).Extension.ToLower() != ".json")
+            if (new FileInfo(path).Extension.ToLower() != ".json")
                 return false;
 
             var ebxAssetEntry = SelectedEntry as EbxAssetEntry;
@@ -201,7 +195,7 @@ namespace FrostySdk.Frostbite.IO.Input
                     var internalObject = jObject["Internal"];
                     var nwInternal = jObject["Internal"].ToObject(existingValue.GetProperty("Internal").PropertyType);
 
-                    foreach(var p in existingValue.GetProperties())
+                    foreach (var p in existingValue.GetProperties())
                     {
                         var vRoot = p.GetValue(existingValue);
                         if (vRoot != null)
@@ -222,7 +216,7 @@ namespace FrostySdk.Frostbite.IO.Input
                 {
 
                 }
-                
+
                 return existingValue;
             }
 
@@ -231,7 +225,7 @@ namespace FrostySdk.Frostbite.IO.Input
                 JsonSerializer.CreateDefault().Serialize(writer, value);
             }
         }
-        
+
         public async ValueTask<bool> ImportAsync(string path)
         {
             return await Task.FromResult(Import(path));
@@ -241,9 +235,9 @@ namespace FrostySdk.Frostbite.IO.Input
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             ReadOnlySpan<char> entryType = SelectedEntry.Type.ToCharArray();
-            if(entryType.Contains("DDS", StringComparison.OrdinalIgnoreCase))
+            if (entryType.Contains("DDS", StringComparison.OrdinalIgnoreCase))
                 openFileDialog.Filter = imageFilter;
-            else if(SelectedEntry is LegacyFileEntry SelectedLegacyEntry)
+            else if (SelectedEntry is LegacyFileEntry SelectedLegacyEntry)
                 openFileDialog.Filter = $"Files (*.{SelectedLegacyEntry.Type})|*.{SelectedLegacyEntry.Type}";
             else if (entryType.StartsWith("TextureAsset", StringComparison.OrdinalIgnoreCase) || entryType.StartsWith("Texture", StringComparison.OrdinalIgnoreCase))
                 openFileDialog.Filter = imageFilter;
@@ -275,9 +269,9 @@ namespace FrostySdk.Frostbite.IO.Input
             }
         }
 
-     
 
-        public bool ImportEbxTexture(string path) 
+
+        public bool ImportEbxTexture(string path)
         {
             bool result = false;
             ReadOnlySpan<char> chars = SelectedEntry.Type.ToCharArray();
@@ -302,7 +296,7 @@ namespace FrostySdk.Frostbite.IO.Input
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public bool ImportEbxSkinnedMesh(string path) 
+        public bool ImportEbxSkinnedMesh(string path)
         {
             return ImportEbxSkinnedMesh(path, "content/character/rig/skeleton/player/skeleton_player");
         }
@@ -325,5 +319,5 @@ namespace FrostySdk.Frostbite.IO.Input
 
     }
 
-    
+
 }

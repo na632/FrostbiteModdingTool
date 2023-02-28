@@ -1,30 +1,16 @@
-﻿using FrostyEditor.IO;
-using FrostyEditor.Windows;
-using FrostySdk;
+﻿using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
+using MahApps.Metro.Controls;
+using SdkGenerator;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using v2k4FIFAModdingCL;
-using SdkGenerator;
-
-using MahApps.Metro.Controls;
 
 namespace FIFAModdingUI.Windows
 {
@@ -54,7 +40,7 @@ namespace FIFAModdingUI.Windows
 
         private async void BuildSDKAndCache_Loaded(object sender, RoutedEventArgs e)
         {
-            if(Visibility == Visibility.Visible)
+            if (Visibility == Visibility.Visible)
             {
                 if (!DoNotAutoRebuild)
                     await Rebuild();
@@ -88,8 +74,8 @@ namespace FIFAModdingUI.Windows
 
                 AssetManager.Instance.FullReset();
                 AssetManager.Instance.Dispose();
-                AssetManager.Instance = null;  
-                
+                AssetManager.Instance = null;
+
                 await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, false, true);
 
                 await Task.Delay(2000);
@@ -104,7 +90,7 @@ namespace FIFAModdingUI.Windows
         {
         }
 
-        
+
 
         public string LogText = string.Empty;
 
@@ -128,7 +114,7 @@ namespace FIFAModdingUI.Windows
                 return;
 
             LastMessage = text;
-           
+
             await Dispatcher.InvokeAsync(() => { txtOutputSubMessage.Content = text; });
 
         }
@@ -152,7 +138,7 @@ namespace FIFAModdingUI.Windows
             {
                 await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 txtOuputMessage.Content = "There was an error during the cache building process";
                 File.WriteAllText("log_cache_error.txt", ex.ToString());
@@ -161,14 +147,14 @@ namespace FIFAModdingUI.Windows
 
         private async void btnRunBuild_Click(object sender, RoutedEventArgs e)
         {
-			Dispatcher.Invoke(() => btnRunBuild.IsEnabled = false);
+            Dispatcher.Invoke(() => btnRunBuild.IsEnabled = false);
 
-			var buildSDK = new BuildSDK();
+            var buildSDK = new BuildSDK();
             await buildSDK.Build();
-			
-			Dispatcher.Invoke(() => btnRunBuild.IsEnabled = true);
-		}
 
-     
+            Dispatcher.Invoke(() => btnRunBuild.IsEnabled = true);
+        }
+
+
     }
 }

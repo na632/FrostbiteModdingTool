@@ -2,8 +2,8 @@ using System;
 
 namespace FrostySdk.Attributes
 {
-	[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-	public class IsReferenceAttribute : Attribute
-	{
-	}
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+    public class IsReferenceAttribute : Attribute
+    {
+    }
 }

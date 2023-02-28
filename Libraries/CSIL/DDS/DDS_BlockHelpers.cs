@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static CSharpImageLibrary.DDS.DX10_Helpers;
 
 namespace CSharpImageLibrary.DDS
@@ -90,7 +86,7 @@ namespace CSharpImageLibrary.DDS
             current.r = formatDetails.ReadFloat(texel, i + 2 * formatDetails.ComponentSize) * (premultiply ? current.a : 1.0f);
             current.g = formatDetails.ReadFloat(texel, i + formatDetails.ComponentSize) * (premultiply ? current.a : 1.0f);
             current.b = formatDetails.ReadFloat(texel, i) * (premultiply ? current.a : 1.0f);
-            
+
             return current;
         }
 
@@ -497,9 +493,9 @@ namespace CSharpImageLibrary.DDS
                 {
                     RGBColour current = Colour[pixelIndicies[i]];
 
-                    float fDot = 
-                        (current.r - X.r) * Dir.r + 
-                        (current.g - X.g) * Dir.g + 
+                    float fDot =
+                        (current.r - X.r) * Dir.r +
+                        (current.g - X.g) * Dir.g +
                         (current.b - X.b) * Dir.b;
 
 
@@ -646,14 +642,14 @@ namespace CSharpImageLibrary.DDS
                     a = Dir.a * (current.a - Mid.a)
                 };
                 float f = 0;
-                f = pt.r + pt.g + pt.b + pt.a;   fDir[0] += f * f;
-                f = pt.r + pt.g + pt.b - pt.a;   fDir[1] += f * f;
-                f = pt.r + pt.g - pt.b + pt.a;   fDir[2] += f * f;
-                f = pt.r + pt.g - pt.b - pt.a;   fDir[3] += f * f;
-                f = pt.r - pt.g + pt.b + pt.a;   fDir[4] += f * f;
-                f = pt.r - pt.g + pt.b - pt.a;   fDir[5] += f * f;
-                f = pt.r - pt.g - pt.b + pt.a;   fDir[6] += f * f;
-                f = pt.r - pt.g - pt.b - pt.a;   fDir[7] += f * f;
+                f = pt.r + pt.g + pt.b + pt.a; fDir[0] += f * f;
+                f = pt.r + pt.g + pt.b - pt.a; fDir[1] += f * f;
+                f = pt.r + pt.g - pt.b + pt.a; fDir[2] += f * f;
+                f = pt.r + pt.g - pt.b - pt.a; fDir[3] += f * f;
+                f = pt.r - pt.g + pt.b + pt.a; fDir[4] += f * f;
+                f = pt.r - pt.g + pt.b - pt.a; fDir[5] += f * f;
+                f = pt.r - pt.g - pt.b + pt.a; fDir[6] += f * f;
+                f = pt.r - pt.g - pt.b - pt.a; fDir[7] += f * f;
             }
 
             float fDirMax = fDir[0];
@@ -1030,7 +1026,7 @@ namespace CSharpImageLibrary.DDS
 
             // Some kind of colour adjustment. Not sure what it does, especially if it wasn't dithering...
             DoColourFixErrorCorrection(Colour, sourceTexel);
-            
+
 
             // Palette colours
             RGBColour ColourA, ColourB, ColourC, ColourD;
@@ -1122,7 +1118,7 @@ namespace CSharpImageLibrary.DDS
         }
         #endregion RGB DXT
 
-        
+
         public static void Compress8BitBlock(byte[] source, int sourcePosition, int sourceLineLength, byte[] destination, int destPosition, int channel, bool isSigned, ImageFormats.ImageEngineFormatDetails formatDetails)
         {
             // KFreon: Get min and max
@@ -1135,7 +1131,7 @@ namespace CSharpImageLibrary.DDS
             int sourceTexelInd = 0;
             for (int i = 1; i <= 4; i++)
             {
-                for (int j= 0; j < 4; j++)
+                for (int j = 0; j < 4; j++)
                 {
                     byte colour = formatDetails.ReadByte(source, count);
                     sourceTexel[sourceTexelInd++] = colour; // Cache source
@@ -1175,7 +1171,7 @@ namespace CSharpImageLibrary.DDS
 
         private static int GetClosestValue(byte[] arr, byte c)
         {
-            int min = arr[0] - c; 
+            int min = arr[0] - c;
             if (min == c)
                 return 0;
 
@@ -1241,7 +1237,7 @@ namespace CSharpImageLibrary.DDS
                 // It's due to weird shaped mips at really low resolution. Like 2x4
                 Debug.WriteLine(e.ToString());
             }
-            catch(ArgumentOutOfRangeException e)
+            catch (ArgumentOutOfRangeException e)
             {
                 Debug.WriteLine(e.ToString());
             }

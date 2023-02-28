@@ -1,14 +1,14 @@
 namespace FrostySdk.Resources
 {
-	internal class LocalizedString
-	{
-		public uint Id;
+    internal class LocalizedString
+    {
+        public uint Id;
 
-		public string Value;
+        public string Value;
 
-		public override string ToString()
-		{
-			return Value;
-		}
-	}
+        public override string ToString()
+        {
+            return Value;
+        }
+    }
 }

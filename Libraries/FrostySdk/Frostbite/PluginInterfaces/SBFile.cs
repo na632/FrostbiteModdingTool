@@ -1,19 +1,9 @@
 ﻿using FMT.FileTools;
-using FrostySdk;
-using FrostySdk.Deobfuscators;
-using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using ModdingSupport;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -68,7 +58,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public List<DbObject> Read(NativeReader nativeReader)
         {
             var startOffset = nativeReader.Position;
-            
+
             nativeReader.Position = startOffset;
             var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)

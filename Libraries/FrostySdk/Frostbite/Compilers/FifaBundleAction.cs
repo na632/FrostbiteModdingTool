@@ -8,9 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using static ModdingSupport.ModExecutor;
 
 namespace FrostySdk.Frostbite.Compilers
@@ -601,7 +599,7 @@ namespace FrostySdk.Frostbite.Compilers
                                         {
                                             list9.Add(-1);
                                             list5[num30] = -1;
-                                            int index = (int)((long)(uint)((int)HashData(list7[num30].ToByteArray()) % 16777619) % (long)num23);
+                                            int index = (int)((uint)((int)HashData(list7[num30].ToByteArray()) % 16777619) % num23);
                                             list8[index].Add(new Tuple<Guid, int>(list7[num30], (int)list6[num30]));
                                         }
                                         for (int num31 = 0; num31 < list8.Count; num31++)
@@ -616,7 +614,7 @@ namespace FrostySdk.Frostbite.Compilers
                                                     bool flag = true;
                                                     for (int num33 = 0; num33 < list10.Count; num33++)
                                                     {
-                                                        int num34 = (int)((long)(uint)((int)HashData(list10[num33].Item1.ToByteArray(), num32) % 16777619) % (long)num23);
+                                                        int num34 = (int)((uint)((int)HashData(list10[num33].Item1.ToByteArray(), num32) % 16777619) % num23);
                                                         if (list9[num34] != -1 || list11.Contains(num34))
                                                         {
                                                             flag = false;
@@ -730,7 +728,7 @@ namespace FrostySdk.Frostbite.Compilers
             }
             for (int i = num2; i < b.Length; i++)
             {
-                num = (uint)((int)(sbyte)b[i] ^ (int)(16777619 * num));
+                num = (uint)((sbyte)b[i] ^ (int)(16777619 * num));
             }
             return num;
         }

@@ -1,13 +1,10 @@
 ﻿using FMT.FileTools;
 using FrostySdk;
-using FrostySdk.Deobfuscators;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using static Madden22Plugin.AssetLoader_Madden22;
 
 namespace Madden22Plugin
@@ -50,11 +47,11 @@ namespace Madden22Plugin
 
                 nr_cas.Position = 0;
                 int index = 0;
-                foreach (CASBundle casBundle in casBundles.Where(x=>x.TotalSize > 0))
+                foreach (CASBundle casBundle in casBundles.Where(x => x.TotalSize > 0))
                 {
-                    if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
-                        AssetManager.Instance.Logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
-                    
+                    if (AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
+                        AssetManager.Instance.Logger.Log($"Completed {Math.Round(((double)index / casBundles.Count) * 100).ToString()} in {path}");
+
                     index++;
 
                     // go back 4 from the magic

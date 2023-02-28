@@ -3,36 +3,36 @@ using System.Runtime.InteropServices;
 
 namespace FrostbiteSdk
 {
-	public class FbxLayerContainer : FbxNodeAttribute
-	{
-		[DllImport("ThirdParty/libfbxsdk", CallingConvention = CallingConvention.ThisCall, EntryPoint = "?GetLayer@FbxLayerContainer@fbxsdk@@QEBAPEBVFbxLayer@2@H@Z")]
-		private static extern IntPtr GetLayerInternal(IntPtr InHandle, int pIndex);
+    public class FbxLayerContainer : FbxNodeAttribute
+    {
+        [DllImport("ThirdParty/libfbxsdk", CallingConvention = CallingConvention.ThisCall, EntryPoint = "?GetLayer@FbxLayerContainer@fbxsdk@@QEBAPEBVFbxLayer@2@H@Z")]
+        private static extern IntPtr GetLayerInternal(IntPtr InHandle, int pIndex);
 
-		[DllImport("ThirdParty/libfbxsdk", CallingConvention = CallingConvention.ThisCall, EntryPoint = "?CreateLayer@FbxLayerContainer@fbxsdk@@QEAAHXZ")]
-		private static extern int CreateLayerInternal(IntPtr InHandle);
+        [DllImport("ThirdParty/libfbxsdk", CallingConvention = CallingConvention.ThisCall, EntryPoint = "?CreateLayer@FbxLayerContainer@fbxsdk@@QEAAHXZ")]
+        private static extern int CreateLayerInternal(IntPtr InHandle);
 
-		public FbxLayerContainer()
-		{
-		}
+        public FbxLayerContainer()
+        {
+        }
 
-		public FbxLayerContainer(IntPtr InHandle)
-			: base(InHandle)
-		{
-		}
+        public FbxLayerContainer(IntPtr InHandle)
+            : base(InHandle)
+        {
+        }
 
-		public FbxLayer GetLayer(int pIndex)
-		{
-			IntPtr layerInternal = GetLayerInternal(pHandle, pIndex);
-			if (layerInternal == IntPtr.Zero)
-			{
-				return null;
-			}
-			return new FbxLayer(layerInternal);
-		}
+        public FbxLayer GetLayer(int pIndex)
+        {
+            IntPtr layerInternal = GetLayerInternal(pHandle, pIndex);
+            if (layerInternal == IntPtr.Zero)
+            {
+                return null;
+            }
+            return new FbxLayer(layerInternal);
+        }
 
-		public int CreateLayer()
-		{
-			return CreateLayerInternal(pHandle);
-		}
-	}
+        public int CreateLayer()
+        {
+            return CreateLayerInternal(pHandle);
+        }
+    }
 }

@@ -1,9 +1,9 @@
 namespace FrostyEditor
 {
-	internal struct IMAGE_DATA_DIRECTORY
-	{
-		public uint VirtualAddress;
+    internal struct IMAGE_DATA_DIRECTORY
+    {
+        public uint VirtualAddress;
 
-		public uint Size;
-	}
+        public uint Size;
+    }
 }

@@ -1,11 +1,8 @@
-﻿using System;
+﻿using CSharpImageLibrary.Headers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static CSharpImageLibrary.DDS.DDSGeneral;
 using static CSharpImageLibrary.DDS.DDS_BlockHelpers;
-using CSharpImageLibrary.Headers;
+using static CSharpImageLibrary.DDS.DDSGeneral;
 
 namespace CSharpImageLibrary.DDS
 {
@@ -38,7 +35,7 @@ namespace CSharpImageLibrary.DDS
                     position += sourceLineLength;
                 }
             }
-            
+
 
             // Compress Colour
             CompressRGBTexel(imgData, sourcePosition, sourceLineLength, destination, destPosition + 8, false, 0f, alphaSetting, formatDetails);
@@ -125,7 +122,7 @@ namespace CSharpImageLibrary.DDS
             int destBIndex = BMask == 0 ? -1 : maskOrder.IndexOf(BMask) * destFormatDetails.ComponentSize;
 
             int sourceAInd = 3 * sourceFormatDetails.ComponentSize;
-            int sourceRInd = 2 * sourceFormatDetails.ComponentSize; 
+            int sourceRInd = 2 * sourceFormatDetails.ComponentSize;
             int sourceGInd = 1 * sourceFormatDetails.ComponentSize;
             int sourceBInd = 0;
 

@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 
 namespace FrostySdk.Frostbite.Compilers
 {
@@ -325,6 +324,8 @@ namespace FrostySdk.Frostbite.Compilers
 
         public virtual bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
+            //logger.Log($"Compiler {fs.BasePath}");
+
             ModExecuter = modExecuter;
             return false;
         }
@@ -383,7 +384,7 @@ namespace FrostySdk.Frostbite.Compilers
             var resMetaPosition = origResDbo.GetValue<int>("SB_ResMeta_Position");
             var originalSizePosition = origResDbo.HasValue("SB_OriginalSize_Position")
                 ? origResDbo.GetValue<int>("SB_OriginalSize_Position")
-                : origResDbo.HasValue("SBOSizePos") ? origResDbo.GetValue<int>("SBOSizePos") 
+                : origResDbo.HasValue("SBOSizePos") ? origResDbo.GetValue<int>("SBOSizePos")
                 : 0;
 
             writer.BaseStream.Position = resMetaPosition;
@@ -471,7 +472,7 @@ namespace FrostySdk.Frostbite.Compilers
                     if (!tocFile2.TocChunks.Any())
                         continue;
 
-                    if (!ModExecuter.ModifiedChunks.Any(x => 
+                    if (!ModExecuter.ModifiedChunks.Any(x =>
                         x.Value.Bundles.Contains(tocFile2.ChunkDataBundleId)
                         || x.Value.Bundles.Contains(Fnv1a.HashString("TocChunks"))
                         )
@@ -770,7 +771,7 @@ namespace FrostySdk.Frostbite.Compilers
 
                         foreach (var item in editedBundleEntries)
                         {
-                            if(!groupedByTOCSB[nativePathToTOCFile].Any(x => x.Key == item.Key))
+                            if (!groupedByTOCSB[nativePathToTOCFile].Any(x => x.Key == item.Key))
                                 groupedByTOCSB[nativePathToTOCFile].Add(item);
 
                             EntriesToNewPosition.Remove(item.Key);
@@ -802,66 +803,66 @@ namespace FrostySdk.Frostbite.Compilers
                         continue;
 
 
-                        ModExecuter.Logger.Log($"Processing: {tocPath}");
-                        var origEbxBundles = dboOriginal.List
-                        .Where(x => ((DbObject)x).HasValue("ebx"))
-                        .Select(x => ((DbObject)x).GetValue<DbObject>("ebx"))
-                        .Where(x => x.List != null && x.List.Any(y => ModExecuter.modifiedEbx.ContainsKey(((DbObject)y).GetValue<string>("name"))))
-                        .ToList();
+                    ModExecuter.Logger.Log($"Processing: {tocPath}");
+                    var origEbxBundles = dboOriginal.List
+                    .Where(x => ((DbObject)x).HasValue("ebx"))
+                    .Select(x => ((DbObject)x).GetValue<DbObject>("ebx"))
+                    .Where(x => x.List != null && x.List.Any(y => ModExecuter.modifiedEbx.ContainsKey(((DbObject)y).GetValue<string>("name"))))
+                    .ToList();
 
-                        var origResBundles = dboOriginal.List
-                        .Where(x => ((DbObject)x).HasValue("res"))
-                        .Select(x => ((DbObject)x).GetValue<DbObject>("res"))
-                        .Where(x => x.List != null && x.List.Any(y => ModExecuter.modifiedRes.ContainsKey(((DbObject)y).GetValue<string>("name"))))
-                        .ToList();
+                    var origResBundles = dboOriginal.List
+                    .Where(x => ((DbObject)x).HasValue("res"))
+                    .Select(x => ((DbObject)x).GetValue<DbObject>("res"))
+                    .Where(x => x.List != null && x.List.Any(y => ModExecuter.modifiedRes.ContainsKey(((DbObject)y).GetValue<string>("name"))))
+                    .ToList();
 
-                        var origChunkBundles = dboOriginal.List
-                        .Where(x => ((DbObject)x).HasValue("chunks"))
-                        .Select(x => ((DbObject)x).GetValue<DbObject>("chunks"))
-                        .Where(x => x.List != null && x.List.Any(y => ModExecuter.ModifiedChunks.ContainsKey(((DbObject)y).GetValue<Guid>("id"))))
-                        .ToList();
+                    var origChunkBundles = dboOriginal.List
+                    .Where(x => ((DbObject)x).HasValue("chunks"))
+                    .Select(x => ((DbObject)x).GetValue<DbObject>("chunks"))
+                    .Where(x => x.List != null && x.List.Any(y => ModExecuter.ModifiedChunks.ContainsKey(((DbObject)y).GetValue<Guid>("id"))))
+                    .ToList();
 
-                        if (origEbxBundles.Count == 0 && origResBundles.Count == 0 && origChunkBundles.Count == 0)
-                            continue;
-                        //return;
+                    if (origEbxBundles.Count == 0 && origResBundles.Count == 0 && origChunkBundles.Count == 0)
+                        continue;
+                    //return;
 
-                        var resolvedTocPath = FileSystem.Instance.ResolvePath(tocPath, true);
-                        using (NativeWriter nw_toc = new NativeWriter(new FileStream(resolvedTocPath, FileMode.Open)))
+                    var resolvedTocPath = FileSystem.Instance.ResolvePath(tocPath, true);
+                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(resolvedTocPath, FileMode.Open)))
+                    {
+                        foreach (var assetBundle in tocGroup.Value)
                         {
-                            foreach (var assetBundle in tocGroup.Value)
+                            DbObject origDbo = null;
+                            var casPath = string.Empty;
+                            if (assetBundle.Key is EbxAssetEntry)
                             {
-                                DbObject origDbo = null;
-                                var casPath = string.Empty;
-                                if (assetBundle.Key is EbxAssetEntry)
+                                foreach (DbObject dbInBundle in origEbxBundles)
                                 {
-                                    foreach (DbObject dbInBundle in origEbxBundles)
-                                    {
-                                        origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                                        if (origDbo != null)
-                                            break;
-                                    }
-
+                                    origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
                                     if (origDbo != null)
-                                    {
-                                        casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
-                                    }
+                                        break;
                                 }
 
-                                if (assetBundle.Key is ResAssetEntry)
+                                if (origDbo != null)
                                 {
-
-                                    foreach (DbObject dbInBundle in origResBundles)
-                                    {
-                                        origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                                        if (origDbo != null)
-                                            break;
-                                    }
-
-                                    if (origDbo != null)
-                                    {
-                                        casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
-                                    }
+                                    casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
                                 }
+                            }
+
+                            if (assetBundle.Key is ResAssetEntry)
+                            {
+
+                                foreach (DbObject dbInBundle in origResBundles)
+                                {
+                                    origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                    if (origDbo != null)
+                                        break;
+                                }
+
+                                if (origDbo != null)
+                                {
+                                    casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
+                                }
+                            }
 
                             if (assetBundle.Key is ChunkAssetEntry)
                             {
@@ -884,34 +885,34 @@ namespace FrostySdk.Frostbite.Compilers
                                 }
                             }
 
-                                if (origDbo != null && !string.IsNullOrEmpty(casPath))
-                                {
-                                    var positionOfNewData = assetBundle.Value.Item1;
-                                    var sizeOfData = assetBundle.Value.Item2;
-                                    var originalSizeOfData = assetBundle.Value.Item3;
-                                    var sha = assetBundle.Value.Item4;
+                            if (origDbo != null && !string.IsNullOrEmpty(casPath))
+                            {
+                                var positionOfNewData = assetBundle.Value.Item1;
+                                var sizeOfData = assetBundle.Value.Item2;
+                                var originalSizeOfData = assetBundle.Value.Item3;
+                                var sha = assetBundle.Value.Item4;
 
-                                    int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
-                                    var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
-                                    nw_toc.BaseStream.Position = sb_cas_offset_position;
-                                    nw_toc.Write((uint)positionOfNewData, Endian.Big);
-                                    nw_toc.Write((uint)sizeOfData, Endian.Big);
+                                int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
+                                nw_toc.BaseStream.Position = sb_cas_offset_position;
+                                nw_toc.Write((uint)positionOfNewData, Endian.Big);
+                                nw_toc.Write((uint)sizeOfData, Endian.Big);
 
-                                    if (!assetBundleToCAS.ContainsKey(casPath))
-                                        assetBundleToCAS.Add(casPath, new List<(AssetEntry, DbObject)>());
+                                if (!assetBundleToCAS.ContainsKey(casPath))
+                                    assetBundleToCAS.Add(casPath, new List<(AssetEntry, DbObject)>());
 
-                                    assetBundleToCAS[casPath].Add((assetBundle.Key, origDbo));
-                                }
+                                assetBundleToCAS[casPath].Add((assetBundle.Key, origDbo));
                             }
-
-
-
-
-
                         }
 
-                        using (var fsTocSig = new FileStream(resolvedTocPath, FileMode.Open))
-                            TOCFile.RebuildTOCSignatureOnly(fsTocSig);
+
+
+
+
+                    }
+
+                    using (var fsTocSig = new FileStream(resolvedTocPath, FileMode.Open))
+                        TOCFile.RebuildTOCSignatureOnly(fsTocSig);
 
                     ModExecuter.Logger.Log($"Processing Complete: {tocPath}");
                     if (dboOriginal != null)

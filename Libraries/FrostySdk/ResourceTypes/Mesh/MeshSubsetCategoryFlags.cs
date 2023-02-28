@@ -2,7 +2,7 @@ using System;
 
 namespace FrostySdk.Resources
 {
-	[Flags]
+    [Flags]
     public enum MeshSubsetCategoryFlags
     {
         MeshSubsetCategoryFlags_Opaque = 1,

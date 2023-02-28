@@ -1,19 +1,12 @@
 ﻿using FMT.FileTools;
 using FrostySdk;
-using FrostySdk.Deobfuscators;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using ModdingSupport;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using static FIFA21Plugin.FIFA21AssetLoader;
 
 namespace FIFA21Plugin
 {
@@ -171,14 +164,14 @@ namespace FIFA21Plugin
 
             //CachingSB.CachingSBs.Add(cachingSBData);
             //CachingSB.Save();
-            if(ProcessData)
+            if (ProcessData)
             {
                 foreach (var dboObj in dbObjects)
                 {
                     var EbxObjectList = dboObj.GetValue<DbObject>("ebx");
-                    if(EbxObjectList != null) 
-                    { 
-                        foreach(DbObject ebxObject in EbxObjectList)
+                    if (EbxObjectList != null)
+                    {
+                        foreach (DbObject ebxObject in EbxObjectList)
                             ebxObject.SetValue("ebx", true);
                     }
                     var ResObjectList = dboObj.GetValue<DbObject>("res");
@@ -297,7 +290,7 @@ namespace FIFA21Plugin
         public CachingSBData.Bundle ReadInternalBundle(int bundleOffset, ref DbObject dbObject, NativeReader binarySbReader2)
         {
             CachedBundle = new CachingSBData.Bundle();
-            CachedBundle.StartOffset = (int)bundleOffset;
+            CachedBundle.StartOffset = bundleOffset;
             dbObject.SetValue("BundleStartOffset", CachedBundle.StartOffset);
 
             uint CatalogOffset = binarySbReader2.ReadUInt(Endian.Big);
@@ -389,7 +382,7 @@ namespace FIFA21Plugin
                 DbObject o = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
 
                 o.SetValue("SBFileLocation", NativeFileLocation);
-                if(AssociatedTOCFile != null)
+                if (AssociatedTOCFile != null)
                     o.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
                 o.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
@@ -505,7 +498,7 @@ namespace FIFA21Plugin
             }
 
             CachedBundle.CatalogCasGroupOffsetEnd = (int)binarySbReader2.Position;
-            if(CachedBundle.CatalogCasGroupOffsetEnd == 0)
+            if (CachedBundle.CatalogCasGroupOffsetEnd == 0)
             {
 
             }
@@ -516,21 +509,21 @@ namespace FIFA21Plugin
             return CachedBundle;
         }
 
-        
+
         public void WriteInternalBundle(MemoryStream stream, DbObject bundle)
         {
             long sbStartingPosition = stream.Position;
             NativeWriter writer = new NativeWriter(stream);
             int totalCount = bundle.GetValue<DbObject>("ebx").List.Count + bundle.GetValue<DbObject>("res").List.Count + bundle.GetValue<DbObject>("chunks").List.Count;
-            writer.Write((int)bundle.GetValue<int>("CatalogOffset"), Endian.Big);
+            writer.Write(bundle.GetValue<int>("CatalogOffset"), Endian.Big);
             long headerStartPosition = stream.Position;
-            writer.Write((int)bundle.GetValue<int>("EndOfMeta"), Endian.Big);
-            writer.Write((int)bundle.GetValue<int>("CasFileForGroupOffset"), Endian.Big);
-            writer.Write((int)totalCount, Endian.Big);
-            writer.Write((int)bundle.GetValue<int>("CatalogAndCASOffset"), Endian.Big);
-            writer.Write((int)bundle.GetValue<int>("unk3"), Endian.Big);
-            writer.Write((int)bundle.GetValue<int>("unk4"), Endian.Big);
-            writer.Write((int)bundle.GetValue<int>("unk5"), Endian.Big);
+            writer.Write(bundle.GetValue<int>("EndOfMeta"), Endian.Big);
+            writer.Write(bundle.GetValue<int>("CasFileForGroupOffset"), Endian.Big);
+            writer.Write(totalCount, Endian.Big);
+            writer.Write(bundle.GetValue<int>("CatalogAndCASOffset"), Endian.Big);
+            writer.Write(bundle.GetValue<int>("unk3"), Endian.Big);
+            writer.Write(bundle.GetValue<int>("unk4"), Endian.Big);
+            writer.Write(bundle.GetValue<int>("unk5"), Endian.Big);
             //writer.Write((int)0, Endian.Big);
             //long bundleEndPosition = new BundleWriter_F21().Write(stream, bundle);
 
@@ -549,7 +542,7 @@ namespace FIFA21Plugin
                 _ = 0;
                 if (entryCasIdentifier != currentCasIdentifier)
                 {
-                    writer.Write((int)entryCasIdentifier);
+                    writer.Write(entryCasIdentifier);
                     flags[entryIndex] = 1;
                     currentCasIdentifier = entryCasIdentifier;
                 }
@@ -557,7 +550,7 @@ namespace FIFA21Plugin
                 {
                     flags[entryIndex] = 0;
                 }
-                writer.Write((uint)entry.GetValue<uint>("offset"), Endian.Big);
+                writer.Write(entry.GetValue<uint>("offset"), Endian.Big);
                 writer.Write((uint)entry.GetValue<int>("size"), Endian.Big);
                 entryIndex++;
             }
@@ -566,17 +559,17 @@ namespace FIFA21Plugin
             ArrayPool<byte>.Shared.Return(flags);
             long endPosition = writer.Position;
             writer.Position = headerStartPosition;
-            writer.Write((int)(int)startOfEntryDataOffset, Endian.Big);
-            writer.Write((int)(int)startOfFlagsOffset, Endian.Big);
-            writer.Write((int)totalCount, Endian.Big);
-            writer.Write((int)(int)startOfEntryDataOffset + 32, Endian.Big);
-            writer.Write((int)(int)startOfEntryDataOffset + 32, Endian.Big);
-            writer.Write((int)(int)startOfEntryDataOffset + 32, Endian.Big);
+            writer.Write((int)startOfEntryDataOffset, Endian.Big);
+            writer.Write((int)startOfFlagsOffset, Endian.Big);
+            writer.Write(totalCount, Endian.Big);
+            writer.Write((int)startOfEntryDataOffset + 32, Endian.Big);
+            writer.Write((int)startOfEntryDataOffset + 32, Endian.Big);
+            writer.Write((int)startOfEntryDataOffset + 32, Endian.Big);
             //writer.Write((int)(int)bundleEndPosition - 36, Endian.Big);
             writer.Write(0, Endian.Big);
             writer.Position = endPosition;
         }
-        
+
 
         public static int CreateCasIdentifier(byte unk, bool isPatch, byte packageIndex, byte casIndex)
         {

@@ -1,18 +1,7 @@
 ﻿using AvalonDock.Layout;
-using CSharpImageLibrary;
 using FIFAModdingUI.Pages.Common;
-using Frostbite.FileManagers;
-using Frostbite.Textures;
 using FrostySdk;
-using FrostySdk.Frostbite;
-using FrostySdk.Frostbite.IO;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using Microsoft.Win32;
-using SharpDX.Toolkit.Graphics;
-using System;
-using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,15 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using static Frostbite.Textures.TextureUtils;
-using static FrostySdk.Resources.GeometryDeclarationDesc;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace FMT.Pages.Common
@@ -41,40 +21,44 @@ namespace FMT.Pages.Common
         public BrowserOfInitfs()
         {
             InitializeComponent();
-			Load();
+            Load();
         }
 
-		public class FileEntry
-		{
-			public string FileName { get; }
+        public class FileEntry
+        {
+            public string FileName { get; }
 
-			public string FileType { get {
+            public string FileType
+            {
+                get
+                {
 
-					var lastIndexOfDot = FileName.LastIndexOf('.');
-					if (lastIndexOfDot != -1)
-						return FileName.Substring(FileName.LastIndexOf('.'), FileName.Length - FileName.LastIndexOf('.'));
+                    var lastIndexOfDot = FileName.LastIndexOf('.');
+                    if (lastIndexOfDot != -1)
+                        return FileName.Substring(FileName.LastIndexOf('.'), FileName.Length - FileName.LastIndexOf('.'));
 
-					return "";
+                    return "";
 
-				} }
+                }
+            }
 
             public byte[] Data
             {
                 get
                 {
-					if (FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(this.FileName))
-						return FileSystem.Instance.MemoryFileSystemModifiedItems[FileName];
+                    if (FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(this.FileName))
+                        return FileSystem.Instance.MemoryFileSystemModifiedItems[FileName];
 
-					return FileSystem.Instance.memoryFs[FileName];
+                    return FileSystem.Instance.memoryFs[FileName];
                 }
             }
 
             public bool IsModified => FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(this.FileName);
 
-			public FileEntry(string fileName)
-			{
-				this.FileName = fileName;
-			}
+            public FileEntry(string fileName)
+            {
+                this.FileName = fileName;
+            }
 
             public override string ToString()
             {
@@ -83,53 +67,53 @@ namespace FMT.Pages.Common
 
         }
 
-		public AssetEntry AssetEntry;
+        public AssetEntry AssetEntry;
 
-		public FileEntry SelectedEntry => (FileEntry)lb.SelectedItem;
+        public FileEntry SelectedEntry => (FileEntry)lb.SelectedItem;
 
-		public string SelectedEntryText { get; set; }
+        public string SelectedEntryText { get; set; }
         public Browser ParentBrowser { get; internal set; }
 
         public void Load()
-		{
-			browserDocumentsPane.Children.Clear();
-
-			RefreshList();
-		}
-
-		private void RefreshList()
         {
-			List<FileEntry> list = new List<FileEntry>();
-			list = FileSystem.Instance.memoryFs.Select(x => new FileEntry(x.Key)).ToList();
-			lb.ItemsSource = list;
-			DataContext = null;
-			DataContext = this;
-		}
+            browserDocumentsPane.Children.Clear();
 
-		private async void Export_Click(object sender, RoutedEventArgs e)
-		{
-			await ExportAsync().ConfigureAwait(continueOnCapturedContext: true);
-		}
+            RefreshList();
+        }
 
-		private async void Import_Click(object sender, RoutedEventArgs e)
-		{
-			await ImportAsync().ConfigureAwait(continueOnCapturedContext: true);
-		}
+        private void RefreshList()
+        {
+            List<FileEntry> list = new List<FileEntry>();
+            list = FileSystem.Instance.memoryFs.Select(x => new FileEntry(x.Key)).ToList();
+            lb.ItemsSource = list;
+            DataContext = null;
+            DataContext = this;
+        }
 
-		private void Revert_Click(object sender, RoutedEventArgs e)
-		{
-		}
+        private async void Export_Click(object sender, RoutedEventArgs e)
+        {
+            await ExportAsync().ConfigureAwait(continueOnCapturedContext: true);
+        }
 
-		
-		private async Task ExportAsync()
-		{
+        private async void Import_Click(object sender, RoutedEventArgs e)
+        {
+            await ImportAsync().ConfigureAwait(continueOnCapturedContext: true);
+        }
+
+        private void Revert_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+
+        private async Task ExportAsync()
+        {
             object selectedItem = lb.SelectedItem;
             FileEntry entry = selectedItem as FileEntry;
             if (entry == null)
             {
                 return;
             }
-            string filter = entry.FileType + " (*." + entry.FileType.ToLower() + ")|*." + entry.FileType.Replace(".","");
+            string filter = entry.FileType + " (*." + entry.FileType.ToLower() + ")|*." + entry.FileType.Replace(".", "");
             //if (entry.Type == "DDS")
             //{
             //    filter = "PNG (*.png)|*.png|" + filter;
@@ -143,10 +127,10 @@ namespace FMT.Pages.Common
             };
             if (dialog.ShowDialog() == true)
             {
-				if(File.Exists(dialog.FileName))
-					File.Delete(dialog.FileName);
+                if (File.Exists(dialog.FileName))
+                    File.Delete(dialog.FileName);
 
-				await File.WriteAllBytesAsync(dialog.FileName, entry.Data);
+                await File.WriteAllBytesAsync(dialog.FileName, entry.Data);
                 //string filename = dialog.FileName;
                 //string extension = System.IO.Path.GetExtension(filename);
                 //string filterExtension = filter.Split('|')[dialog.FilterIndex * 2 - 1];
@@ -159,51 +143,51 @@ namespace FMT.Pages.Common
             }
         }
 
-		private async Task ImportAsync()
-		{
+        private async Task ImportAsync()
+        {
             FileEntry entry = lb.SelectedItem as FileEntry;
             if (entry == null)
             {
                 return;
             }
-   //         string filter = entry.Type + " (*." + entry.Type.ToLower() + ")|*." + entry.Type;
-   //         if (entry.Type == "DDS")
-   //         {
-   //             filter = "All Images|*.png;*.dds";
-   //         }
-   //         Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog
-			//{
-   //             Filter = filter,
-   //             FileName = entry.Name.Replace('\\', '_').Replace('/', '_'),
-   //             Title = "Import File"
-   //         };
-   //         if (dialog.ShowDialog() == true)
-   //         {
-   //             try
-   //             {
-   //                 await ImportAsync(entry, dialog.FileName);
-   //             }
-   //             catch (InvalidDataException)
-   //             {
-   //             }
-   //         }
-			
-			//if(ParentBrowser != null)
-   //         {
-			//	ParentBrowser.UpdateAssetListView();
-   //         }
+            //         string filter = entry.Type + " (*." + entry.Type.ToLower() + ")|*." + entry.Type;
+            //         if (entry.Type == "DDS")
+            //         {
+            //             filter = "All Images|*.png;*.dds";
+            //         }
+            //         Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog
+            //{
+            //             Filter = filter,
+            //             FileName = entry.Name.Replace('\\', '_').Replace('/', '_'),
+            //             Title = "Import File"
+            //         };
+            //         if (dialog.ShowDialog() == true)
+            //         {
+            //             try
+            //             {
+            //                 await ImportAsync(entry, dialog.FileName);
+            //             }
+            //             catch (InvalidDataException)
+            //             {
+            //             }
+            //         }
+
+            //if(ParentBrowser != null)
+            //         {
+            //	ParentBrowser.UpdateAssetListView();
+            //         }
         }
 
         private void lb_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-			if(lb.SelectedItem != null)
+            if (lb.SelectedItem != null)
             {
-				//var bigFileEntry = lb.SelectedItem as BigFileEntry;
+                //var bigFileEntry = lb.SelectedItem as BigFileEntry;
 
-				// ---- ----------
-				// stop duplicates
-				browserDocumentsPane.AllowDuplicateContent = false;
-				foreach(var child in browserDocumentsPane.Children)
+                // ---- ----------
+                // stop duplicates
+                browserDocumentsPane.AllowDuplicateContent = false;
+                foreach (var child in browserDocumentsPane.Children)
                 {
                     if (child.Title == SelectedEntry.ToString())
                     {
@@ -215,75 +199,75 @@ namespace FMT.Pages.Common
 
                 var newLayoutDoc = new LayoutDocument();
                 newLayoutDoc.Title = SelectedEntry.ToString();
-				switch(SelectedEntry.FileType)
+                switch (SelectedEntry.FileType)
                 {
-					case ".json":
-					case ".ini":
-					case ".cfg":
-					case ".lua":
-						TextBox textBox = new TextBox();
-						textBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
-						textBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+                    case ".json":
+                    case ".ini":
+                    case ".cfg":
+                    case ".lua":
+                        TextBox textBox = new TextBox();
+                        textBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+                        textBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
                         textBox.Text = Encoding.UTF8.GetString(SelectedEntry.Data);
                         textBox.TextChanged += TextBox_TextChanged;
-						newLayoutDoc.Content = textBox;
-						break;
-					default:
+                        newLayoutDoc.Content = textBox;
+                        break;
+                    default:
                         WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
                         hexEditor.Stream = new MemoryStream(SelectedEntry.Data);
                         newLayoutDoc.Content = hexEditor;
                         hexEditor.BytesModified += HexEditor_BytesModified;
                         break;
                 }
-                
+
                 browserDocumentsPane.Children.Insert(0, newLayoutDoc);
-				browserDocumentsPane.SelectedContentIndex = 0;
+                browserDocumentsPane.SelectedContentIndex = 0;
 
 
             }
-		}
+        }
 
-		private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			var fileEntry = lb.SelectedItem as FileEntry;
-			if (fileEntry == null)
-				return;
-			if (sender is TextBox editor)
-			{
-				var bytesOfTextbox = Encoding.UTF8.GetBytes(editor.Text);
-				if(bytesOfTextbox != fileEntry.Data)
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var fileEntry = lb.SelectedItem as FileEntry;
+            if (fileEntry == null)
+                return;
+            if (sender is TextBox editor)
+            {
+                var bytesOfTextbox = Encoding.UTF8.GetBytes(editor.Text);
+                if (bytesOfTextbox != fileEntry.Data)
                 {
-					ModifyFileWithBytes(fileEntry.FileName, bytesOfTextbox);
-				}
-			}
-		}
+                    ModifyFileWithBytes(fileEntry.FileName, bytesOfTextbox);
+                }
+            }
+        }
 
         private void HexEditor_BytesModified(object sender, WpfHexaEditor.Core.EventArguments.ByteEventArgs e)
         {
-			var fileEntry = lb.SelectedItem as FileEntry;
-			if (fileEntry == null)
-				return;
+            var fileEntry = lb.SelectedItem as FileEntry;
+            if (fileEntry == null)
+                return;
 
-			var hexEditor = sender as WpfHexaEditor.HexEditor;
+            var hexEditor = sender as WpfHexaEditor.HexEditor;
             if (hexEditor != null)
             {
-				ModifyFileWithBytes(fileEntry.FileName, hexEditor.GetAllBytes(true));
-				//if (!FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(fileEntry.FileName))
-				//	FileSystem.Instance.MemoryFileSystemModifiedItems.Add(fileEntry.FileName, hexEditor.GetAllBytes(true));
+                ModifyFileWithBytes(fileEntry.FileName, hexEditor.GetAllBytes(true));
+                //if (!FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(fileEntry.FileName))
+                //	FileSystem.Instance.MemoryFileSystemModifiedItems.Add(fileEntry.FileName, hexEditor.GetAllBytes(true));
 
-				//FileSystem.Instance.MemoryFileSystemModifiedItems[fileEntry.FileName] = hexEditor.GetAllBytes(true);
-			}
+                //FileSystem.Instance.MemoryFileSystemModifiedItems[fileEntry.FileName] = hexEditor.GetAllBytes(true);
+            }
         }
 
-		private void ModifyFileWithBytes(string fileName, byte[] bytes)
+        private void ModifyFileWithBytes(string fileName, byte[] bytes)
         {
-			if (!FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(fileName))
-				FileSystem.Instance.MemoryFileSystemModifiedItems.Add(fileName, bytes);
+            if (!FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(fileName))
+                FileSystem.Instance.MemoryFileSystemModifiedItems.Add(fileName, bytes);
 
-			FileSystem.Instance.MemoryFileSystemModifiedItems[fileName] = bytes;
+            FileSystem.Instance.MemoryFileSystemModifiedItems[fileName] = bytes;
 
-			RefreshList();
-		}
+            RefreshList();
+        }
 
-	}
+    }
 }

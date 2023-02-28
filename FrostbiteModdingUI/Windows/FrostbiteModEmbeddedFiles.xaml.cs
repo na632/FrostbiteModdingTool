@@ -1,21 +1,9 @@
 ﻿using FrostbiteSdk.FrostbiteSdk.Managers;
-using FrostySdk;
 using FrostySdk.Managers;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace FrostbiteModdingUI.Windows
 {
@@ -41,7 +29,7 @@ namespace FrostbiteModdingUI.Windows
         public EmbeddedFileEntry SelectedFileEntry
         {
             get { return embeddedFileEntry; }
-            set 
+            set
             {
 
                 if (embeddedFileEntry != value)
@@ -98,7 +86,7 @@ namespace FrostbiteModdingUI.Windows
                 return;
 
             var embeddedFile = lstFiles.SelectedItem as EmbeddedFileEntry;
-            if(embeddedFile != null)
+            if (embeddedFile != null)
             {
                 if (File.Exists(embeddedFile.ImportedFileLocation))
                 {
@@ -113,9 +101,9 @@ namespace FrostbiteModdingUI.Windows
             openFileDialog.Filter = "Any files (*.*)|*.*";
             openFileDialog.Multiselect = true;
             var result = openFileDialog.ShowDialog();
-            if(result.HasValue && result.Value)
+            if (result.HasValue && result.Value)
             {
-                foreach(var file in openFileDialog.FileNames)
+                foreach (var file in openFileDialog.FileNames)
                 {
                     FileInfo fileInfo = new FileInfo(file);
                     EmbeddedFileEntry embeddedFile = new EmbeddedFileEntry();

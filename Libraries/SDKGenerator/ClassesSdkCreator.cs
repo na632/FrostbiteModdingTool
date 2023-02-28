@@ -1,14 +1,9 @@
-﻿using FMT.FileTools.Modding;
-using FrostbiteSdk;
+﻿using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
-using FrostyEditor;
-using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
-using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
-using SdkGenerator.BaseInfo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,7 +24,7 @@ namespace SdkGenerator
         //public static string configFilename = "FrostyEditor.ini";
 
 
-        
+
 
         public static long offset;
 
@@ -78,7 +73,7 @@ namespace SdkGenerator
                     }
                 }
             }
-            else 
+            else
             {
                 throw new ArgumentNullException("SDK Classes File not provided in the Profile. Please set a file!");
             }
@@ -97,7 +92,7 @@ namespace SdkGenerator
 
         public bool CrossReferenceAssets(SdkUpdateTask task)
         {
-            if(FileSystem == null)
+            if (FileSystem == null)
             {
                 FileSystem = AssetManager.Instance.fs;
             }
@@ -154,7 +149,7 @@ namespace SdkGenerator
             foreach (DbObject @class in classList)
             {
                 var className = @class.GetValue<string>("name");
-                if(className.Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                if (className.Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
                 {
 
                 }
@@ -174,16 +169,16 @@ namespace SdkGenerator
                     {
                         foreach (DbObject dbo in @class.GetValue<DbObject>("fields").List)
                         {
-                            if(f.Name.Equals(dbo.GetValue<string>("name"), StringComparison.OrdinalIgnoreCase))
+                            if (f.Name.Equals(dbo.GetValue<string>("name"), StringComparison.OrdinalIgnoreCase))
                             {
-                                if(!dbo.HasValue("nameHash"))
+                                if (!dbo.HasValue("nameHash"))
                                     dbo.SetValue("nameHash", f.NameHash);
 
                                 break;
                             }
                         }
                     }
-                    
+
                     //fieldMapping[className].Clear();
                     //List<EbxField> fieldList = new List<EbxField>();
                     //foreach (DbObject fieldInList in @class.GetValue<DbObject>("fields"))
@@ -217,7 +212,7 @@ namespace SdkGenerator
                         ebxField.NameHash = fieldInList.GetValue<uint>("nameHash", 0);
                         fieldList.Add(ebxField);
                     }
-                    if(ebxClass.Name.ToLower().Contains("blocking"))
+                    if (ebxClass.Name.ToLower().Contains("blocking"))
                     {
 
                     }
@@ -343,9 +338,9 @@ namespace SdkGenerator
                 {
                     EbxClass stdClass = std.Classes[k].Value;
                     Guid guid = std.Guids[k];
-                    if (classDictionaryToHash.ContainsKey((uint)stdClass.NameHash))
+                    if (classDictionaryToHash.ContainsKey(stdClass.NameHash))
                     {
-                        DbObject dboClass = classDictionaryToHash[(uint)stdClass.NameHash];
+                        DbObject dboClass = classDictionaryToHash[stdClass.NameHash];
                         if (mapping.ContainsKey(dboClass.GetValue("name", "")))
                         {
                             //mapping.Remove(dboClass.GetValue("name", ""));
@@ -395,9 +390,9 @@ namespace SdkGenerator
                         ebxClassItem.Size = stdClass.Size;
                         ebxClassItem.Type = (byte)dboClass.GetValue("flags", 0); // (ushort)(@class.Type >> 1);
                         ebxClassItem.SecondSize = (ushort)dboClass.GetValue("size", 0);
-                        if(!mapping.ContainsKey(ebxClassItem.Name))
+                        if (!mapping.ContainsKey(ebxClassItem.Name))
                             mapping.Add(ebxClassItem.Name, new Tuple<EbxClass, DbObject>(ebxClassItem, dboClass));
-                        if(!fieldMapping.ContainsKey(ebxClassItem.Name))
+                        if (!fieldMapping.ContainsKey(ebxClassItem.Name))
                             fieldMapping.Add(ebxClassItem.Name, new List<EbxField>());
                         DbObject sdkFields = dboClass.GetValue<DbObject>("fields");
                         DbObject dbObject4 = DbObject.CreateList();
@@ -435,7 +430,7 @@ namespace SdkGenerator
 
                                 fieldMapping[ebxClassItem.Name].Add(field);
                             }
-                            if(usedFields.Count != sdkFields.List.Count)
+                            if (usedFields.Count != sdkFields.List.Count)
                             {
 
                             }
@@ -483,8 +478,8 @@ namespace SdkGenerator
                 return 0;
             }
             processed.Add(pclass);
-            DbObject dboClassMetaObject = classMetaList != null ? 
-                classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name").Equals(pclass.Name, StringComparison.OrdinalIgnoreCase)) as DbObject 
+            DbObject dboClassMetaObject = classMetaList != null ?
+                classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name").Equals(pclass.Name, StringComparison.OrdinalIgnoreCase)) as DbObject
                 : null;
             DbObject dbObjectFields = pobj.GetValue<DbObject>("fields");
             DbObject dbObject4 = DbObject.CreateList();
@@ -500,7 +495,7 @@ namespace SdkGenerator
             }
             else
             {
-                if(pclass.Name.Contains("FloatCurvePoint", StringComparison.OrdinalIgnoreCase))
+                if (pclass.Name.Contains("FloatCurvePoint", StringComparison.OrdinalIgnoreCase))
                 {
 
                 }
@@ -517,7 +512,7 @@ namespace SdkGenerator
                     {
                         Name = dbObject7.GetValue<string>("name"),
                         Type = (ushort)dbObject7.GetValue<int>("flags"),
-                        DataOffset = (uint)dbObject7.GetValue<uint>("offset"),
+                        DataOffset = dbObject7.GetValue<uint>("offset"),
                         NameHash = dbObject7.GetValue<uint>("nameHash")
                     });
                 }
@@ -547,7 +542,7 @@ namespace SdkGenerator
                     if (dboClassMetaObject != null)
                     {
                         DbObject dboClassMetaObjectFields = dboClassMetaObject.GetValue<DbObject>("fields");
-                        if (dboClassMetaObject !=  null)
+                        if (dboClassMetaObject != null)
                         {
                             fieldObj.AddValue("meta", dboClassMetaObject);
                         }
@@ -555,8 +550,8 @@ namespace SdkGenerator
                     fieldObj.AddValue("name", field.Name);
                     fieldObj.AddValue("type", (uint)field.DebugType);
                     fieldObj.AddValue("flags", (uint)field.Type);
-                    fieldObj.AddValue("offset", (uint)field.DataOffset);
-                    fieldObj.AddValue("nameHash", (uint)field.NameHash);
+                    fieldObj.AddValue("offset", field.DataOffset);
+                    fieldObj.AddValue("nameHash", field.NameHash);
                     if (field.DebugType == EbxFieldType.Pointer || field.DebugType == EbxFieldType.Struct || field.DebugType == EbxFieldType.Enum)
                     {
                         string baseTypeName2 = dbObject6.GetValue<string>("baseType");
@@ -582,7 +577,7 @@ namespace SdkGenerator
                                     break;
                                 }
                             }
-                            while (offset % (int)values[index2].Item1.Alignment != 0)
+                            while (offset % values[index2].Item1.Alignment != 0)
                             {
                                 offset++;
                             }
@@ -709,7 +704,7 @@ namespace SdkGenerator
             }
             if (!ProfileManager.IsFIFA22DataVersion())
             {
-                while (offset % (int)pclass.Alignment != 0)
+                while (offset % pclass.Alignment != 0)
                 {
                     offset++;
                 }
@@ -780,7 +775,7 @@ namespace SdkGenerator
 
                 //}
             }
-          
+
 
             // Find types to find out all is good
             //Assembly thisLibClasses = typeof(v2k4FIFASDKGenerator.ClassesSdkCreator).Assembly;
@@ -832,13 +827,13 @@ namespace SdkGenerator
                     offset = classInfo.nextOffset;
                     typeInfoOffset = offset;
                 }
-                else if(offset != 0)
+                else if (offset != 0)
                 {
                     typeInfoOffset = offset;
                 }
             }
             Debug.WriteLine(task.StatusMessage);
-            
+
             memoryReader.Dispose();
             memoryReader = null;
 
@@ -847,7 +842,7 @@ namespace SdkGenerator
 
             foreach (IClassInfo classInfo2 in classInfos)
             {
-                if(classInfo2.typeInfo.name.Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                if (classInfo2.typeInfo.name.Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
                 {
 
                 }
@@ -935,7 +930,7 @@ namespace SdkGenerator
                         dboField.AddValue("name", field.name);
                         dboField.AddValue("value", (int)field.typeOffset);
                     }
-                    else if(offsetClassInfoMapping.ContainsKey(field.typeOffset))
+                    else if (offsetClassInfoMapping.ContainsKey(field.typeOffset))
                     {
                         IClassInfo classInfo3 = offsetClassInfoMapping[field.typeOffset];
                         dboField.AddValue("name", field.name);
@@ -945,7 +940,7 @@ namespace SdkGenerator
                         dboField.AddValue("offset", (int)field.offset);
                         dboField.AddValue("index", field.index);
                         if (classInfo3.typeInfo.Type == 3
-                            || classInfo3.typeInfo.Type == 2 
+                            || classInfo3.typeInfo.Type == 2
                             || classInfo3.typeInfo.Type == 8)
                         {
                             dboField.AddValue("baseType", classInfo3.typeInfo.name);
@@ -970,36 +965,36 @@ namespace SdkGenerator
             }
         }
     }
-    
 
-	public static class NeededExtension
+
+    public static class NeededExtension
     {
-		public static int FindIndex<T>(this IList<T> source, int startIndex,
-							   Predicate<T> match)
-		{
-			// TODO: Validation
-			for (int i = startIndex; i < source.Count; i++)
-			{
-				if (match(source[i]))
-				{
-					return i;
-				}
-			}
-			return -1;
-		}
+        public static int FindIndex<T>(this IList<T> source, int startIndex,
+                               Predicate<T> match)
+        {
+            // TODO: Validation
+            for (int i = startIndex; i < source.Count; i++)
+            {
+                if (match(source[i]))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
 
-		public static int FindIndex<T>(this IList<T> source,
-							   Predicate<T> match)
-		{
-			// TODO: Validation
-			for (int i = 0; i < source.Count; i++)
-			{
-				if (match(source[i]))
-				{
-					return i;
-				}
-			}
-			return -1;
-		}
-	}
+        public static int FindIndex<T>(this IList<T> source,
+                               Predicate<T> match)
+        {
+            // TODO: Validation
+            for (int i = 0; i < source.Count; i++)
+            {
+                if (match(source[i]))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+    }
 }

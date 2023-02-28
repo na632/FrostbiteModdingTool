@@ -1,19 +1,8 @@
-﻿using FIFAModdingUI.Windows.Profile;
-using MahApps.Metro.Controls;
+﻿using MahApps.Metro.Controls;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static FrostySdk.ProfileManager;
 
 namespace FMT.Windows
@@ -43,7 +32,7 @@ namespace FMT.Windows
 
         private void GameVsEditorVsTools_Loaded(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void GameVsEditorVsTools_Closing(object sender, System.ComponentModel.CancelEventArgs e)

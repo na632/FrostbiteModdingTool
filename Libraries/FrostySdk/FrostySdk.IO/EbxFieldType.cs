@@ -1,7 +1,7 @@
 namespace FrostySdk.IO
 {
-	public enum EbxFieldType : byte
-	{
+    public enum EbxFieldType : byte
+    {
         /*
 		Inherited = 0,
 		DbObject = 1,
@@ -61,31 +61,31 @@ namespace FrostySdk.IO
         Delegate = 28
     }
 
-	public enum EbxFieldType22 : short
-	{
-		Inherited = 1,
-		Pointer = 49,
-		Float32 = 307,
-		ArrayOfCString = 116,
-		ArrayOfStructs = 36,
-		Array = 308,
+    public enum EbxFieldType22 : short
+    {
+        Inherited = 1,
+        Pointer = 49,
+        Float32 = 307,
+        ArrayOfCString = 116,
+        ArrayOfStructs = 36,
+        Array = 308,
 
-		ArrayOfInt2 = 244,
-		ArrayOfUInt = 260,
+        ArrayOfInt2 = 244,
+        ArrayOfUInt = 260,
 
-	}
+    }
 
-	public enum EbxFieldCategory : short
-	{
-		NotApplicable,
-		Class,
-		Value,
-		Primitive,
-		Array,
-		Enum,
-		Function,
-		Interface,
-		Delegate
+    public enum EbxFieldCategory : short
+    {
+        NotApplicable,
+        Class,
+        Value,
+        Primitive,
+        Array,
+        Enum,
+        Function,
+        Interface,
+        Delegate
 
-	}
+    }
 }

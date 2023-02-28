@@ -1,18 +1,8 @@
 ﻿using FrostySdk.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace FMT.Controls.Controls
 {
@@ -33,7 +23,8 @@ namespace FMT.Controls.Controls
 
         public void Update(int progress)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 pbar.Value = progress;
             });
         }
@@ -52,7 +43,8 @@ namespace FMT.Controls.Controls
 
         public void ShowWithGenericMessage()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
 
                 pbar.Value = randomNumber.Next(0, 100);
                 lblLoadingSubtitle.Text = "Busy. Please Wait!";
@@ -64,7 +56,8 @@ namespace FMT.Controls.Controls
 
         public void Update(string loadingSubTitle, string loadingCurrentMessage)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
 
                 pbar.Value = randomNumber.Next(0, 100);
                 lblLoadingSubtitle.Text = string.IsNullOrEmpty(loadingSubTitle) ? "" : loadingSubTitle;
@@ -82,7 +75,8 @@ namespace FMT.Controls.Controls
         public void Update(string loadingSubTitle, string loadingCurrentMessage, int progress)
         {
             Update(loadingSubTitle, loadingCurrentMessage);
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 pbar.Value = progress;
             });
         }

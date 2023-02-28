@@ -2,15 +2,10 @@
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
-using FrostySdk.Managers;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using System.Security;
 using System.Text;
 using System.Threading;
@@ -64,7 +59,7 @@ namespace v2k4FIFAModdingCL
                     Instance.GAMEVERSION = fileName.Replace(".exe", "").Replace(" ", "");
                     Instance.INITIALIZED = true;
                 }
-                if(ProfileManager.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
+                if (ProfileManager.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
                 {
                     ProfileManager.Initialize(Instance.GAMEVERSION);
                     if (FileSystem.Instance == null)
@@ -136,7 +131,7 @@ namespace v2k4FIFAModdingCL
 
                 attempts++;
 
-                if(attempts == 120)
+                if (attempts == 120)
                 {
                     Logger.LogError("Still waiting for " + name + " to start...");
                 }
@@ -184,7 +179,7 @@ namespace v2k4FIFAModdingCL
                         {
                             //var processes = Process.GetProcessesByName(GAMEVERSION);
                             actualProcess = Process.GetProcessById(proc.Value);
-                           
+
                             foreach (ProcessModule m in actualProcess.Modules)
                             {
                                 if (m.FileName.Contains("powdll_Win64_retail", StringComparison.OrdinalIgnoreCase))
@@ -203,7 +198,7 @@ namespace v2k4FIFAModdingCL
                         }
                     }
 
-                    if(ModuleLoaded)
+                    if (ModuleLoaded)
                         return proc.Value;
                 }
                 attempts++;
@@ -256,7 +251,7 @@ namespace v2k4FIFAModdingCL
                     await Task.Delay(350);
                 }
 
-                
+
 
                 var dll_File = dllpath.Split('\\')[dllpath.Split('\\').Length - 1];
                 dll_File = dll_File.Replace(".dll", "");
@@ -339,7 +334,7 @@ namespace v2k4FIFAModdingCL
                 Debug.WriteLine("[+] Handle (0x" + ProcHandle + ") to target process has been be obtained.");
             }
 
-            IntPtr Size = (IntPtr)DllPath.Length;
+            IntPtr Size = DllPath.Length;
 
             // Allocate DLL space
             IntPtr DllSpace = VirtualAllocEx(
@@ -365,7 +360,7 @@ namespace v2k4FIFAModdingCL
                 ProcHandle,
                 DllSpace,
                 bytes,
-                (int)bytes.Length,
+                bytes.Length,
                 out var bytesread
                 );
 

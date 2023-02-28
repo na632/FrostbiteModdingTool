@@ -1,12 +1,9 @@
 ﻿using FMT.FileTools;
 using Frostbite.Deobfuscators;
-using FrostySdk;
-using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -52,10 +49,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
             dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
             dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
-            dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
-            dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
-            dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
-            dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
+            dbObject.AddValue("dataOffset", SBHeaderInformation.size);
+            dbObject.AddValue("stringsOffset", SBHeaderInformation.stringOffset);
+            dbObject.AddValue("metaOffset", SBHeaderInformation.metaOffset);
+            dbObject.AddValue("metaSize", SBHeaderInformation.metaSize);
 
             if (SBHeaderInformation.chunkCount != 0)
             {
@@ -92,7 +89,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", sha1[i]);
-              
+
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
                 dbObject.AddValue("originalSize", originalSize);
@@ -104,7 +101,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         private List<object> ReadRes(SBHeaderInformation information, List<FMT.FileTools.Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
-            int shaCount = (int)information.ebxCount;
+            int shaCount = information.ebxCount;
             for (int i = 0; i < information.resCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
@@ -158,7 +155,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         private List<object> ReadChunks(SBHeaderInformation information, List<FMT.FileTools.Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
-            int shaCount = (int)(information.ebxCount + information.resCount);
+            int shaCount = information.ebxCount + information.resCount;
             for (int i = 0; i < information.chunkCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());

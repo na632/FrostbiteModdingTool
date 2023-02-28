@@ -1,22 +1,13 @@
-﻿using Frostbite.FileManagers;
-using FrostbiteSdk.Frostbite.FileManagers;
-using FrostySdk;
-using FrostySdk.Frostbite;
+﻿using FrostySdk;
 using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using ModdingSupport;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
-using System.Windows.Xps.Serialization;
 
 namespace FIFA23Plugin
 {
@@ -134,7 +125,7 @@ namespace FIFA23Plugin
             bool result = WriteNewDataChangesToSuperBundles(ref entriesToNewPosition);
             result = WriteNewDataChangesToSuperBundles(ref entriesToNewPosition, "native_data");
 
-            if(entriesToNewPosition.Count > 0)
+            if (entriesToNewPosition.Count > 0)
             {
                 parent.Logger.Log($"{entriesToNewPosition.Count} Entries were not written. Some parts of the mod may be removed.");
             }

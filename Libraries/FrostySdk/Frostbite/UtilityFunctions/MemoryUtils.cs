@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace FrostbiteSdk.Extras
 {
@@ -30,7 +28,7 @@ namespace FrostbiteSdk.Extras
             return new MemoryStream(MemoryWriter.ToArray());
         }
 
-       
+
 
         // To detect redundant calls
         private bool _disposed = false;
@@ -60,7 +58,7 @@ namespace FrostbiteSdk.Extras
                     MemoryWriter.Close();
                     MemoryWriter.Dispose();
                     MemoryWriter = null;
-                        
+
                 }
             }
         }

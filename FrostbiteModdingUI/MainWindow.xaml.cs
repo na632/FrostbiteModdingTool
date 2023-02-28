@@ -3,25 +3,14 @@ using FMT.Windows;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
-using FrostySdk.Managers;
 using MahApps.Metro.Controls;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static FrostySdk.ProfileManager;
 
 //namespace FIFAModdingUI
@@ -40,7 +29,8 @@ namespace FMT
 
         public List<Profile> ProfilesWithEditor
         {
-            get {
+            get
+            {
 
 #pragma warning disable CA1416 // Validate platform compatibility
                 if (profiles == null || !profiles.Any())
@@ -107,7 +97,7 @@ namespace FMT
         {
             //new EditorLoginWindow().Show();
             App.MainEditorWindow = new FIFA21Editor(this);
-            if(App.MainEditorWindow != null)
+            if (App.MainEditorWindow != null)
                 App.MainEditorWindow.Show();
 
             this.Visibility = Visibility.Hidden;
@@ -136,7 +126,7 @@ namespace FMT
             {
                 string selectedLanguage = null;
                 var selectedItem = ((ComboBoxItem)cbLanguageSelection.SelectedItem).Content.ToString();
-                switch (selectedItem) 
+                switch (selectedItem)
                 {
                     case "English":
                         selectedLanguage = "en";

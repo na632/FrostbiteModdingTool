@@ -1,7 +1,6 @@
 ﻿using CareerExpansionMod.CEM;
 using CareerExpansionMod.CEM.FIFA;
 using FifaLibrary;
-using FrostbiteSdk;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,21 +9,20 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {
     public enum PersonalityTypes
     {
-Selfish = 1,
-     Individual = 2,
-         Normal = 3,
-              [Display(Name = "Team Player")]
-              [Description("Team Player")]
-              TeamPlayer = 4,
+        Selfish = 1,
+        Individual = 2,
+        Normal = 3,
+        [Display(Name = "Team Player")]
+        [Description("Team Player")]
+        TeamPlayer = 4,
         [Display(Name = "Ultimate Professional")]
-              [Description("Ultimate Professional")]
-                   UltimateProfessional = 5
+        [Description("Ultimate Professional")]
+        UltimateProfessional = 5
     }
 
     public enum EmotionalTypes
@@ -170,7 +168,7 @@ Selfish = 1,
         public int overallrating { get; set; }
         public int smallsidedshoetypecode { get; set; }
 
-       
+
 
         /// <summary>
         /// How emotional a player is 
@@ -255,7 +253,7 @@ Selfish = 1,
                     }
                 }
 
-                rating = Convert.ToInt32(Math.Round((double)rating / (double)AttributeToGroup[group].Count));
+                rating = Convert.ToInt32(Math.Round(rating / (double)AttributeToGroup[group].Count));
             }
 
             return rating;
@@ -368,7 +366,8 @@ Selfish = 1,
                 CachedPlayers = new List<FIFAPlayer>();
 
                 var count = CareerDB2.Current.players.Count();
-                for (var i = 0; i < count; i++) {
+                for (var i = 0; i < count; i++)
+                {
                     var pl = CareerDB2.Current.players.ElementAt(i);
                     if (pl != null)
                     {
@@ -394,7 +393,7 @@ Selfish = 1,
         public override bool Equals(object obj)
         {
             var other = obj as FIFAPlayer;
-            if(other != null)
+            if (other != null)
             {
                 return other.playerid == this.playerid;
             }

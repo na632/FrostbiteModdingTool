@@ -35,17 +35,17 @@ namespace Madden22Plugin
         public List<dynamic> Entries = new List<dynamic>();
 
         public long TotalSize
-        { 
+        {
             get
             {
-                if(Sizes.Count == 0)
+                if (Sizes.Count == 0)
                 {
                     return 0;
                 }
 
                 //return Sizes.Where(x => x < 10095655).Sum() + Offsets.Where(x => x < int.MaxValue).Sum() + DataOffset;
                 return Sizes.Sum() + BundleSize;
-            } 
+            }
         }
 
         public int EntriesCount { get; internal set; }

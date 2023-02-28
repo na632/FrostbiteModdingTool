@@ -5,7 +5,6 @@ using FrostySdk.Managers;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Linq;
-using System.Xml;
 
 namespace FIFACareerChunkFileTests
 {

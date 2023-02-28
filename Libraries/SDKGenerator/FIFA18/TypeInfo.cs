@@ -1,15 +1,14 @@
-using FrostyEditor.IO;
-using FrostySdk;
 using FrostbiteSdk;
+using FrostySdk;
 
 namespace SdkGenerator.FIFA18
 {
-	public class TypeInfo : BaseInfo.TypeInfo
-	{
-		private uint nameHash = 0;
+    public class TypeInfo : BaseInfo.TypeInfo
+    {
+        private uint nameHash = 0;
 
-		public override void Read(MemoryReader reader)
-		{
+        public override void Read(MemoryReader reader)
+        {
             bool flag = false;
             name = reader.ReadNullTerminatedString();
             if (!string.IsNullOrEmpty(name) && name.Length > 0)
@@ -101,9 +100,9 @@ namespace SdkGenerator.FIFA18
             }
         }
 
-		public override void Modify(DbObject classObj)
-		{
-			classObj.SetValue("nameHash", nameHash);
-		}
-	}
+        public override void Modify(DbObject classObj)
+        {
+            classObj.SetValue("nameHash", nameHash);
+        }
+    }
 }

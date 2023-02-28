@@ -1,24 +1,22 @@
-﻿using System;
+﻿using CSharpImageLibrary.DDS;
+using CSharpImageLibrary.Headers;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 //using System.Windows.Media;
 //using System.Windows.Media.Imaging;
 //using UsefulThings;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
-using CSharpImageLibrary.Headers;
-using CSharpImageLibrary.DDS;
-using System.Collections.Concurrent;
-using System.Threading.Tasks.Dataflow;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Runtime;
 using System.Threading;
-using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using UsefulThings;
 
 namespace CSharpImageLibrary
@@ -456,7 +454,7 @@ namespace CSharpImageLibrary
 
             int newWidth = (int)(mipMap.Width * xScale);
             int newHeight = (int)(mipMap.Height * yScale);
-            int newStride = (int)(newWidth * 4);
+            int newStride = newWidth * 4;
 
             // Put alpha back in
             FormatConvertedBitmap newConv = new FormatConvertedBitmap(scaledMain, PixelFormats.Bgra32, null, 0);

@@ -1,7 +1,6 @@
 ﻿using FifaLibrary;
 using FMT.FileTools;
 using FrostySdk;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using Microsoft.Win32;
 using System;
@@ -9,17 +8,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace FMT.Controls.Pages
 {
@@ -102,9 +93,9 @@ namespace FMT.Controls.Pages
 
         public async Task Load(string pathToFile = "")
         {
-            if(!string.IsNullOrEmpty(pathToFile))
+            if (!string.IsNullOrEmpty(pathToFile))
             {
-                if(pathToFile.Contains("Career", StringComparison.OrdinalIgnoreCase))
+                if (pathToFile.Contains("Career", StringComparison.OrdinalIgnoreCase))
                 {
                     //EditorMode = DBEditorMode.Career;
                     // Currently not supported
@@ -116,7 +107,7 @@ namespace FMT.Controls.Pages
                 }
             }
 
-            switch(EditorMode)
+            switch (EditorMode)
             {
                 case DBEditorMode.DB:
                     await LoadDbFromLegacy();
@@ -142,18 +133,19 @@ namespace FMT.Controls.Pages
 
             DB = new DbFile(DBAssetStream, DBMetaAssetStream);
 
-            await Dispatcher.InvokeAsync(() => {
+            await Dispatcher.InvokeAsync(() =>
+            {
 
                 tblList.ItemsSource = null;
                 tblList.ItemsSource = DB.GetTables().ToList().OrderBy(x => x.ToString());
 
             });
 
-           
+
         }
         private async Task LoadFromFile(string pathToFile)
         {
-            if(!string.IsNullOrEmpty(pathToFile))
+            if (!string.IsNullOrEmpty(pathToFile))
                 this.pathToDBFile = pathToFile;
 
             DBAssetStream = new MemoryStream(File.ReadAllBytes(this.pathToDBFile));
@@ -169,14 +161,15 @@ namespace FMT.Controls.Pages
             var metaFilePath = System.IO.Path.Combine(AppContext.BaseDirectory, ProfileManager.ProfileName + "-db-meta.xml");
             if (!File.Exists(metaFilePath))
             {
-                NativeWriter nativeWriter =new NativeWriter(new FileStream(metaFilePath, FileMode.Create));
+                NativeWriter nativeWriter = new NativeWriter(new FileStream(metaFilePath, FileMode.Create));
                 nativeWriter.Write(DBMetaAssetStream.ToArray());
                 nativeWriter.Close();
             }
 
             DB = new CareerFile(pathToFile, metaFilePath);
 
-            await Dispatcher.InvokeAsync(() => {
+            await Dispatcher.InvokeAsync(() =>
+            {
 
                 tblList.ItemsSource = null;
                 tblList.ItemsSource = DB.GetTables().ToList().OrderBy(x => x.ToString());
@@ -188,7 +181,7 @@ namespace FMT.Controls.Pages
 
         private void tblList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(tblList.SelectedItem != null)
+            if (tblList.SelectedItem != null)
             {
                 FifaTable table = tblList.SelectedItem as FifaTable;
                 tblData.ItemsSource = null;
@@ -225,7 +218,7 @@ namespace FMT.Controls.Pages
             }
             catch (Exception)
             {
-                
+
             }
         }
 

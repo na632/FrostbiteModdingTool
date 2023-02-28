@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using static CSharpImageLibrary.DDS.DDS_BlockHelpers;
 using static CSharpImageLibrary.DDS.DX10_Helpers;
@@ -234,14 +229,14 @@ namespace CSharpImageLibrary.DDS
                 {
                     unchecked
                     {
-                        exponent = (uint)(-112);    
+                        exponent = (uint)(-112);
                     }
                 }
 
                 uint longResult = ((halfFloat & FloatSignMask) << 16) | // Sign
                                 ((exponent + 112) << 23) |  // Exponent
                                 (mantissa << 13);  // Mantissa
-                
+
 
                 // Reinterpret cast
                 return *(float*)&longResult;
@@ -291,7 +286,7 @@ namespace CSharpImageLibrary.DDS
             }
         }
 
-        
+
 
         internal struct INTColourPair
         {
@@ -563,14 +558,14 @@ namespace CSharpImageLibrary.DDS
                             default:
                                 Debugger.Break();
                                 break;
-                        }               
+                        }
                     }
                 }
 
                 // Sign extend necessary end points
                 if (isSigned)
                     endPoints[0].A = SignExtend(endPoints[0].A, info.RGBAPrec[0][0]);
-                
+
                 if (isSigned || info.Transformed)
                 {
                     for (int p = 0; p <= info.Partitions; p++)
@@ -1099,11 +1094,11 @@ namespace CSharpImageLibrary.DDS
                     break;
             }
 
-            
+
 
             // save endpoints
             tempEndPoints = newEndPoints = oldEndPoints;
-            
+
             for (int step = 1 << (prec - 1); step != 0; step >>= 1)
             {
                 bool improved = false;
@@ -1277,7 +1272,7 @@ namespace CSharpImageLibrary.DDS
                 }
             }
         }
-        
+
         static void AssignIndicies(ModeInfo mode, INTColourPair[] endPts, float[] totalErr, int shape, INTColour[] block, int[] pixelIndicies)
         {
             int numIndicies = 1 << mode.IndexPrecision;
@@ -1340,9 +1335,9 @@ namespace CSharpImageLibrary.DDS
 
             for (int i = 0; i < numIndicies; i++)
             {
-                palette[i].R =FinishUnquantise((unqEndPts.A.R * (BC67_WEIGHT_MAX - weights[i]) + unqEndPts.B.R * weights[i] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT, isSigned);
-                palette[i].G =FinishUnquantise((unqEndPts.A.G * (BC67_WEIGHT_MAX - weights[i]) + unqEndPts.B.G * weights[i] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT, isSigned);
-                palette[i].B =FinishUnquantise((unqEndPts.A.B * (BC67_WEIGHT_MAX - weights[i]) + unqEndPts.B.B * weights[i] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT, isSigned);
+                palette[i].R = FinishUnquantise((unqEndPts.A.R * (BC67_WEIGHT_MAX - weights[i]) + unqEndPts.B.R * weights[i] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT, isSigned);
+                palette[i].G = FinishUnquantise((unqEndPts.A.G * (BC67_WEIGHT_MAX - weights[i]) + unqEndPts.B.G * weights[i] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT, isSigned);
+                palette[i].B = FinishUnquantise((unqEndPts.A.B * (BC67_WEIGHT_MAX - weights[i]) + unqEndPts.B.B * weights[i] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT, isSigned);
             }
         }
 

@@ -1,24 +1,18 @@
-﻿using SharpDX;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model;
-using FrostySdk.IO;
+﻿using Frostbite.Textures;
 using FrostySdk.Ebx;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
-using Frostbite.Textures;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using SharpDX;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Media;
 using Matrix = SharpDX.Matrix;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace FrostbiteModdingUI.Models
 {
@@ -70,7 +64,8 @@ namespace FrostbiteModdingUI.Models
         {
             try
             {
-                EffectsManager = new DefaultEffectsManager() {
+                EffectsManager = new DefaultEffectsManager()
+                {
                 };
                 Camera = new PerspectiveCamera()
                 {
@@ -79,7 +74,7 @@ namespace FrostbiteModdingUI.Models
                     UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0),
                     //FarPlaneDistance = 3000,
                     //NearPlaneDistance = 1
-                     
+
                 };
 
                 var builder = new MeshBuilder();
@@ -138,7 +133,7 @@ namespace FrostbiteModdingUI.Models
                                     }
                                 }
                             }
-                            if(rItem.Items.Count > 0 && skinnedMeshAsset != null)
+                            if (rItem.Items.Count > 0 && skinnedMeshAsset != null)
                                 index++;
 
                         }
@@ -249,7 +244,7 @@ namespace FrostbiteModdingUI.Models
                         textureDDSStreamNormal.Dispose();
                 }
 
-                
+
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
@@ -258,7 +253,7 @@ namespace FrostbiteModdingUI.Models
                     var effectManager = EffectsManager as IDisposable;
                     Disposer.RemoveAndDispose(ref effectManager);
                 }
-                
+
                 if (scene != null && scene.Root != null)
                     scene.Root.Dispose();
 

@@ -1,10 +1,5 @@
 ﻿using FMT.FileTools;
-using FrostySdk.IO;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -47,7 +42,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         public SBHeaderInformation(NativeReader nr, int additionalHeaderLength = 36)
         {
-            startOfSBHI:
+        startOfSBHI:
 
             AdditionalHeaderLength = additionalHeaderLength;
             var pos = nr.Position;
@@ -81,7 +76,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         {
             MemoryStream memoryStream = new MemoryStream();
             NativeWriter nw = new NativeWriter(memoryStream);
-            nw.Write((int)size, Endian.Big);
+            nw.Write(size, Endian.Big);
             nw.Write(3599661469, Endian.Big);
             nw.Write(totalCount, Endian.Little);
             nw.Write(ebxCount, Endian.Little);

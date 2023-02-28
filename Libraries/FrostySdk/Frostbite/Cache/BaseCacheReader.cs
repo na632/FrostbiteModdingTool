@@ -1,11 +1,5 @@
 ﻿using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
-using FrostySdk.Managers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FrostySdk.Frostbite.Cache
 {
@@ -21,6 +15,6 @@ namespace FrostySdk.Frostbite.Cache
             throw new NotImplementedException();
         }
 
-        
+
     }
 }

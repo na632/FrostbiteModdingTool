@@ -1,8 +1,4 @@
-﻿using CareerExpansionMod.CEM.FIFA;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {

@@ -1,9 +1,6 @@
 ﻿using CSharpImageLibrary.DDS;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using UsefulThings;
 
 namespace CSharpImageLibrary
 {
@@ -248,7 +245,7 @@ namespace CSharpImageLibrary
                             BlockEncoder = DDS_Encoders.CompressBC7Block;
                         else
                             BlockEncoder = DDS_Encoders.CompressBC6Block;
-                        break; 
+                        break;
                     case ImageEngineFormat.DDS_DXT1:
                         BlockEncoder = DDS_Encoders.CompressBC1Block;
                         break;

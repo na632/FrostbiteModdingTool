@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace v2k4FIFAModding.Career.CME.FIFA
+﻿namespace v2k4FIFAModding.Career.CME.FIFA
 {
     public class FIFAPlayerToTeam
     {
