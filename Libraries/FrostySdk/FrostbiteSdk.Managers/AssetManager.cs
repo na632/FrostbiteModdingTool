@@ -931,7 +931,7 @@ namespace FrostySdk.Managers
 
         public Task ResetAsync()
         {
-            return Task.Run(() => { Reset(); });
+            return Task.FromResult(Reset);
         }
 
         public void Reset()

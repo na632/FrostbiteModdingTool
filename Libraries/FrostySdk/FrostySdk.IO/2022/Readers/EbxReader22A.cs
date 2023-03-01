@@ -636,7 +636,7 @@ namespace FrostySdk.IO._2022.Readers
         //	return TypeLibrary.FinalizeClass(classType.Name, list, parentType, classType);
         //}
 
-        internal Type GetTypeFromEbxField(EbxField fieldType)
+        internal new Type GetTypeFromEbxField(EbxField fieldType)
         {
             switch (fieldType.DebugType)
             {
@@ -704,7 +704,7 @@ namespace FrostySdk.IO._2022.Readers
             }
         }
 
-        internal string ReadString(uint offset)
+        internal new string ReadString(uint offset)
         {
             if (offset == uint.MaxValue)
             {
@@ -730,24 +730,24 @@ namespace FrostySdk.IO._2022.Readers
             return result;
         }
 
-        internal CString ReadCString(uint offset)
+        internal new CString ReadCString(uint offset)
         {
             return new CString(this.ReadString(offset));
         }
 
-        internal ResourceRef ReadResourceRef()
+        internal new ResourceRef ReadResourceRef()
         {
             return new ResourceRef(base.ReadUInt64LittleEndian());
         }
 
-        internal FileRef ReadFileRef()
+        internal new FileRef ReadFileRef()
         {
             uint offset = base.ReadUInt32LittleEndian();
             base.Position += 4L;
             return new FileRef(this.ReadString(offset));
         }
 
-        internal TypeRef ReadTypeRef()
+        internal new TypeRef ReadTypeRef()
         {
             return new TypeRef(base.ReadUInt32LittleEndian().ToString(CultureInfo.InvariantCulture));
         }

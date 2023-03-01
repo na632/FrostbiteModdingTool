@@ -171,12 +171,7 @@ public class FIFAModDetails : FrostbiteModDetails
     //} = new List<ImageSource>();
 
 
-    public uint ScreenshotsCount
-    {
-        get;
-
-        set;
-    }
+  
 
     public FIFAModDetails(string inTitle, string inAuthor, ModMainCategory mainCategory, Enum subCategory, string customCategory, string secondCustomCategory, string inVersion, string inDescription)
         : base(inTitle, inAuthor, mainCategory.ToString(), inVersion, inDescription)

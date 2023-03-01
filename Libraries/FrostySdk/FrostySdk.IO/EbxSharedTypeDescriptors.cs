@@ -65,10 +65,12 @@ namespace FrostySdk.IO
                 if (EbxClassesTypes == null)
                     EbxClassesTypes = EbxClassesAssembly.GetTypes();
 
-                var types = EbxClassesTypes;
-                for (var i = 0; i < types.Length; i++)
+                if (!EbxClassesTypes.Any())
+                    return null;
+
+                for (var i = 0; i < EbxClassesTypes.Length; i++)
                 {
-                    var t = types[i];
+                    var t = EbxClassesTypes[i];
                     PropertyInfo[] properties = t.GetProperties();
                     var hashAttrbProps = properties.ToList().Where(x => x.GetCustomAttribute<HashAttribute>() != null).ToList();
                     foreach (PropertyInfo propertyInfo in hashAttrbProps)

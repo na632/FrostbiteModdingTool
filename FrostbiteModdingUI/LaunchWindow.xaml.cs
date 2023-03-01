@@ -9,7 +9,9 @@ using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using MahApps.Metro.Controls;
+using Microsoft.Identity.Client;
 using Microsoft.Win32;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +19,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -390,16 +393,17 @@ namespace FMT
                     {
                         loadingDialog.Update("Launching", "Compiling mods");
 
-                        var launchTask = LaunchGame.LaunchAsync(
-                            GameInstanceSingleton.Instance.GAMERootPath
-                            , ""
-                            , new Mods.ModList(Profile).ModListItems.Select(x => x.Path).ToList()
-                            , this
-                            , GameInstanceSingleton.Instance.GAMEVERSION
-                            , forceReinstallOfMods
-                            , useSymbolicLink
-                            , useModData);
-                        launchSuccess = await launchTask;
+                        //var launchTask = LaunchGame.LaunchAsync(
+                        //    GameInstanceSingleton.Instance.GAMERootPath
+                        //    , ""
+                        //    , new Mods.ModList(Profile).ModListItems.Select(x => x.Path).ToList()
+                        //    , this
+                        //    , GameInstanceSingleton.Instance.GAMEVERSION
+                        //    , forceReinstallOfMods
+                        //, useSymbolicLink
+                        //, useModData);
+                        var fme = new ModExecutor();
+                        launchSuccess = await fme.Run(this, GameInstanceSingleton.Instance.GAMERootPath, new Mods.ModList(Profile).ModListItems.Select(x => x.Path).ToArray());
                         loadingDialog.Update(string.Empty, string.Empty);
 
                         //App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,

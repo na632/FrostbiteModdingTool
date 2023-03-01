@@ -848,7 +848,7 @@ namespace FrostySdk.IO
             return num;
         }
 
-        private uint AddString(string stringToAdd)
+        private new uint AddString(string stringToAdd)
         {
             if (stringToAdd == "")
             {

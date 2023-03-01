@@ -11,41 +11,37 @@ namespace FrostySdk.IO
 {
     public class EbxWriter2021 : EbxBaseWriter
     {
-        public List<object> objsToProcess = new List<object>();
+        public List<object> objsToProcess { get; } = new List<object>();
 
-        public List<Type> typesToProcess = new List<Type>();
+        public List<Type> typesToProcess { get; } = new List<Type>();
 
-        public List<EbxFieldMetaAttribute> arrayTypes = new List<EbxFieldMetaAttribute>();
+        public List<EbxFieldMetaAttribute> arrayTypes { get; } = new List<EbxFieldMetaAttribute>();
 
-        public List<object> objs = new List<object>();
+        public List<object> objs { get; } = new List<object>();
 
-        public List<object> sortedObjs = new List<object>();
+        public List<object> sortedObjs { get; } = new List<object>();
 
-        public List<Guid> dependencies = new List<Guid>();
+        public List<Guid> dependencies { get; } = new List<Guid>();
 
-        public List<EbxClass> classTypes = new List<EbxClass>();
+        public List<EbxClass> classTypes { get; } = new List<EbxClass>();
 
-        public List<Guid> classGuids = new List<Guid>();
+        public List<Guid> classGuids { get; } = new List<Guid>();
 
-        public List<EbxField> fieldTypes = new List<EbxField>();
+        public List<EbxField> fieldTypes { get; } = new List<EbxField>();
 
-        public List<string> typeNames = new List<string>();
+        public List<string> typeNames { get; } = new List<string>();
 
-        public List<EbxImportReference> imports = new List<EbxImportReference>();
-
-        public List<string> strings = new List<string>();
+        public List<EbxImportReference> imports { get; } = new List<EbxImportReference>();
 
         public byte[] data;
 
-        public List<EbxInstance> instances = new List<EbxInstance>();
+        public List<EbxInstance> instances { get; } = new List<EbxInstance>();
 
-        public List<EbxArray> arrays = new List<EbxArray>();
+        public List<EbxArray> arrays { get; } = new List<EbxArray>();
 
-        public List<byte[]> arrayData = new List<byte[]>();
+        public List<byte[]> arrayData { get; } = new List<byte[]>();
 
-        public List<BoxedValueRef> boxedValueRefs = new List<BoxedValueRef>();
-
-        public uint stringsLength;
+        public List<BoxedValueRef> boxedValueRefs { get; } = new List<BoxedValueRef>();
 
         public ushort uniqueClassCount;
 

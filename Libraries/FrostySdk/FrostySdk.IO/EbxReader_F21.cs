@@ -284,7 +284,7 @@ namespace FrostySdk.IO
             return std.GetField(index).Value;
         }
 
-        public object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
+        public new object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
         {
             if (obj == null)
             {
@@ -368,51 +368,7 @@ namespace FrostySdk.IO
             return fieldList;
         }
 
-        public void SavePropertyLocationToFileCache(PropertyLocationAndValue value)
-        {
-            return;
-
-            if (!Directory.Exists("_EBXEditingFolder"))
-            {
-                Directory.CreateDirectory("_EBXEditingFolder");
-                if (!Directory.Exists("_EBXEditingFolder/EBXOffsets/"))
-                {
-                    Directory.CreateDirectory("_EBXEditingFolder/EBXOffsets/");
-                }
-            }
-
-            var fileToSave = "EBXLocationList.dat";
-            if (!string.IsNullOrEmpty(InBoundName))
-            {
-                fileToSave = "_EBXEditingFolder/EBXOffsets/" + InBoundName + ".dat";
-            }
-
-            if (value.ObjectName.Contains("gp_"))
-            {
-                //fileToSave = "GPEBXLocationList.dat";
-
-                List<PropertyLocationAndValue> propertyLocationAndValues = new List<PropertyLocationAndValue>();
-                if (File.Exists(fileToSave))
-                {
-                    propertyLocationAndValues = JsonConvert.DeserializeObject<
-                        List<PropertyLocationAndValue>>(File.ReadAllText(fileToSave));
-                }
-
-                if (propertyLocationAndValues.Contains(value))
-                    propertyLocationAndValues.Remove(value);
-
-                propertyLocationAndValues.Add(value);
-
-                if (File.Exists(fileToSave))
-                {
-                    File.Delete(fileToSave);
-                }
-
-                File.WriteAllText(fileToSave, JsonConvert.SerializeObject(propertyLocationAndValues));
-            }
-        }
-
-        internal object ReadField(EbxFieldType type, Type baseType, bool dontRefCount = false)
+        internal new object ReadField(EbxFieldType type, Type baseType, bool dontRefCount = false)
         {
             switch (type)
             {

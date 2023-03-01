@@ -412,27 +412,32 @@ namespace FIFAModdingUI.Windows
             if (DoNotLog)
                 return;
 
-            var txt = string.Empty;
             await Dispatcher.InvokeAsync(() =>
             {
-                txt = txtLog.Text;
-            });
-
-            var text = await Task.Run(() =>
-            {
-                var stringBuilder = new StringBuilder();
-
-                stringBuilder.Append(txt);
-                stringBuilder.AppendLine(in_text);
-
-                return stringBuilder.ToString();
-            });
-
-            await Dispatcher.InvokeAsync(() =>
-            {
-                txtLog.Text = text;
+                txtLog.Text += in_text + Environment.NewLine;
                 txtLog.ScrollToEnd();
             });
+            //var txt = string.Empty;
+            //await Dispatcher.InvokeAsync(() =>
+            //{
+            //    txt = txtLog.Text;
+            //});
+
+            //var text = await Task.Run(() =>
+            //{
+            //    var stringBuilder = new StringBuilder();
+
+            //    stringBuilder.Append(txt);
+            //    stringBuilder.AppendLine(in_text);
+
+            //    return stringBuilder.ToString();
+            //});
+
+            //await Dispatcher.InvokeAsync(() =>
+            //{
+            //    txtLog.Text = text;
+            //    txtLog.ScrollToEnd();
+            //});
 
         }
 
@@ -842,14 +847,11 @@ namespace FIFAModdingUI.Windows
             {
                 loadingDialog.Update("Launching game", "Compiling", 99);
 
-                await Task.Run(() =>
-                {
-                    ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
-                    ModdingSupport.ModExecutor.UseModData = useModData;
-                    frostyModExecutor.UseSymbolicLinks = false;
-                    frostyModExecutor.ForceRebuildOfMods = true;
-                    frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
-                });
+                ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+                ModdingSupport.ModExecutor.UseModData = useModData;
+                frostyModExecutor.UseSymbolicLinks = false;
+                frostyModExecutor.ForceRebuildOfMods = true;
+                await frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, new List<string>() { testmodname }.ToArray());
             }
             catch (Exception ex)
             {

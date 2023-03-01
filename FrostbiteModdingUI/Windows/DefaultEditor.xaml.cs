@@ -718,7 +718,7 @@ namespace FrostbiteModdingUI.Windows
                     ModdingSupport.ModExecutor.UseModData = useModData;
                     frostyModExecutor.UseSymbolicLinks = false;
                     frostyModExecutor.ForceRebuildOfMods = true;
-                    frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
+                    frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, new List<string>() { testmodname }.ToArray()).Wait();
                 });
             }
             catch (Exception ex)

@@ -670,7 +670,7 @@ namespace FrostySdk.FrostySdk.IO
                 }
                 else
                 {
-                    EbxFieldMetaAttribute? customAttribute2 = propertyInfo.GetCustomAttribute<EbxFieldMetaAttribute>();
+                    EbxFieldMetaAttribute customAttribute2 = propertyInfo.GetCustomAttribute<EbxFieldMetaAttribute>();
                     bool isReference = propertyInfo.GetCustomAttribute<IsReferenceAttribute>() != null;
                     EbxFieldType ebxType = (EbxFieldType)((uint)(customAttribute2!.Flags >> 4) & 0x1Fu);
                     WriteField(propertyInfo.GetValue(obj), ebxType, classType.Alignment, writer, isReference);

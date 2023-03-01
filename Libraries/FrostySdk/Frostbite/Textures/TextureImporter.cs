@@ -585,36 +585,6 @@ namespace Frostbite.Textures
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="textureAsset">Original Texture to Overwrite</param>
-        /// <param name="message"></param>
-        public void ImportTextureFromFile(string path, Texture textureAsset, ResAssetEntry resAssetEntry, AssetManager assetManager, out string message)
-        {
-            ImportTextureFromFileToTextureAsset(path, ref textureAsset, out message);
-
-            // Test Modify
-            byte[] arr = new byte[textureAsset.Data.Length];
-            textureAsset.Data.Read(arr, 0, arr.Length);
-            assetManager.ModifyChunk(textureAsset.ChunkId, arr, textureAsset);
-            assetManager.ModifyEbx(resAssetEntry.Name, assetManager.GetEbx(assetManager.GetEbxEntry(resAssetEntry.Name)));
-
-            // Test Add
-            //textureAsset.ChunkId = Guid.NewGuid();
-            //textureAsset.ChunkEntry.Id = textureAsset.ChunkId;
-            //assetManager.AddChunk(textureAsset.ChunkEntry);
-
-            //assetManager.AddRes(textureAsset.ChunkEntry.Name, ResourceType.Texture, resAssetEntry.ResMeta, textureAsset.ChunkEntry.ModifiedEntry.Data, 1);
-            //resAssetEntry.AddToBundle(1);
-
-            assetManager.ModifyRes(resAssetEntry.ResRid, textureAsset.ChunkEntry.ModifiedEntry.Data);
-
-
-        }
-
-
         public static Texture CreateLegacyTexture(AssetEntry assetEntry)
         {
             using (NativeReader nativeReader = new NativeReader(AssetManager.Instance.GetCustomAsset("legacy", assetEntry)))

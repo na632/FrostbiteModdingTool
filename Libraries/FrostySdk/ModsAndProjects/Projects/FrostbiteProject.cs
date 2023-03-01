@@ -175,23 +175,14 @@ namespace FrostySdk
         {
             if (!File.Exists(inFilename))
                 return false;
-            //return await new TaskFactory().StartNew(() =>
-            //{
-            //	return Load(inFilename);
-            //}, TaskCreationOptions.LongRunning);
 
             ModifiedAssetEntries = null;
 
             filename = inFilename;
             using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
             {
-                //if (nativeReader.ReadULong() == 98218709832262L)
-                //{
                 return await InternalLoad(nativeReader, cancellationToken);
-                //}
             }
-
-            return false;
 
         }
 
@@ -963,48 +954,15 @@ namespace FrostySdk
             // ----------------------------------------------------------------------------------------------------
             // LEGACY FILE HANDLING
             //
+            //await Task.FromResult(() =>
+            //{
 
-            // Count of Modified Legacy Files
-            var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as ChunkFileManager2022;
-            if (reader.Length > reader.Position)
-            {
-                count = reader.ReadInt();
-                LegacyCount = count;
-
-                if (legacyFileManager != null)
-                {
-                    List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
-                    for (int iItem = 0; iItem < count; iItem++)
-                    {
-                        var rawFile = reader.ReadLengthPrefixedString();
-                        if (legacyFileManager != null)
-                        {
-                            dynamic lfeD = JsonConvert.DeserializeObject<dynamic>(rawFile, new JsonSerializerSettings()
-                            {
-                                TypeNameHandling = TypeNameHandling.All
-                            });
-                            LegacyFileEntry lfe = new LegacyFileEntry(new ModifiedAssetEntry()
-                            {
-                                Data = lfeD.ModifiedEntry.Data
-                            })
-                            {
-                                Name = lfeD.Name
-                            };
-                            legacyFileEntries.Add(lfe);
-                        }
-                    }
-                    legacyFileManager.LoadEntriesModifiedFromProject(legacyFileEntries);
-                }
-            }
-
-            // Count of Added Legacy Files
-            if (reader.Length > reader.Position)
-            {
-                bool addedLegacyFiles = reader.ReadBoolean();
-                if (addedLegacyFiles)
+                // Count of Modified Legacy Files
+                var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as ChunkFileManager2022;
+                if (reader.Length > reader.Position)
                 {
                     count = reader.ReadInt();
-                    LegacyCount += count;
+                    LegacyCount = count;
 
                     if (legacyFileManager != null)
                     {
@@ -1014,14 +972,50 @@ namespace FrostySdk
                             var rawFile = reader.ReadLengthPrefixedString();
                             if (legacyFileManager != null)
                             {
-                                LegacyFileEntry lfe = JsonConvert.DeserializeObject<LegacyFileEntry>(rawFile);
+                                dynamic lfeD = JsonConvert.DeserializeObject<dynamic>(rawFile, new JsonSerializerSettings()
+                                {
+                                    TypeNameHandling = TypeNameHandling.All
+                                });
+                                LegacyFileEntry lfe = new LegacyFileEntry(new ModifiedAssetEntry()
+                                {
+                                    Data = lfeD.ModifiedEntry.Data
+                                })
+                                {
+                                    Name = lfeD.Name
+                                };
                                 legacyFileEntries.Add(lfe);
                             }
                         }
-                        legacyFileManager.LoadEntriesAddedFromProject(legacyFileEntries);
+                        legacyFileManager.LoadEntriesModifiedFromProject(legacyFileEntries);
                     }
                 }
-            }
+
+                // Count of Added Legacy Files
+                if (reader.Length > reader.Position)
+                {
+                    bool addedLegacyFiles = reader.ReadBoolean();
+                    if (addedLegacyFiles)
+                    {
+                        count = reader.ReadInt();
+                        LegacyCount += count;
+
+                        if (legacyFileManager != null)
+                        {
+                            List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
+                            for (int iItem = 0; iItem < count; iItem++)
+                            {
+                                var rawFile = reader.ReadLengthPrefixedString();
+                                if (legacyFileManager != null)
+                                {
+                                    LegacyFileEntry lfe = JsonConvert.DeserializeObject<LegacyFileEntry>(rawFile);
+                                    legacyFileEntries.Add(lfe);
+                                }
+                            }
+                            legacyFileManager.LoadEntriesAddedFromProject(legacyFileEntries);
+                        }
+                    }
+                }
+            //});
 
             if (reader.Length > reader.Position)
             {

@@ -324,7 +324,7 @@ namespace v2k4FIFAModdingCL
                 ProcessAccessFlags.All,
                 false,
                 ProcId);
-            if (ProcHandle == null)
+            if (ProcHandle == -1)
             {
                 Logger.LogError("[!] Handle to target process could not be obtained!");
                 return false;
@@ -344,7 +344,7 @@ namespace v2k4FIFAModdingCL
                 AllocationType.Reserve | AllocationType.Commit,
                 MemoryProtection.ExecuteReadWrite);
 
-            if (DllSpace == null)
+            if (DllSpace == -1)
             {
                 Logger.LogError("[!] DLL space allocation failed.");
                 return false;
@@ -378,7 +378,7 @@ namespace v2k4FIFAModdingCL
             IntPtr Kernel32Handle = GetModuleHandle("Kernel32.dll");
             IntPtr LoadLibraryAAddress = GetProcAddress(Kernel32Handle, "LoadLibraryA");
 
-            if (LoadLibraryAAddress == null)
+            if (LoadLibraryAAddress == -1)
             {
                 Logger.LogError("[!] Obtaining an addess to LoadLibraryA function has failed.");
                 return false;
@@ -399,7 +399,7 @@ namespace v2k4FIFAModdingCL
                 IntPtr.Zero
                 );
 
-            if (RemoteThreadHandle == null)
+            if (RemoteThreadHandle == -1)
             {
                 Logger.LogError("[!] Obtaining a handle to remote thread in target process failed.");
                 return false;

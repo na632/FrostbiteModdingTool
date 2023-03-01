@@ -38,7 +38,7 @@ namespace FrostySdk
             }
         }
 
-        private class ResResource : BaseModResource
+        private new class ResResource : BaseModResource
         {
             private uint resType;
 
@@ -273,7 +273,7 @@ namespace FrostySdk
                 InstagramLink = instagramLink,
                 FacebookLink = facebookLink,
                 CustomLink = customLink,
-                ScreenshotsCount = screenshotsCount
+                ScreenshotsCount = (int)screenshotsCount
             };
         }
 
