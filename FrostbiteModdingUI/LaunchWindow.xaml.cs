@@ -332,24 +332,7 @@ namespace FMT
 
                 DoLegacyModSetup();
 
-                loadingDialog.Update("Launching", "Copying locale.ini");
-                // -------------------------------------------------------------------------
-                // Ensure the latest locale.ini is installing into the ModData
-                if (ProfileManager.IsFIFA21DataVersion()
-                    || ProfileManager.IsFIFA22DataVersion()
-                    || ProfileManager.IsFIFA23DataVersion())
-                {
-                    FileInfo localeIni = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIPath);
-                    if (localeIni.Exists)
-                    {
-                        if (Directory.Exists(GameInstanceSingleton.Instance.ModDataPath))
-                        {
-                            FileInfo localeIniModData = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIModDataPath);
-                            if (localeIniModData.Exists)
-                                File.Copy(localeIni.FullName, localeIniModData.FullName, true);
-                        }
-                    }
-                }
+                
 
                 var useLegacyMods = switchUseLegacyModSupport.IsOn;
                 var useLiveEditor = switchUseLiveEditor.IsOn;
@@ -376,7 +359,7 @@ namespace FMT
                 }
 
                 // Start the game with mods
-                //await new TaskFactory().StartNew(async () =>
+                await new TaskFactory().StartNew(async () =>
                 {
 
                     Dispatcher.Invoke(() =>
@@ -405,6 +388,8 @@ namespace FMT
                     var launchSuccess = false;
                     try
                     {
+                        CopyLocaleIni();
+
                         loadingDialog.Update("Launching", "Compiling mods");
 
                         //var launchTask = LaunchGame.LaunchAsync(
@@ -420,6 +405,17 @@ namespace FMT
                         fme.ForceRebuildOfMods = forceReinstallOfMods;
                         launchSuccess = await fme.Run(this, GameInstanceSingleton.Instance.GAMERootPath, new Mods.ModList(Profile).ModListItems.Select(x => x.Path).ToArray());
                         loadingDialog.Update(string.Empty, string.Empty);
+
+
+                        loadingDialog.Update("Launching", "Copying locale.ini");
+                        // -------------------------------------------------------------------------
+                        // Ensure the latest locale.ini is installing into the ModData
+                        //if (ProfileManager.IsFIFA21DataVersion()
+                        //    || ProfileManager.IsFIFA22DataVersion()
+                        //    || ProfileManager.IsFIFA23DataVersion())
+                        //{
+                        CopyLocaleIni();
+                        //}
 
                         //App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,
                         //    TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
@@ -592,10 +588,24 @@ namespace FMT
 
 
                 }
-                //);
+                );
 
                 loadingDialog.Update(string.Empty, string.Empty);
 
+            }
+        }
+
+        private static void CopyLocaleIni()
+        {
+            FileInfo localeIni = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIPath);
+            if (localeIni.Exists)
+            {
+                if (Directory.Exists(GameInstanceSingleton.Instance.ModDataPath))
+                {
+                    FileInfo localeIniModData = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIModDataPath);
+                    if (localeIniModData.Exists)
+                        File.Copy(localeIni.FullName, localeIniModData.FullName, true);
+                }
             }
         }
 
