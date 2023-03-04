@@ -34,6 +34,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public ulong NameToPositionOffset { get; set; }
 
         public bool Read();
+
+        public EbxAssetEntry ReadEbxAssetEntry(NativeReader nativeReader);
     }
 
     public interface IAssetLoader

@@ -1,4 +1,6 @@
-﻿using FrostySdk.Frostbite.PluginInterfaces;
+﻿using FMT.FileTools;
+using FrostySdk.Frostbite.PluginInterfaces;
+using FrostySdk.Managers;
 using System;
 
 namespace FrostySdk.Frostbite.Cache
@@ -15,6 +17,9 @@ namespace FrostySdk.Frostbite.Cache
             throw new NotImplementedException();
         }
 
-
+        public EbxAssetEntry ReadEbxAssetEntry(NativeReader nativeReader)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

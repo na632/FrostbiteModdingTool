@@ -16,7 +16,7 @@ namespace Madden21Plugin.Cache
 
         public bool Read()
         {
-            var fs = AssetManager.Instance.fs;
+            var fs = AssetManager.Instance.FileSystem;
             bool flag = false;
             //using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
             using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
@@ -198,6 +198,11 @@ namespace Madden21Plugin.Cache
                 //}
             }
             return !flag;
+        }
+
+        public EbxAssetEntry ReadEbxAssetEntry(NativeReader nativeReader)
+        {
+            throw new NotImplementedException();
         }
 
         private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)

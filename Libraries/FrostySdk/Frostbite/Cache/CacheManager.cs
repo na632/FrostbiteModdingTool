@@ -55,6 +55,20 @@ namespace FrostySdk.Frostbite
 
         public bool Load(ReadOnlySpan<char> gameLocation, ILogger logger, bool loadSDK, bool forceDeleteOfOld)
         {
+            var profileName = string.Empty;
+            if(gameLocation.EndsWith(".exe"))
+            {
+                var FileInfoEXE = new FileInfo(gameLocation.ToString());
+                gameLocation = Directory.GetParent(FileInfoEXE.FullName).FullName;//.Replace(".exe", "");
+                profileName = FileInfoEXE.Name.Replace(".exe", "");
+            }
+            if (!string.IsNullOrEmpty(profileName) && !ProfileManager.Initialize(profileName))
+            {
+                logger.LogError("Profile does not exist");
+                Debug.WriteLine($"[ERROR] Failed to initialise");
+                return false;
+            }
+
             if (ProfileManager.RequiresKey)
             {
                 KeyManager.ReadInKeys();
@@ -68,13 +82,14 @@ namespace FrostySdk.Frostbite
                     logger = this;
 
                 logger.Log("Loaded Type Library SDK");
-                new FileSystem(new string(gameLocation));
+                if(FileSystem.Instance == null)
+                    FileSystem.Instance = new FileSystem(gameLocation.ToString());
 
                 if (File.Exists(CachePath) && forceDeleteOfOld)
                     File.Delete(CachePath);
 
                 logger.Log("Initialised File & Resource System");
-                new AssetManager(logger);
+                AssetManager.Instance = new AssetManager(logger);
                 AssetManager.Instance.RegisterLegacyAssetManager();
                 //AssetManager.Instance.SetLogger(logger);
                 //AssetManager.Instance.Initialize(additionalStartup: true);
@@ -117,7 +132,23 @@ namespace FrostySdk.Frostbite
 
                 nativeReader.Position = (long)EbxDataOffset;
                 var ebxCount = nativeReader.ReadUInt();
+                var positionOfAsset = -1L;
+                for(var i = 0; i < ebxCount; i++)
+                {
+                    var ebxName = nativeReader.ReadLengthPrefixedString();
+                    var ebxPositions = nativeReader.ReadLong();
+                    if(ebxName == name)
+                    {
+                        positionOfAsset = ebxPositions;
+                        break;
+                    }
+                }
 
+                if (positionOfAsset == -1)
+                    return null;
+
+                nativeReader.Position = positionOfAsset;
+                GetCacheReader().ReadEbxAssetEntry(nativeReader);
 
             }
             return new List<EbxAssetEntry>();
@@ -249,6 +280,9 @@ namespace FrostySdk.Frostbite
 
             if (ProfileManager.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
             {
+                if (FileSystem.Instance != null)
+                    FileSystem.Instance = null;
+
                 new FileSystem(new string(GameInstanceSingleton.Instance.GAMERootPath));
                 if (!File.Exists(CachePath))
                 {

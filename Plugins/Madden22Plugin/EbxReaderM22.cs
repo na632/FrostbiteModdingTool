@@ -37,8 +37,8 @@ namespace Madden22Plugin
             {
                 if (std == null)
                 {
-                    std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
-                        , AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
+                    std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfileManager.EBXTypeDescriptor
+                        , AssetManager.Instance.FileSystem, "SharedTypeDescriptors.ebx", false);
                 }
             }
             else

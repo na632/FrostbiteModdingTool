@@ -56,9 +56,9 @@ namespace Madden22Plugin
 
         public void LoadData(AssetManager parent, BinarySbDataHelper helper, string folder = "native_data/")
         {
-            if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
+            if (parent != null && parent.FileSystem.Catalogs != null && parent.FileSystem.Catalogs.Count() > 0)
             {
-                foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
+                foreach (Catalog catalogInfoItem in parent.FileSystem.EnumerateCatalogInfos())
                 {
                     foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
                     {
@@ -81,14 +81,14 @@ namespace Madden22Plugin
 
                         parent.Logger.Log($"Loading data ({sbName})");
                         string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
-                        if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
+                        if (parent.FileSystem.ResolvePath(folder + tocFile + ".toc") == "")
                         {
                             tocFile = sbName;
                         }
                         List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
                         List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
                         var tocFileRAW = $"{folder}{tocFile}.toc";
-                        string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
+                        string tocFileLocation = parent.FileSystem.ResolvePath(tocFileRAW);
                         if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
                         {
                             TocSbReader_Madden22 tocSbReader = new TocSbReader_Madden22();

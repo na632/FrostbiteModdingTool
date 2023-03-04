@@ -99,15 +99,15 @@ namespace FIFA23Plugin
             //	}
             //}
 
-            if (assetManager == null || assetManager.fs.SuperBundles.Count() == 0)
+            if (assetManager == null || assetManager.FileSystem.SuperBundles.Count() == 0)
                 return;
 
             int sbIndex = -1;
 
-            foreach (var sbName in assetManager.fs.SuperBundles)
+            foreach (var sbName in assetManager.FileSystem.SuperBundles)
             {
                 var tocFileRAW = $"{folder}{sbName}.toc";
-                string tocFileLocation = assetManager.fs.ResolvePath(tocFileRAW);
+                string tocFileLocation = assetManager.FileSystem.ResolvePath(tocFileRAW);
                 if (string.IsNullOrEmpty(tocFileLocation) || !File.Exists(tocFileLocation))
                     continue;
 

@@ -57,9 +57,9 @@ namespace Madden23Plugin
 
         public void LoadData(AssetManager parent, BinarySbDataHelper helper, string folder = "native_data/")
         {
-            if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
+            if (parent != null && parent.FileSystem.Catalogs != null && parent.FileSystem.Catalogs.Count() > 0)
             {
-                foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos().OrderBy(x => x.PersistentIndex.HasValue ? x.PersistentIndex : 0))
+                foreach (Catalog catalogInfoItem in parent.FileSystem.EnumerateCatalogInfos().OrderBy(x => x.PersistentIndex.HasValue ? x.PersistentIndex : 0))
                 {
                     foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
                     {
@@ -88,7 +88,7 @@ namespace Madden23Plugin
                         //}
                         string nativeTocFilePath = sbName;
                         var tocFileRAW = $"{folder}{nativeTocFilePath}.toc";
-                        string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
+                        string tocFileLocation = parent.FileSystem.ResolvePath(tocFileRAW);
                         if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
                         {
                             //TocSbReader_Fifa23 tocSbReader = new TocSbReader_Fifa23();

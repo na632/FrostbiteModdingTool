@@ -122,7 +122,7 @@ namespace Madden21Plugin
         public void Load(AssetManager parent, BinarySbDataHelper helper)
         {
             byte[] key = KeyManager.Instance.GetKey("Key2");
-            foreach (Catalog item2 in parent.fs.EnumerateCatalogInfos())
+            foreach (Catalog item2 in parent.FileSystem.EnumerateCatalogInfos())
             {
                 foreach (string sbName in item2.SuperBundles.Keys)
                 {

@@ -26,7 +26,7 @@ namespace Madden22Plugin
 
         public void Load(int catalog, int cas, List<CASBundle> casBundles)
         {
-            NativeFileLocation = AssetManager.Instance.fs.GetFilePath(catalog, cas, false);
+            NativeFileLocation = AssetManager.Instance.FileSystem.GetFilePath(catalog, cas, false);
             var path = FileSystem.Instance.ResolvePath(NativeFileLocation);// @"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
             Load(path, casBundles);
         }

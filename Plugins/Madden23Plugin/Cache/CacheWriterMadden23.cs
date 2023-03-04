@@ -14,7 +14,7 @@ namespace Madden23Plugin.Cache
         public void Write()
         {
             MemoryStream msCache = new MemoryStream();
-            FileSystem fs = AssetManager.Instance.fs;
+            FileSystem fs = AssetManager.Instance.FileSystem;
             //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {

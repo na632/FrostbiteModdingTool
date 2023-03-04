@@ -15,7 +15,6 @@ namespace FIFA23Plugin.Cache
 
         public bool Read()
         {
-            var fs = AssetManager.Instance.fs;
             bool patched = false;
             //using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
             using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
@@ -24,7 +23,7 @@ namespace FIFA23Plugin.Cache
                     return false;
 
                 var cacheHead = nativeReader.ReadULong();
-                if (cacheHead != fs.SystemIteration)
+                if (cacheHead != FileSystem.Instance.SystemIteration)
                 {
                     patched = true;
                 }
@@ -47,7 +46,7 @@ namespace FIFA23Plugin.Cache
                 count = nativeReader.ReadInt();
                 for (int k = 0; k < count; k++)
                 {
-                    EbxAssetEntry ebxAssetEntry = ReadEbxEntry(nativeReader);
+                    EbxAssetEntry ebxAssetEntry = ReadEbxAssetEntry(nativeReader);
                     AssetManager.Instance.AddEbx(ebxAssetEntry);
                 }
                 count = nativeReader.ReadInt();
@@ -134,7 +133,7 @@ namespace FIFA23Plugin.Cache
             return resAssetEntry;
         }
 
-        private static EbxAssetEntry ReadEbxEntry(NativeReader nativeReader)
+        public EbxAssetEntry ReadEbxAssetEntry(NativeReader nativeReader)
         {
             EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
             ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();

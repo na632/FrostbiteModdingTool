@@ -52,7 +52,7 @@ namespace FIFA20Plugin
         {
             get
             {
-                return AssetManager.Instance.fs.ResolvePath(NativePath);
+                return AssetManager.Instance.FileSystem.ResolvePath(NativePath);
             }
         }
 
@@ -74,7 +74,7 @@ namespace FIFA20Plugin
         public void Read(string tocPath, AssetManager parent, BinarySbDataHelper helper, int sbIndex, bool readCasData = true, bool processCasData = true)
         {
             NativePath = tocPath.Contains(".toc", StringComparison.OrdinalIgnoreCase) ? tocPath : tocPath + ".toc";
-            tocPath = parent.fs.ResolvePath(NativePath);
+            tocPath = parent.FileSystem.ResolvePath(NativePath);
 
             //if (File.Exists(tocPath + ".premod"))
             //         {
@@ -89,7 +89,7 @@ namespace FIFA20Plugin
                 int toc_chunk_offset = 0;
                 byte[] toc_array = null;
                 const int array_offset = 556 + 12;
-                using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
+                using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.FileSystem.CreateDeobfuscator()))
                 {
                     uint num4 = nativeReader.ReadUInt();
                     num2 = nativeReader.ReadInt() - 12;
@@ -157,11 +157,11 @@ namespace FIFA20Plugin
                                 int offset = toc_reader.ReadInt(Endian.Little);
                                 var size_position = toc_reader.Position + array_offset;
                                 int size = toc_reader.ReadInt(Endian.Little);
-                                var filePath = parent.fs.GetFilePath(casIndex & int.MaxValue);
+                                var filePath = parent.FileSystem.GetFilePath(casIndex & int.MaxValue);
                                 if (fp != filePath)
                                 {
                                     fp = filePath;
-                                    var finalFilePath = parent.fs.ResolvePath(filePath);
+                                    var finalFilePath = parent.FileSystem.ResolvePath(filePath);
                                     if (casFileStream != null)
                                     {
                                         casFileStream.Close();
@@ -259,7 +259,7 @@ namespace FIFA20Plugin
                             chunkAssetEntry.Size = chunkSize;
                             chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             chunkAssetEntry.ExtraData = new AssetExtraData();
-                            chunkAssetEntry.ExtraData.CasPath = parent.fs.GetFilePath(index);
+                            chunkAssetEntry.ExtraData.CasPath = parent.FileSystem.GetFilePath(index);
                             chunkAssetEntry.ExtraData.DataOffset = (uint)chunkOffet;
                             chunkAssetEntry.TOCFileLocation = NativePath;
                             chunkAssetEntry.IsTocChunk = true;

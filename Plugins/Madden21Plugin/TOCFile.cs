@@ -20,7 +20,7 @@ namespace Madden21Plugin
         {
             get
             {
-                return AssetManager.Instance.fs.ResolvePath(NativePath);
+                return AssetManager.Instance.FileSystem.ResolvePath(NativePath);
             }
         }
 
@@ -173,7 +173,7 @@ namespace Madden21Plugin
                                     if (fp != filePath)
                                     {
                                         fp = filePath;
-                                        var finalFilePath = parent.fs.ResolvePath(filePath);
+                                        var finalFilePath = parent.FileSystem.ResolvePath(filePath);
                                         if (casFileStream != null)
                                         {
                                             casFileStream.Close();
@@ -357,7 +357,7 @@ namespace Madden21Plugin
                                                     MemoryUtil.GetMemoryStream()
                                                     //MemoryUtil
                                                     , 0
-                                                    , parent.fs.CreateDeobfuscator()))
+                                                    , parent.FileSystem.CreateDeobfuscator()))
             {
 
                 var bundleName = bundle.Name;
@@ -400,7 +400,7 @@ namespace Madden21Plugin
                     ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                     ebxAssetEntry.ExtraData = new AssetExtraData();
                     ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
-                    ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? AssetManager.Instance.fs.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : AssetManager.Instance.fs.GetFilePath(ebx.GetValue("cas", 0)));
+                    ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? AssetManager.Instance.FileSystem.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : AssetManager.Instance.FileSystem.GetFilePath(ebx.GetValue("cas", 0)));
                     ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
                     ebxAssetEntry.Bundles.Add(parent.Bundles.Count - 1);
 
