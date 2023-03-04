@@ -580,6 +580,10 @@ namespace FMT
 
                         if (switchAutoCloseAfterLaunch.IsOn)
                         {
+                            if(Owner != null)
+                            {
+                                Owner.Close();
+                            }
                             FileLogger.WriteLine("Automatically shutting down App after game Launch");
                             App.Current.Shutdown();
                         }
