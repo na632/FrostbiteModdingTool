@@ -132,14 +132,21 @@ namespace FrostySdk.Managers
             // Managed Resources
             if (disposing)
             {
+                PluginsInitialised = false;
+                PluginAssemblies.Clear();
+
                 CustomAssetManagers.Clear();
                 ChunkFileManager.Instance = null;
-                AllSdkAssemblyTypes.Clear();
-                AllSdkAssemblyTypes = null;
-                //foreach (var cam in CustomAssetManagers)
-                //{
-                //	cam.Value.Reset();
-                //}
+                if (AllSdkAssemblyTypes != null)
+                {
+                    AllSdkAssemblyTypes.Clear();
+                    AllSdkAssemblyTypes = null;
+                }
+                if(CachedTypes != null && CachedTypes.Any())
+                {
+                    CachedTypes.Clear();
+                    CachedTypes = null;
+                }
                 Bundles.Clear();
                 Bundles = null;
                 EBX.Clear();
@@ -255,6 +262,9 @@ namespace FrostySdk.Managers
 
         public object LoadTypeFromPlugin(string className, params object[] args)
         {
+            if (CachedTypes == null)
+                CachedTypes = new Dictionary<string, Type>();
+
             if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
             {
                 var t = CachedTypes[className];
@@ -293,22 +303,33 @@ namespace FrostySdk.Managers
 
         public static object LoadTypeByName(string className, params object[] args)
         {
+            var errorText = $"Unable to find Class {className}";
+            var exc = new ArgumentNullException(errorText);
+
             if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
             {
                 var cachedType = CachedTypes[className];
+                exc = null;
                 return Activator.CreateInstance(type: cachedType, args: args);
             }
 
             IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            if (currentAssemblies == null)
+                throw exc;
+
             var assembly = currentAssemblies.FirstOrDefault(x => x.GetTypes().Any(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase)));
+            if(assembly == null)
+                throw exc;
+
             var t = assembly.GetTypes().FirstOrDefault(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase));
             if (t != null)
             {
                 CachedTypes.Add(className, t);
+                exc = null;
                 return Activator.CreateInstance(type: t, args: args);
             }
 
-            throw new ArgumentNullException("Unable to find Class");
+            throw exc;
         }
 
 

@@ -71,6 +71,14 @@ namespace FMT
 
         protected override void OnClosed(EventArgs e)
         {
+            try
+            {
+                if(Owner != null && Owner.Visibility == Visibility.Hidden)
+                    Owner.Visibility = Visibility.Visible;
+            }
+            catch
+            { }
+
             base.OnClosed(e);
 
             ProjectManagement.Instance = null;
@@ -83,7 +91,7 @@ namespace FMT
             GC.WaitForPendingFinalizers();
             GC.WaitForFullGCComplete(-1);
             AppSettings.Settings.GameInstallEXEPath = null;
-            Owner.Visibility = Visibility.Visible;
+           
         }
 
         public ObservableCollection<ModList.ModItem> ListOfMods { get; set; } = new ObservableCollection<ModList.ModItem>();
