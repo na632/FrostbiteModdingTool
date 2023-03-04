@@ -506,7 +506,7 @@ namespace FrostySdk
             ModSettings modSettings = overrideSettings;
             if (modSettings == null)
             {
-                modSettings = ProjectManagement.Instance.Project.GetModSettings();
+                modSettings = ProjectManagement.Instance.Project.ModSettings;
             }
             WriteLengthPrefixedString(modSettings.Title);
             WriteLengthPrefixedString(modSettings.Author);

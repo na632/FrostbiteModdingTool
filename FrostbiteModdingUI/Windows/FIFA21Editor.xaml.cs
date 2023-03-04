@@ -190,7 +190,6 @@ namespace FIFAModdingUI.Windows
                     //miProjectConverter.IsEnabled = true;
                     miImportKitCreator.IsEnabled = true;
 
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
                     //this.DataContext = null;
                     //this.DataContext = this;
                     //this.UpdateLayout();
@@ -648,7 +647,6 @@ namespace FIFAModdingUI.Windows
                     switch (fileExtension)
                     {
                         case ".fbproject":
-                            ProjectManagement.Project.ModifiedAssetEntries = null;
                             CancellationToken cancellation = default(CancellationToken);
                             try
                             {
@@ -661,6 +659,7 @@ namespace FIFAModdingUI.Windows
                             break;
                         case ".fmtproj":
                             var mbFmtProj = MessageBox.Show("This is a NEW/UPCOMMING file format. This does nothing right now!", "EXPERIMENTAL");
+
                             break;
                         case ".fifamod":
 
@@ -744,7 +743,7 @@ namespace FIFAModdingUI.Windows
                             File.Delete(tFile);
                     };
                     var fnBeforeAutoSave = ProjectManagement.Project.Filename;
-                    var result = ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString() + ".fbproject");
+                    var result = ProjectManagement.Project.SaveAsync("Autosave-" + RandomSaver.Next().ToString() + ".fbproject", true).Result;
                     //return ProjectManagement.Project.Save(fnBeforeAutoSave);
                     ProjectManagement.Project.Filename = fnBeforeAutoSave;
                     return result;
@@ -854,7 +853,6 @@ namespace FIFAModdingUI.Windows
             await AssetManager.Instance.ResetAsync();
             //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.FileSystem);
-            ProjectManagement.Project.ModifiedAssetEntries = null;
             lstProjectFiles.ItemsSource = null;
             UpdateWindowTitle("New Project");
 
@@ -1251,8 +1249,6 @@ namespace FIFAModdingUI.Windows
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
                     await loadingDialog.UpdateAsync("Loading Project", "Loading and Merging Project File");
-
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
 
                     var mergerProject = new FrostbiteProject();
                     await mergerProject.LoadAsync(openFileDialog.FileName);

@@ -2,6 +2,7 @@
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
+using FrostySdk.ModsAndProjects.Projects;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -17,7 +18,8 @@ namespace v2k4FIFAModding.Frosty
     {
         public static ProjectManagement Instance;
 
-        public FrostbiteProject Project { get; set; } = new FrostbiteProject();
+        //public FrostbiteProject Project { get; set; } = new FrostbiteProject();
+        public IProject Project { get; set; }
 
         public ILogger Logger = null;
 
@@ -139,7 +141,7 @@ namespace v2k4FIFAModding.Frosty
         /// Starts the process of Loading Cache etc and Creates a New Project
         /// </summary>
         /// <returns></returns>
-        public async Task<FrostbiteProject> StartNewProjectAsync()
+        public async Task<IProject> StartNewProjectAsync()
         {
             return await new TaskFactory().StartNew(() =>
             {
@@ -148,7 +150,7 @@ namespace v2k4FIFAModding.Frosty
             });
         }
 
-        public FrostbiteProject StartNewProject()
+        public IProject StartNewProject()
         {
             if (AssetManager.Instance == null)
             {

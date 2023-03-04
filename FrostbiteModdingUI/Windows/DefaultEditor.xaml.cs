@@ -179,7 +179,6 @@ namespace FrostbiteModdingUI.Windows
                     miProject.IsEnabled = true;
                     miMod.IsEnabled = true;
 
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
                     this.DataContext = null;
                     this.DataContext = this;
                     this.UpdateLayout();
@@ -548,7 +547,6 @@ namespace FrostbiteModdingUI.Windows
 
                     loadingDialog.Update("Loading Project", "Loading Project File");
 
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
                     CancellationToken cancellation = default(CancellationToken);
                     try
                     {
@@ -609,7 +607,7 @@ namespace FrostbiteModdingUI.Windows
                             File.Delete(tFile);
                     };
                     var fnBeforeAutoSave = ProjectManagement.Project.Filename;
-                    var result = ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString() + ".fbproject");
+                    var result = ProjectManagement.Project.SaveAsync("Autosave-" + RandomSaver.Next().ToString() + ".fbproject", true).Result;
                     //return ProjectManagement.Project.Save(fnBeforeAutoSave);
                     ProjectManagement.Project.Filename = fnBeforeAutoSave;
                     return result;
@@ -675,7 +673,6 @@ namespace FrostbiteModdingUI.Windows
             await AssetManager.Instance.ResetAsync();
             //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.FileSystem);
-            ProjectManagement.Project.ModifiedAssetEntries = null;
             UpdateWindowTitle("New Project");
 
             Log("New Project Created");
@@ -1004,7 +1001,6 @@ namespace FrostbiteModdingUI.Windows
                 {
                     await loadingDialog.UpdateAsync("Loading Project", "Loading and Merging Project File");
 
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
 
                     var mergerProject = new FrostbiteProject();
                     await mergerProject.LoadAsync(openFileDialog.FileName);

@@ -11,11 +11,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using v2k4FIFAModding.Frosty;
 
 namespace FrostySdk.ModsAndProjects.Projects
 {
-    public class FMTProject
+    public class FMTProject : IProject
     {
         public static int MasterProjectVersion { get; } = 1;
         private static string projectExtension { get; } = ".fmtproj";
@@ -24,6 +26,17 @@ namespace FrostySdk.ModsAndProjects.Projects
 
         public FileInfo projectFileInfo { get { return new FileInfo(projectFilePath); } }
 
+        public bool IsDirty => throw new NotImplementedException();
+
+        public string Filename { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public string DisplayName => throw new NotImplementedException();
+
+        public AssetManager AssetManager => throw new NotImplementedException();
+
+        public ModSettings ModSettings => throw new NotImplementedException();
+
+        public IEnumerable<AssetEntry> ModifiedAssetEntries => throw new NotImplementedException();
 
         public ModSettings GetModSettings()
         {
@@ -87,13 +100,15 @@ namespace FrostySdk.ModsAndProjects.Projects
                 ResourceAssetsRead(nr);
                 nr.Position = assetManagerPositions["chunks"];
                 ChunkAssetsRead(nr);
-                foreach (var kvp in assetManagerPositions.Skip(3))
-                {
-                    nr.Position = kvp.Value;
-                    if (kvp.Key == "legacy")
-                    {
-                    }
-                }
+                nr.Position = assetManagerPositions["legacy"];
+                LegacyFilesModifiedRead(nr);
+                LegacyFilesAddedRead(nr);
+                nr.Position = assetManagerPositions["embedded"];
+                EmbeddedFilesRead(nr);
+                nr.Position = assetManagerPositions["localeini"];
+                LocaleINIRead(nr);
+
+
             }
             return project;
         }
@@ -118,8 +133,8 @@ namespace FrostySdk.ModsAndProjects.Projects
                     // Mod Settings Json
                     nw.WriteLengthPrefixedString(JsonConvert.SerializeObject(GetModSettings()));
 
-                    // number of positional stuff. ebx, res, chunks + legacy etc
-                    nw.Write(3 + AssetManager.Instance.CustomAssetManagers.Count);
+                    // number of positional stuff. ebx, res, chunks + "custom" + embedded + localeini etc
+                    nw.Write(3 + AssetManager.Instance.CustomAssetManagers.Count + 2);
                     // --------- TODO: Convert these to "Custom" Asset Managers -----------------
                     nw.WriteLengthPrefixedString("ebx"); // key of cam
                     var ebxWritePosition = nw.Position;
@@ -140,6 +155,14 @@ namespace FrostySdk.ModsAndProjects.Projects
                         nw.WriteLengthPrefixedString(cam.Key); // key of cam
                         nw.WriteULong(0ul); // position of data
                     }
+
+                    nw.WriteLengthPrefixedString("embedded"); // key of cam
+                    var embeddedWritePosition = nw.Position;
+                    nw.WriteULong(0ul); // position of data
+
+                    nw.WriteLengthPrefixedString("localeini"); // key of cam
+                    var localeIniWritePosition = nw.Position;
+                    nw.WriteULong(0ul); // position of data
 
                     // EBX
                     writePositions.Add("ebx", nw.Position);
@@ -178,6 +201,12 @@ namespace FrostySdk.ModsAndProjects.Projects
                         nw.WriteLengthPrefixedString(cam.Key); // key of cam
                         nw.Write(writePositions[cam.Key]);
                     }
+
+                    nw.Position = embeddedWritePosition;
+                    nw.Write(writePositions["embedded"]);
+
+                    nw.Position = localeIniWritePosition;
+                    nw.Write(writePositions["localeini"]);
                 }
 
                 //var msComp = new MemoryStream();
@@ -311,6 +340,7 @@ namespace FrostySdk.ModsAndProjects.Projects
                 if (lfe.Name != null)
                 {
                     var serialisedLFE = JsonConvert.SerializeObject(lfe);
+                    nw.WriteLengthPrefixedString(lfe.Name);
                     nw.WriteLengthPrefixedString(serialisedLFE);
                 }
             }
@@ -325,23 +355,7 @@ namespace FrostySdk.ModsAndProjects.Projects
             for (var iCount = 0; iCount < count; iCount++)
             {
                 nr.ReadLengthPrefixedString();
-            }
-        }
-
-        private static void ChunkFileCollectorAssetsRead(NativeReader nr)
-        {
-            foreach (var cam in AssetManager.Instance.CustomAssetManagers)
-            {
-                // CHUNK Count
-                var count = nr.ReadInt();
-                for (var i = 0; i < count; i++)
-                {
-                    // Item Name
-                    var assetName = nr.ReadGuid();
-                    // Item Data
-                    var data = nr.ReadLengthPrefixedBytes();
-                    AssetManager.Instance.ModifyChunk(assetName, data);
-                }
+                nr.ReadLengthPrefixedString();
             }
         }
 
@@ -352,8 +366,17 @@ namespace FrostySdk.ModsAndProjects.Projects
             if (hasLocaleIniMod)
             {
                 nw.Write(FileSystem.Instance.LocaleIsEncrypted);
-                nw.Write(AssetManager.Instance.LocaleINIMod.UserData.Length);
-                nw.Write(AssetManager.Instance.LocaleINIMod.UserData);
+                nw.WriteLengthPrefixedBytes(AssetManager.Instance.LocaleINIMod.UserData);
+            }
+        }
+
+        private static void LocaleINIRead(NativeReader nr)
+        {
+            var hasLocaleIniMod = nr.ReadBoolean();
+            if (hasLocaleIniMod)
+            {
+                nr.ReadBoolean();
+                AssetManager.Instance.LocaleINIMod = new Frostbite.IO.LocaleINIMod(nr.ReadLengthPrefixedBytes());
             }
         }
 
@@ -365,6 +388,20 @@ namespace FrostySdk.ModsAndProjects.Projects
             {
                 var serialisedEFE = JsonConvert.SerializeObject(efe);
                 nw.WriteLengthPrefixedString(serialisedEFE);
+            }
+        }
+        private static void EmbeddedFilesRead(NativeReader nr)
+        {
+            if (nr.ReadBoolean()) // nw.Write(AssetManager.Instance.EmbeddedFileEntries.Count > 0);
+            {
+                var embeddedFileCount = nr.ReadInt();
+                AssetManager.Instance.EmbeddedFileEntries.Clear();
+                for (int iItem = 0; iItem < embeddedFileCount; iItem++)
+                {
+                    var rawFile = nr.ReadLengthPrefixedString();
+                    EmbeddedFileEntry efe = JsonConvert.DeserializeObject<EmbeddedFileEntry>(rawFile);
+                    AssetManager.Instance.EmbeddedFileEntries.Add(efe);
+                }
             }
         }
 
@@ -455,6 +492,34 @@ namespace FrostySdk.ModsAndProjects.Projects
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
         public void Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> LoadAsync(string fileName, CancellationToken cancellationToken)
+        {
+            return await Task.Run(() =>
+            {
+                return FMTProject.Read(fileName) != null;
+            });
+        }
+
+        public bool Load(in FIFAModReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Load(in string inFilename)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Load(in Stream inStream)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> SaveAsync(string overrideFilename, bool updateDirtyState)
         {
             throw new NotImplementedException();
         }

@@ -6,6 +6,7 @@ using FrostbiteSdk.FrostbiteSdk.Managers;
 using FrostySdk.Frosty.FET;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.ModsAndProjects.Projects;
 using FrostySdk.Resources;
 using Newtonsoft.Json;
 using System;
@@ -19,7 +20,7 @@ using System.Threading.Tasks;
 namespace FrostySdk
 {
 
-    public class FrostbiteProject
+    public class FrostbiteProject : IProject
     {
         //private const uint FormatVersion = 12u;
         private uint CurrentFormatVersion { get; } = 23u;
@@ -143,23 +144,12 @@ namespace FrostySdk
 
         public bool Load(in string inFilename)
         {
-            ModifiedAssetEntries = null;
-
             filename = inFilename;
-            //using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
-            //{
-            //	if (nativeReader.ReadULong() == 98218709832262L)
-            //	{
-            //		return InternalLoad(nativeReader).Result;
-            //	}
-            //}
             return Load(new FileStream(inFilename, FileMode.Open, FileAccess.Read));
         }
 
         public bool Load(in Stream inStream)
         {
-            ModifiedAssetEntries = null;
-
             using (NativeReader nativeReader = new NativeReader(inStream))
             {
                 //if (nativeReader.ReadULong() == 98218709832262L)
@@ -175,8 +165,6 @@ namespace FrostySdk
         {
             if (!File.Exists(inFilename))
                 return false;
-
-            ModifiedAssetEntries = null;
 
             filename = inFilename;
             using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
@@ -199,7 +187,6 @@ namespace FrostySdk
                 entries.AddRange(AssetManager.EnumerateCustomAssets("legacy", modifiedOnly: true));
                 return entries;
             }
-            set { }
         }
 
         public async Task<bool> SaveAsync(string overrideFilename = "", bool updateDirtyState = true)

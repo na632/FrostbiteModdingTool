@@ -16,7 +16,7 @@ namespace FrostbiteModdingUI.Windows
 
         private void SaveAndClose_Click(object sender, RoutedEventArgs e)
         {
-            ProjectManagement.Instance.Project.Save();
+            ProjectManagement.Instance.Project.SaveAsync(null, true);
             this.Close();
         }
     }

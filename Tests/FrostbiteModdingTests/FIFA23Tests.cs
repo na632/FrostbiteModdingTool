@@ -998,7 +998,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             FIFAModReader reader = new FIFAModReader(new FileStream(@"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod V2.fifamod", FileMode.Open));
             projectManagement.Project.Load(reader);
-            projectManagement.Project.Save("test.fbproject");
+            var r = projectManagement.Project.SaveAsync("test.fbproject", true).Result;
         }
 
 
