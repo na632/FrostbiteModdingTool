@@ -42,6 +42,8 @@ namespace FrostbiteModdingUI.Models
 
         public bool? UseLiveEditor { get; internal set; }
 
+        public bool? AutoCloseAppAfterLaunch { get; set; }
+
         public static string OldSaveFileLocation
         {
             get
