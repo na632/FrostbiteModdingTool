@@ -14,9 +14,12 @@ namespace FrostbiteModdingUI.Windows
             this.DataContext = ProjectManagement.Instance.Project.ModSettings;
         }
 
-        private void SaveAndClose_Click(object sender, RoutedEventArgs e)
+        private async void SaveAndClose_Click(object sender, RoutedEventArgs e)
         {
-            ProjectManagement.Instance.Project.SaveAsync(null, true);
+            Dispatcher.Invoke(() => { 
+                this.IsEnabled = false;
+            });
+            await ProjectManagement.Instance.Project.SaveAsync(null, true);
             this.Close();
         }
     }
