@@ -237,6 +237,7 @@
                                         <Controls:ToggleSwitch x:Name="switchCleanLegacyModDirectory" Content="Clean Legacy Mods (*.lmod)"  />
 
                                         <Controls:ToggleSwitch x:Name="switchUseSymbolicLink" Content="Use Symbolic Link (Reduces Disk Space)" Visibility="Collapsed" Toggled="switchUseSymbolicLink_Toggled" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space"  />
+                                        <Controls:ToggleSwitch x:Name="switchAutoCloseAfterLaunch" Content="Automatically Close after Launch" Toggled="switchAutoCloseAfterLaunch_Toggled" />
 
 
                                     </StackPanel>

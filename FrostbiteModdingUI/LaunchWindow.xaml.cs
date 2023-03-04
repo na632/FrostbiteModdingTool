@@ -1,11 +1,14 @@
 ﻿using FIFAModdingUI;
+using FIFAModdingUI.Windows;
 using FIFAModdingUI.Windows.Profile;
+using FMT.FileTools;
 using FMT.FileTools.Modding;
 using FMT.Mods;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostbiteSdk;
 using FrostySdk;
+using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using MahApps.Metro.Controls;
@@ -59,11 +62,11 @@ namespace FMT
 
             await InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
 
-            //BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
-            //if (CacheManager.DoesCacheNeedsRebuilding())
-            //{
-            //    buildSDKAndCacheWindow.ShowDialog();
-            //}
+            BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
+            if (CacheManager.DoesCacheNeedsRebuilding())
+            {
+                buildSDKAndCacheWindow.ShowDialog();
+            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -75,10 +78,10 @@ namespace FMT
             {
                 AssetManager.Instance.Dispose();
                 AssetManager.Instance = null;
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.WaitForFullGCComplete(-1);
             }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.WaitForFullGCComplete(-1);
             AppSettings.Settings.GameInstallEXEPath = null;
             Owner.Visibility = Visibility.Visible;
         }
@@ -196,6 +199,8 @@ namespace FMT
                 stopLoggingUntilComplete = false;
             }
 
+            FileLogger.WriteLine(in_text);
+
             var txt = string.Empty;
             await Dispatcher.InvokeAsync(() =>
             {
@@ -308,6 +313,7 @@ namespace FMT
                     launcherOptions.UseLegacyModSupport = switchUseLegacyModSupport.IsOn;
                     launcherOptions.UseLiveEditor = switchUseLiveEditor.IsOn;
                     launcherOptions.InstallEmbeddedFiles = switchInstallEmbeddedFiles.IsOn;
+                    launcherOptions.AutoCloseAppAfterLaunch = switchAutoCloseAfterLaunch.IsOn;
                     launcherOptions.Save();
                 }
 
@@ -362,7 +368,7 @@ namespace FMT
                 }
 
                 // Start the game with mods
-                await new TaskFactory().StartNew(async () =>
+                //await new TaskFactory().StartNew(async () =>
                 {
 
                     Dispatcher.Invoke(() =>
@@ -403,6 +409,7 @@ namespace FMT
                         //, useSymbolicLink
                         //, useModData);
                         var fme = new ModExecutor();
+                        fme.ForceRebuildOfMods = forceReinstallOfMods;
                         launchSuccess = await fme.Run(this, GameInstanceSingleton.Instance.GAMERootPath, new Mods.ModList(Profile).ModListItems.Select(x => x.Path).ToArray());
                         loadingDialog.Update(string.Empty, string.Empty);
 
@@ -535,7 +542,7 @@ namespace FMT
                         {
                             AssetManager.Instance.Reset();
                             // Do Cleanup of Resources - Saving Memory
-                            AssetManager.Instance.Dispose();
+                            //AssetManager.Instance.Dispose();
                             AssetManager.Instance = null;
                         }
                         ProjectManagement.Instance = null;
@@ -562,11 +569,18 @@ namespace FMT
                     {
                         btnLaunch.IsEnabled = true;
                         //btnLaunchOtherTool.IsEnabled = true;
+
+                        if (switchAutoCloseAfterLaunch.IsOn)
+                        {
+                            FileLogger.WriteLine("Automatically shutting down App after game Launch");
+                            App.Current.Shutdown();
+                        }
                     });
 
 
 
-                });
+                }
+                //);
 
                 loadingDialog.Update(string.Empty, string.Empty);
 
@@ -800,6 +814,7 @@ namespace FMT
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
                 switchUseLiveEditor.IsOn = launcherOptions.UseLiveEditor.HasValue ? launcherOptions.UseLiveEditor.Value : false;
+                switchAutoCloseAfterLaunch.IsOn = launcherOptions.AutoCloseAppAfterLaunch.HasValue ? launcherOptions.AutoCloseAppAfterLaunch.Value : true;
                 btnLaunch.IsEnabled = ProfileManager.LoadedProfile.CanLaunchMods;
             }
 
@@ -826,7 +841,9 @@ namespace FMT
 
         public void LogError(string text, params object[] vars)
         {
-            LogSync("[ERROR] " + text + Environment.NewLine);
+            var errorText = "[ERROR] " + text;
+            LogSync(errorText + Environment.NewLine);
+            FileLogger.WriteLine(errorText);
             File.AppendAllText($"ErrorLog-{DateTime.Now.ToString("yyyy-MM-dd")}.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
@@ -932,6 +949,11 @@ namespace FMT
         private void switchUseSymbolicLink_Toggled(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(() => { switchUseModData.IsOn = switchUseSymbolicLink.IsOn; switchUseModData.IsEnabled = !switchUseSymbolicLink.IsOn; });
+        }
+
+        private void switchAutoCloseAfterLaunch_Toggled(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 
