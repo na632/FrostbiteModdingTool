@@ -732,9 +732,16 @@ namespace FrostySdk.Frostbite.Compilers
             //
             var editedBundles = EntriesToNewPosition.SelectMany(x => x.Key.Bundles).Distinct();
             var groupedByTOCSB = new Dictionary<string, List<KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)>>>();
-            //groupedByTOCSB = EntriesToNewPosition
-            //    .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
-            //    .ToDictionary(x => x.Key, x => x.ToList());
+            if(EntriesToNewPosition.Any(
+                x => !string.IsNullOrEmpty(x.Key.SBFileLocation)
+                || !string.IsNullOrEmpty(x.Key.TOCFileLocation)
+                ))
+            {
+                groupedByTOCSB = EntriesToNewPosition
+                    .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
+                    .ToDictionary(x => x.Key, x => x.ToList());
+            }
+
             int sbIndex = -1;
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
             {

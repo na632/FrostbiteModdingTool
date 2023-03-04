@@ -42,8 +42,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fbproject" />
-    <EmbeddedResource Include="FbProjects\FIFA23\FIFA23.UltraSlowDribblingTest.fbproject" />
+    <EmbeddedResource Include="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fbproject">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FbProjects\FIFA23\FIFA23.UltraSlowDribblingTest.fbproject">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

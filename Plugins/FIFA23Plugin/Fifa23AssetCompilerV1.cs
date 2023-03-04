@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using FMT.FileTools;
+using FrostySdk;
 using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
@@ -127,7 +128,9 @@ namespace FIFA23Plugin
 
             if (entriesToNewPosition.Count > 0)
             {
-                parent.Logger.Log($"{entriesToNewPosition.Count} Entries were not written. Some parts of the mod may be removed.");
+                var entriesErrorText = $"{entriesToNewPosition.Count} Entries were not written to TOC. Some parts of the mod may be removed.";
+                FileLogger.WriteLine(entriesErrorText);
+                parent.Logger.Log(entriesErrorText);
             }
 
             return result;
