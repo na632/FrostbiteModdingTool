@@ -40,7 +40,7 @@ namespace FIFAModdingUI.Windows
     /// <summary>
     /// Interaction logic for FIFA21Editor.xaml
     /// </summary>
-    public partial class FIFA21Editor : MetroWindow, IEditorWindow
+    public partial class FIFA21Editor : MetroWindow, IEditorWindow, INotifyPropertyChanged
     {
         public Window OwnerWindow { get; set; }
 
@@ -60,68 +60,8 @@ namespace FIFAModdingUI.Windows
             Owner = owner;
         }
 
-        public virtual string LastGameLocation
-        {
-            get
-            {
-                var dir = ProfileManager.GetModProfileParentDirectoryPath() + "\\FIFA21\\";
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                return dir + "LastLocation.json";
-            }
-        }
-        //public virtual string LastGameLocation => App.ApplicationDirectory + ProfilesLibrary.ProfileName + "LastLocation.json";
-
-        public virtual string RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
-        //public virtual string RecentFilesLocation => App.ApplicationDirectory + ProfilesLibrary.ProfileName + "RecentFilesLocation.json";
-
-        private List<FileInfo> recentProjectFiles;
-
-        public List<FileInfo> RecentProjectFiles
-        {
-            get
-            {
-                if (recentProjectFiles == null)
-                {
-                    recentProjectFiles = new List<FileInfo>();
-                    if (new FileInfo(RecentFilesLocation).Exists)
-                    {
-                        var allText = File.ReadAllText(RecentFilesLocation);
-                        var items = JsonConvert.DeserializeObject<List<string>>(allText);
-                        recentProjectFiles = items.Select(x => new FileInfo(x)).ToList();
-                    }
-                }
-
-                return recentProjectFiles.OrderByDescending(x => x.LastWriteTime).Take(5).ToList();
-            }
-            set
-            {
-                recentProjectFiles = value;
-
-                var str = JsonConvert.SerializeObject(recentProjectFiles.Select(x => x.FullName));
-                File.WriteAllText(RecentFilesLocation, str);
-
-                DataContext = null;
-                DataContext = this;
-            }
-        }
-
         private async void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
-
-            if (File.Exists(LastGameLocation))
-            {
-                var tmpLoc = File.ReadAllText(LastGameLocation);
-                if (File.Exists(tmpLoc))
-                {
-                    AppSettings.Settings.GameInstallEXEPath = tmpLoc;
-                }
-                else
-                {
-                    File.Delete(LastGameLocation);
-                }
-            }
 
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {
@@ -142,14 +82,13 @@ namespace FIFAModdingUI.Windows
                 }
             }
 
-            File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
-
             launcherOptions = await LauncherOptions.LoadAsync();
 
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            Loaded -= FIFA21Editor_Loaded;
             if (ProjectManagement != null)
             {
                 if (ProjectManagement.Project != null && ProjectManagement.Project.IsDirty)
@@ -232,16 +171,19 @@ namespace FIFAModdingUI.Windows
 
             loadingDialog.Update("Loading Game Files", "");
 
-            await Task.Run(
-                () =>
-            {
+            //await Task.Run(
+            //    () =>
+            //{
 
 
                 ProjectManagement = new ProjectManagement(filePath, loadingDialog);
-                ProjectManagement.StartNewProject();
-                InitialiseBrowsers();
+                ProjectManagement.Logger = this;
+                await ProjectManagement.StartNewProjectAsync();
+            //InitialiseBrowsers();
+            await UpdateAllBrowsersFull();
 
-                Dispatcher.Invoke(() =>
+
+            await Dispatcher.InvokeAsync(() =>
                 {
                     miProject.IsEnabled = true;
                     miMod.IsEnabled = true;
@@ -249,20 +191,22 @@ namespace FIFAModdingUI.Windows
                     miImportKitCreator.IsEnabled = true;
 
                     ProjectManagement.Project.ModifiedAssetEntries = null;
-                    this.DataContext = null;
-                    this.DataContext = this;
-                    this.UpdateLayout();
+                    //this.DataContext = null;
+                    //this.DataContext = this;
+                    //this.UpdateLayout();
 
                 });
 
-                loadingDialog.Update("", "");
+            this.DataContext = null;
+            this.DataContext = this;
+            //this.UpdateLayout();
+            await loadingDialog.UpdateAsync("", "");
 
-                ProjectManagement.Logger = this;
                 EnableEditor();
 
-            });
+            //});
 
-            loadingDialog.Update("", "");
+            await loadingDialog.UpdateAsync("", "");
 
 
             DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
@@ -274,7 +218,7 @@ namespace FIFAModdingUI.Windows
             TabFaces.Visibility = !ProfileManager.CanExportMeshes && !ProfileManager.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
             TabBoots.Visibility = !ProfileManager.CanExportMeshes && !ProfileManager.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
 
-            Dispatcher.Invoke(() =>
+            await Dispatcher.InvokeAsync(() =>
             {
                 //swEnableLegacyInjection.Visibility = ProfileManager.CanUseLiveLegacyMods ? Visibility.Visible : Visibility.Collapsed;
                 swEnableLegacyInjection.IsOn = LauncherOptions.UseLegacyModSupport.HasValue && LauncherOptions.UseLegacyModSupport.Value && ProfileManager.CanUseLiveLegacyMods;
@@ -640,22 +584,14 @@ namespace FIFAModdingUI.Windows
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
 
-                    RecentProjectFiles.Add(new FileInfo(saveFileDialog.FileName));
-                    RecentProjectFiles = recentProjectFiles;
-
                     UpdateWindowTitle(saveFileDialog.FileName);
 
                     DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
-
-
-
                 }
             }
-            loadingDialog.Update("", "");
-            //borderLoading.Visibility = Visibility.Collapsed;
 
-            //loadingDialog.Close();
-            //loadingDialog = null;
+            loadingDialog.Update("", "");
+
             return true;
         }
 
@@ -917,7 +853,7 @@ namespace FIFAModdingUI.Windows
             loadingDialog.Update("Resetting", "Resetting");
             await AssetManager.Instance.ResetAsync();
             //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
-            ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.FileSystem);
             ProjectManagement.Project.ModifiedAssetEntries = null;
             lstProjectFiles.ItemsSource = null;
             UpdateWindowTitle("New Project");
@@ -943,6 +879,8 @@ namespace FIFAModdingUI.Windows
 
         private readonly string LegacyProjectExportedFolder = App.ApplicationDirectory + "\\TEMPLEGACYPROJECT";
         private readonly string LegacyTempFolder = App.ApplicationDirectory + "\\TEMP";
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task<bool> CompileLegacyModFromFolder(string legacyDirectory)
         {

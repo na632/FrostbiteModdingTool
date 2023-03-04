@@ -12,9 +12,5 @@ namespace FrostbiteModdingUI.Windows
 
         public void UpdateAllBrowsers();
 
-        public string LastGameLocation { get; }
-
-        public string RecentFilesLocation { get; }
-
     }
 }

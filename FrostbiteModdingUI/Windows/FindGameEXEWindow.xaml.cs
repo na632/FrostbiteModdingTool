@@ -53,8 +53,6 @@ namespace FrostbiteModdingUI.Windows
             // Create the Profiles Directory if it doesn't already exist
             Directory.CreateDirectory(App.ApplicationDirectory + "\\Mods\\Profiles\\");
 
-
-
             Loaded += FindGameEXEWindow_Loaded;
 
 
@@ -108,12 +106,7 @@ namespace FrostbiteModdingUI.Windows
                 AppSettings.Settings.GameInstallEXEPath = filePath;
 
                 if (GameInstanceSingleton.InitializeSingleton(filePath, false, this))
-                //if (GameInstanceSingleton.InitializeSingleton(filePath, true, this))
                 {
-                    //if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
-                    //{
-                    //    throw new Exception("Unable to Initialize Profile");
-                    //}
                     DialogResult = true;
                     Directory.CreateDirectory(System.IO.Path.Combine(modProfileDirectory, ProfileManager.ProfileName));
                     File.WriteAllText(System.IO.Path.Combine(modProfileDirectory, ProfileManager.ProfileName, "LastLocation.json"), filePath);

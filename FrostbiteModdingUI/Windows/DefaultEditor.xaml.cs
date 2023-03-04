@@ -60,68 +60,8 @@ namespace FrostbiteModdingUI.Windows
             Owner = owner;
         }
 
-        public virtual string LastGameLocation
-        {
-            get
-            {
-                var dir = $"{ProfileManager.GetModProfileParentDirectoryPath()}\\{ProfileManager.ProfileName}\\";
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                return dir + "LastLocation.json";
-            }
-        }
-
-        public virtual string RecentFilesLocation => $"{App.ApplicationDirectory}{ProfileManager.ProfileName}RecentFilesLocation.json";
-
-        private List<FileInfo> recentProjectFiles;
-
-        public List<FileInfo> RecentProjectFiles
-        {
-            get
-            {
-                if (recentProjectFiles == null)
-                {
-                    recentProjectFiles = new List<FileInfo>();
-                    if (new FileInfo(RecentFilesLocation).Exists)
-                    {
-                        var allText = File.ReadAllText(RecentFilesLocation);
-                        var items = JsonConvert.DeserializeObject<List<string>>(allText);
-                        recentProjectFiles = items.Select(x => new FileInfo(x)).ToList();
-                    }
-                }
-
-                return recentProjectFiles.OrderByDescending(x => x.LastWriteTime).Take(5).ToList();
-            }
-            set
-            {
-                recentProjectFiles = value;
-
-                var str = JsonConvert.SerializeObject(recentProjectFiles.Select(x => x.FullName));
-                File.WriteAllText(RecentFilesLocation, str);
-
-                DataContext = null;
-                DataContext = this;
-            }
-        }
-
-        //LoadingDialog loadingDialog = new LoadingDialog();
-
         private async void DefaultEditor_Loaded(object sender, RoutedEventArgs e)
         {
-
-            if (File.Exists(LastGameLocation))
-            {
-                var tmpLoc = File.ReadAllText(LastGameLocation);
-                if (File.Exists(tmpLoc))
-                {
-                    AppSettings.Settings.GameInstallEXEPath = tmpLoc;
-                }
-                else
-                {
-                    File.Delete(LastGameLocation);
-                }
-            }
 
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {
@@ -141,8 +81,6 @@ namespace FrostbiteModdingUI.Windows
                     this.Close();
                 }
             }
-
-            File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
 
             launcherOptions = await LauncherOptions.LoadAsync();
 
@@ -174,7 +112,7 @@ namespace FrostbiteModdingUI.Windows
             ProjectManagement.Instance = null;
             if (AssetManager.Instance != null)
             {
-                AssetManager.Instance.Dispose();
+                //AssetManager.Instance.Dispose();
                 AssetManager.Instance = null;
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
@@ -556,9 +494,6 @@ namespace FrostbiteModdingUI.Windows
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
 
-                    RecentProjectFiles.Add(new FileInfo(saveFileDialog.FileName));
-                    RecentProjectFiles = recentProjectFiles;
-
                     UpdateWindowTitle(saveFileDialog.FileName);
 
                     DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
@@ -739,7 +674,7 @@ namespace FrostbiteModdingUI.Windows
             loadingDialog.Update("Resetting", "Resetting");
             await AssetManager.Instance.ResetAsync();
             //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
-            ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.FileSystem);
             ProjectManagement.Project.ModifiedAssetEntries = null;
             UpdateWindowTitle("New Project");
 
