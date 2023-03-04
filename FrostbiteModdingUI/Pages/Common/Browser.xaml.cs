@@ -36,7 +36,7 @@ namespace FIFAModdingUI.Pages.Common
     /// <summary>
     /// Interaction logic for Browser.xaml
     /// </summary>
-    public partial class Browser : UserControl
+    public partial class Browser : UserControl, INotifyPropertyChanged
     {
 
         private IEditorWindow MainEditorWindow
@@ -46,6 +46,7 @@ namespace FIFAModdingUI.Pages.Common
                 return App.MainEditorWindow as IEditorWindow;
             }
         }
+
         public Browser()
         {
             InitializeComponent();
@@ -74,7 +75,7 @@ namespace FIFAModdingUI.Pages.Common
         public IEnumerable<IAssetEntry> AllAssetEntries
         {
             get { return allAssets; }
-            set { allAssets = value; Update(); }
+            set { allAssets = value; _ = Update(); }
         }
 
 
@@ -106,17 +107,24 @@ namespace FIFAModdingUI.Pages.Common
 
                 return assetEntry1;
             }
-            set { assetEntry1 = value; }
+            set { assetEntry1 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedEntry))); }
         }
 
-        public LegacyFileEntry SelectedLegacyEntry { get; set; }
+        private LegacyFileEntry legacyFileEntry;
+
+        public LegacyFileEntry SelectedLegacyEntry
+        {
+            get { return legacyFileEntry; }
+            set { legacyFileEntry = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedLegacyEntry))); }
+        }
+
 
         private EbxAsset ebxAsset;
 
         public EbxAsset SelectedEbxAsset
         {
             get { return ebxAsset; }
-            set { ebxAsset = value; }
+            set { ebxAsset = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedEbxAsset))); }
         }
 
 
@@ -179,7 +187,14 @@ namespace FIFAModdingUI.Pages.Common
         private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
         private AssetPath selectedPath = null;
 
-        public AssetPath AssetPath { get; set; }
+        private AssetPath assetPath;
+
+        public AssetPath AssetPath
+        {
+            get { return assetPath; }
+            set { assetPath = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AssetPath))); }
+        }
+
 
         public ObservableCollection<AssetPath> BrowserItems { get; set; } = new ObservableCollection<AssetPath>();
 
@@ -669,6 +684,8 @@ namespace FIFAModdingUI.Pages.Common
         //      }
 
         MainViewModel ModelViewerModel;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private void ResetViewers()
         {
@@ -1451,12 +1468,8 @@ namespace FIFAModdingUI.Pages.Common
         }
     }
 
-    public class AssetPath
+    public class AssetPath : INotifyPropertyChanged
     {
-        //private static ImageSource ClosedImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/CloseFolder.png") as ImageSource;
-
-        //private static ImageSource OpenImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/OpenFolder.png") as ImageSource;
-
         private string fullPath;
 
         private string name;
@@ -1470,6 +1483,8 @@ namespace FIFAModdingUI.Pages.Common
         private AssetPath parent;
 
         private List<AssetPath> children = new List<AssetPath>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string DisplayName => name.Trim('!');
 
