@@ -3,6 +3,7 @@ using FMT.Windows;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
+using FrostySdk.Managers;
 using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,11 @@ namespace FMT
 
             WindowTitle = "Frostbite Modding Tool " + App.ProductVersion;
 
+            if (AssetManager.Instance != null)
+            {
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;
+            }
             DataContext = this;
         }
 
