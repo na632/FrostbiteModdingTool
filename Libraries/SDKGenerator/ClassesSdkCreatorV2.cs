@@ -91,7 +91,7 @@ namespace SDKGenerator
                 IEbxSharedTypeDescriptor std = null;
                 if (!string.IsNullOrEmpty(ProfileManager.EBXTypeDescriptor))
                 {
-                    std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
+                    std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfileManager.EBXTypeDescriptor
                             , FileSystem.Instance, f, f.Contains("patch", StringComparison.OrdinalIgnoreCase));
                 }
                 std.ReflectionTypeDescripter = true;

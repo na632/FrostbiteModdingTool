@@ -1069,13 +1069,22 @@ namespace FrostySdk
                 return Activator.CreateInstance(type: cachedType, args: args);
             }
 
-            IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var assembly = currentAssemblies.FirstOrDefault(x => x.GetTypes().Any(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase)));
-            var t = assembly.GetTypes().FirstOrDefault(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase));
-            if (t != null)
+            AssetManager.InitialisePlugins();
+            var pluginInstance = AssetManager.LoadTypeFromPlugin2(className, args);
+            if (pluginInstance != null)
             {
-                CachedTypes.Add(className, t);
-                return Activator.CreateInstance(type: t, args: args);
+                CachedTypes.Add(className, pluginInstance.GetType());
+            }
+            else
+            {
+                IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var assembly = currentAssemblies.FirstOrDefault(x => x.GetTypes().Any(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase)));
+                var t = assembly.GetTypes().FirstOrDefault(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase));
+                if (t != null)
+                {
+                    CachedTypes.Add(className, t);
+                    return Activator.CreateInstance(type: t, args: args);
+                }
             }
 
             throw new ArgumentNullException("Unable to find Class");

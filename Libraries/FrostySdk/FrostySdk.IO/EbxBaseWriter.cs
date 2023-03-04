@@ -127,7 +127,7 @@ namespace FrostySdk.IO
             if (string.IsNullOrEmpty(ProfileManager.EBXWriter))
                 throw new Exception("No EBX Writer provided for Game Profile");
 
-            return ebxBaseWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXWriter
+            return ebxBaseWriter = (EbxBaseWriter)AssetManager.LoadTypeByName(ProfileManager.EBXWriter
                 , new MemoryStream(), EbxWriteFlags.None, false);
         }
 

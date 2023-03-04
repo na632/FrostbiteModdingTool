@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
@@ -150,14 +151,41 @@ namespace FrostbiteModdingTests
         public void BuildCache()
         {
             var buildCache = new CacheManager();
-            //buildCache.LoadData("FIFA23", GamePath, this, true, false);
-            buildCache.LoadData("FIFA23", GamePath, this, true, true);
+            buildCache.Load(GamePathEXE, this, true, true);
+            //buildCache.LoadData("FIFA23", GamePath, this, true, true);
 
             var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
             var resItems = AssetManager.Instance.EnumerateRes().ToList();
             var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
+
+        [TestMethod]
+        public void LoadCacheAndShutdown()
+        {
+            GCSettings.LatencyMode = GCLatencyMode.Batch;
+
+            var buildCache = new CacheManager();
+            buildCache.Load(GamePathEXE, this, true, false);
+
+            //var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
+            //var resItems = AssetManager.Instance.EnumerateRes().ToList();
+            //var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
+            //var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+
+            AssetManager.Instance.Dispose();
+            //AssetManager.Instance = null;
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            if(true)
+            {
+
+            }
+
+        }
+
 
         [TestMethod]
         public void BuildCacheIndexing()
@@ -185,14 +213,14 @@ namespace FrostbiteModdingTests
             //var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA23", GamePath, this, false, false);
 
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
+            //GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
             var buildSDK = new BuildSDK();
             buildSDK.Build().Wait();
 
-            var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
-            var resItems = AssetManager.Instance.EnumerateRes().ToList();
-            var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
-            var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+            //var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
+            //var resItems = AssetManager.Instance.EnumerateRes().ToList();
+            //var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
+            //var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 
         [TestMethod]

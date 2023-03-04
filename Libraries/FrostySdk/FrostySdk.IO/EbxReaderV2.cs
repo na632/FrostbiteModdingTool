@@ -28,15 +28,15 @@ namespace FrostySdk.IO
             {
                 if (std == null)
                 {
-                    std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
-                        , AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
+                    std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfileManager.EBXTypeDescriptor
+                        , AssetManager.Instance.FileSystem, "SharedTypeDescriptors.ebx", false);
                     //std = new EbxSharedTypeDescriptorV2(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
                 }
 
                 if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
                 {
-                    patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
-                        , AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", true);
+                    patchStd = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfileManager.EBXTypeDescriptor
+                        , AssetManager.Instance.FileSystem, "SharedTypeDescriptors_patch.ebx", true);
                 }
 
                 //if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
@@ -51,21 +51,21 @@ namespace FrostySdk.IO
                 if (std == null)
                 {
                     if (ProfileManager.IsFIFA19DataVersion())
-                        std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "Dictionaries/ebx.dict", patch: false);
+                        std = new EbxSharedTypeDescriptors(AssetManager.Instance.FileSystem, "Dictionaries/ebx.dict", patch: false);
                     else
-                        std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
+                        std = new EbxSharedTypeDescriptors(AssetManager.Instance.FileSystem, "SharedTypeDescriptors.ebx", patch: false);
                 }
 
                 if (patchStd == null)
                 {
-                    var allSTDs = AssetManager.Instance.fs.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
-                    if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+                    var allSTDs = AssetManager.Instance.FileSystem.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
+                    if (AssetManager.Instance.FileSystem.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
                     {
-                        patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", patch: true);
+                        patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.FileSystem, "SharedTypeDescriptors_patch.ebx", patch: true);
                     }
-                    if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+                    if (AssetManager.Instance.FileSystem.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
                     {
-                        patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors_Patch.ebx", patch: true);
+                        patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.FileSystem, "SharedTypeDescriptors_Patch.ebx", patch: true);
                     }
                 }
             }

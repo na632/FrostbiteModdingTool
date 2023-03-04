@@ -143,7 +143,7 @@ namespace v2k4FIFAModding.Frosty
         {
             return await new TaskFactory().StartNew(() =>
             {
-                Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+                Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.FileSystem);
                 return Project;
             });
         }
@@ -156,7 +156,7 @@ namespace v2k4FIFAModding.Frosty
                 buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, Logger, false, true);
             }
 
-            Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+            Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.FileSystem);
             return Project;
         }
 

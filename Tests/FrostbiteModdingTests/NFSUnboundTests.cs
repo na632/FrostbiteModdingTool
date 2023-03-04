@@ -103,7 +103,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildSDK()
         {
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
+            //GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
             var buildSDK = new BuildSDK();
             buildSDK.Build().Wait();
 

@@ -94,7 +94,7 @@ namespace SdkGenerator
         {
             if (FileSystem == null)
             {
-                FileSystem = AssetManager.Instance.fs;
+                FileSystem = AssetManager.Instance.FileSystem;
             }
             // Data must be loaded and cached before SDK is built
 
@@ -299,7 +299,7 @@ namespace SdkGenerator
             //EbxSharedTypeDescriptorV2 std;
             if (!string.IsNullOrEmpty(ProfileManager.EBXTypeDescriptor))
             {
-                std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
+                std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfileManager.EBXTypeDescriptor
                         , FileSystem.Instance, name, name.Contains("patch", StringComparison.OrdinalIgnoreCase));
             }
             //else
@@ -807,7 +807,7 @@ namespace SdkGenerator
                 memoryReader.Position = offset;
                 //var t = Type.GetType(typeStr);
                 //IClassInfo classInfo = (IClassInfo)Activator.CreateInstance(t);
-                var t = AssetManager.Instance.LoadTypeByName(typeStr);
+                var t = AssetManager.LoadTypeByName(typeStr);
                 IClassInfo classInfo = (IClassInfo)t;
                 classInfo.Read(memoryReader);
 

@@ -378,8 +378,8 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestCombinationMod()
         {
-            var modPath1 = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V10\Paulv2k4 FIFA 21 Gameplay Version 10 Alpha 2.fbmod";
-            var modPath3 = @"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V3A1.fbmod";
+            //var modPath1 = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V10\Paulv2k4 FIFA 21 Gameplay Version 10 Alpha 2.fbmod";
+            //var modPath3 = @"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V3A1.fbmod";
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();

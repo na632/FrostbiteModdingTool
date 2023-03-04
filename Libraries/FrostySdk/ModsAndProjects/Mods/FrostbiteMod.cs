@@ -42,7 +42,7 @@ namespace FrostbiteSdk
         private List<string> warnings = new List<string>();
 
         private bool bNewFormat;
-
+        private bool disposedValue;
 
         public FrostbiteModDetails ModDetails { get; set; }
 
@@ -80,41 +80,43 @@ namespace FrostbiteSdk
 
         public bool IsEncrypted { get; set; }
 
-        public byte[] ModBytes { get; set; }
+        //public byte[] ModBytes { get; set; }
         public EGame Game { get; set; }
 
         private void ReadFromStream(Stream stream)
         {
             // Read initial bytes
             stream.Position = 0;
-            ModBytes = new NativeReader(stream).ReadToEnd();
-            stream.Position = 0;
 
             // Check for Zip or Zstd
             int CompressType = new NativeReader(stream).ReadShort();
             if (CompressType == 1)
             {
-                var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
-                using (ZipFile zipFileReader = ZipFile.Read(m))
-                {
-                    var entry = zipFileReader.Entries.First();
-                    var entryStream = new MemoryStream();
-                    entry.Extract(entryStream);
-                    entryStream.Position = 0;
-                    ModBytes = new NativeReader(entryStream).ReadToEnd();
-                }
+                throw new NotSupportedException("FMT no longer supports compressed Frostbite Mods");
+                //var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
+                //using (ZipFile zipFileReader = ZipFile.Read(m))
+                //{
+                //    var entry = zipFileReader.Entries.First();
+                //    var entryStream = new MemoryStream();
+                //    entry.Extract(entryStream);
+                //    entryStream.Position = 0;
+                //    ModBytes = new NativeReader(entryStream).ReadToEnd();
+                //}
             }
             else if (CompressType == 2)
             {
-                var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
-                CasReader casReader = new CasReader(m);
-                ModBytes = casReader.Read();
+                throw new NotSupportedException("FMT no longer supports compressed Frostbite Mods");
+                //var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
+                //CasReader casReader = new CasReader(m);
+                //ModBytes = casReader.Read();
             }
 
+            stream.Position = 0;
+
             // Read internal Bytes
-            using (var innerStream = new MemoryStream(ModBytes))
+            //using (var innerStream = new MemoryStream(stream))
             {
-                using (FrostbiteModReader frostyModReader = new FrostbiteModReader(innerStream))
+                using (FrostbiteModReader frostyModReader = new FrostbiteModReader(stream))
                 {
                     if (frostyModReader.IsValid)
                     {
@@ -122,7 +124,13 @@ namespace FrostbiteSdk
                         Game = frostyModReader.Game;
                         gameVersion = frostyModReader.GameVersion;
                         ModDetails = frostyModReader.ReadModDetails();
+                        if (ModDetails == null || string.IsNullOrEmpty(ModDetails.Title))
+                            throw new Exception("Frostbite Mod Details doesn't have a Title");
+
                         Resources = frostyModReader.ReadResources();
+                        if (Resources == null || !Resources.Any())
+                            throw new Exception("Frostbite Mod doesn't have any Resources");
+
                         ModDetails.SetIcon(frostyModReader.GetResourceData(Resources.First()));
                         for (int i = 0; i < 4; i++)
                         {
@@ -133,9 +141,13 @@ namespace FrostbiteSdk
                             }
                         }
                     }
+                    else
+                    {
+                        throw new Exception("Frostbite Mod is Invalid");
+                    }
                 }
             }
-            ModBytes = null;
+            //ModBytes = null;
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
@@ -143,10 +155,10 @@ namespace FrostbiteSdk
 
         public byte[] GetResourceData(BaseModResource resource)
         {
-            if (ModBytes != null && ModBytes.Length > 0)
-            {
-                return GetResourceData(resource, new MemoryStream(ModBytes));
-            }
+            //if (ModBytes != null && ModBytes.Length > 0)
+            //{
+            //    return GetResourceData(resource, new MemoryStream(ModBytes));
+            //}
             using (FrostbiteModReader frostyModReader = new FrostbiteModReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
                 return frostyModReader.GetResourceData(resource);
@@ -176,10 +188,36 @@ namespace FrostbiteSdk
             return base.ToString();
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    ModDetails = null;
+                    Resources = null;
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                path = null;
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~FrostbiteMod()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
         public void Dispose()
         {
-            ModDetails = null;
-            ModBytes = null;
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

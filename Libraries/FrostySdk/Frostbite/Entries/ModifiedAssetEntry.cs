@@ -47,7 +47,7 @@ namespace FrostySdk.Managers
                     {
                         if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.EBXReader))
                         {
-                            using (var ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
+                            using (var ebxReader = (EbxReader)AssetManager.LoadTypeByName(
                                 ProfileManager.LoadedProfile.EBXReader,
                                 new MemoryStream(Data), false))
                                 dataObject = ebxReader.ReadAsset();

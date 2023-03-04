@@ -118,6 +118,9 @@ namespace FrostySdk
 
         public FileSystem(string inBasePath)
         {
+            if (Instance != null)
+                throw new Exception("FileSystem Instance already exists");
+
             if (string.IsNullOrEmpty(inBasePath))
                 throw new Exception("Base Path is empty!");
 

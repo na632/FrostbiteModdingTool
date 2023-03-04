@@ -3,12 +3,13 @@ using FrostySdk.FrostbiteSdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Fnv1a = FMT.FileTools.Fnv1a;
 
 namespace FrostySdk.Managers
 {
     [Serializable]
-    public class AssetEntry : IAssetEntry, IEqualityComparer<AssetEntry>
+    public class AssetEntry : IAssetEntry, IEqualityComparer<AssetEntry>//, IDisposable
     {
         public AssetEntry(ModifiedAssetEntry modifiedAssetEntry = null)
         {
@@ -325,12 +326,17 @@ namespace FrostySdk.Managers
             set { tocFileLocation = value; }
         }
 
-        public HashSet<string> TOCFileLocations => new HashSet<string>();
+        public HashSet<string> TOCFileLocations { get; } = new HashSet<string>();
 
+        [Obsolete]
         public int SB_CAS_Offset_Position { get; set; }
+        [Obsolete]
         public int SB_CAS_Size_Position { get; set; }
+        [Obsolete]
         public int SB_Sha1_Position { get; set; }
+        [Obsolete]
         public int SB_OriginalSize_Position { get; set; }
+
         public string ExtraInformation { get; set; }
 
         //public int ParentBundleOffset { get; set; }
@@ -338,6 +344,7 @@ namespace FrostySdk.Managers
 
 
         public bool IsLegacy = false;
+        private bool disposedValue;
 
 
         // ---- -----------------------------------------------------------------
@@ -484,6 +491,42 @@ namespace FrostySdk.Managers
             }
             return base.ToString();
         }
+
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!disposedValue)
+        //    {
+        //        if (disposing)
+        //        {
+        //            // TODO: dispose managed state (managed objects)
+        //            ModifiedEntry = null;
+
+        //            TOCFileLocations.Clear();
+        //            SBFileLocations.Clear();
+
+        //        }
+
+        //        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+        //        // TODO: set large fields to null
+        //        TOCFileLocation = null;
+        //        SBFileLocation = null;
+        //        disposedValue = true;
+        //    }
+        //}
+
+        //// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        //// ~AssetEntry()
+        //// {
+        ////     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        ////     Dispose(disposing: false);
+        //// }
+
+        //public void Dispose()
+        //{
+        //    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //    Dispose(disposing: true);
+        //    GC.SuppressFinalize(this);
+        //}
     }
 
     public enum EAssetType

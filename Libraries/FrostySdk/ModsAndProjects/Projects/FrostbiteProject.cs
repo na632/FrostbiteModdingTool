@@ -77,7 +77,7 @@ namespace FrostySdk
 
         public AssetManager AssetManager { get { return AssetManager.Instance; } }
 
-        public FileSystem FileSystem { get { return AssetManager.Instance.fs; } }
+        public FileSystem FileSystem { get { return AssetManager.Instance.FileSystem; } }
 
         public FrostbiteProject()
         {

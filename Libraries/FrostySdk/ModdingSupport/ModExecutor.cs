@@ -438,7 +438,7 @@ namespace ModdingSupport
                             File.Move(exportedFilePath, exportedFileBackupPath);
 
                         await File.WriteAllBytesAsync(exportedFilePath, resourceData);
-
+                        FileLogger.WriteLine($"Written {kvpMods.Value.ModDetails.Title} Embedded File Resource to {exportedFilePath}");
                     }
                     //
                     // ------------------------------------------------------------------
@@ -500,11 +500,18 @@ namespace ModdingSupport
                     switch (resource.Type)
                     {
                         case ModResourceType.Ebx:
+
                             if (modifiedEbx.ContainsKey(resource.Name))
                             {
                                 modifiedEbx.Remove(resource.Name);
                                 if (archiveData.ContainsKey(resource.Sha1))
                                     archiveData.Remove(resource.Sha1, out ArchiveInfo _);
+
+                                FileLogger.WriteLine($"Replacing Ebx {resource.Name} with {kvpMods.Value.ModDetails.Title} in ModifiedEbx list");
+                            }
+                            else
+                            {
+                                FileLogger.WriteLine($"Adding Ebx {resource.Name} from {kvpMods.Value.ModDetails.Title} to ModifiedEbx list");
                             }
                             EbxAssetEntry ebxEntry = new EbxAssetEntry();
                             resource.FillAssetEntry(ebxEntry);
@@ -520,6 +527,7 @@ namespace ModdingSupport
 
                             archiveData[ebxEntry.Sha1].Data = resourceData;
 
+
                             break;
                         case ModResourceType.Res:
                             if (modifiedRes.ContainsKey(resource.Name))
@@ -528,6 +536,11 @@ namespace ModdingSupport
                                 if (archiveData.ContainsKey(resource.Sha1))
                                     archiveData.Remove(resource.Sha1, out ArchiveInfo _);
 
+                                FileLogger.WriteLine($"Replacing {resource.Type} with {kvpMods.Value.ModDetails.Title} in ModifiedRes list");
+                            }
+                            else
+                            {
+                                FileLogger.WriteLine($"Adding {resource.Type} {resource.Name} from {kvpMods.Value.ModDetails.Title} to ModifiedRes list");
                             }
                             ResAssetEntry resEntry = new ResAssetEntry();
                             resource.FillAssetEntry(resEntry);
@@ -549,6 +562,11 @@ namespace ModdingSupport
                             if (ModifiedChunks.ContainsKey(guid))
                             {
                                 ModifiedChunks.Remove(guid);
+                                FileLogger.WriteLine($"Replacing {resource.Type} with {kvpMods.Value.ModDetails.Title} in ModifiedChunks list");
+                            }
+                            else
+                            {
+                                FileLogger.WriteLine($"Adding {resource.Type} {resource.Name} from {kvpMods.Value.ModDetails.Title} to ModifiedChunks list");
                             }
                             ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
                             resource.FillAssetEntry(chunkAssetEntry);
@@ -659,10 +677,11 @@ namespace ModdingSupport
             foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
             {
                 kvpMods.Key.Dispose();
-                if (kvpMods.Value is FrostbiteMod)
-                {
-                    kvpMods.Value.ModBytes = null;
-                }
+                kvpMods.Value.Dispose();
+                //if (kvpMods.Value is FrostbiteMod)
+                //{
+                //    //kvpMods.Value.ModBytes = null;
+                //}
             }
             frostyMods.Clear();
 

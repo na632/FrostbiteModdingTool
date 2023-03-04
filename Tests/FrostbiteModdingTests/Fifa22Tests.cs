@@ -120,16 +120,16 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildSDK()
         {
-            var buildCache = new CacheManager();
-            buildCache.LoadData("Fifa22", GamePath, this, false, false);
+            //var buildCache = new CacheManager();
+            //buildCache.LoadData("Fifa22", GamePath, this, false, false);
 
             var buildSDK = new BuildSDK();
             buildSDK.Build().Wait();
 
-            var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
-            var resItems = AssetManager.Instance.EnumerateRes().ToList();
-            var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
-            var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+            //var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
+            //var resItems = AssetManager.Instance.EnumerateRes().ToList();
+            //var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
+            //var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 
         [TestMethod]

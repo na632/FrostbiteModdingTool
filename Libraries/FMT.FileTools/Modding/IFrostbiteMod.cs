@@ -30,7 +30,7 @@ namespace FMT.FileTools.Modding
 
         public FrostbiteModDetails ModDetails { get; set; }
 
-        public byte[] ModBytes { get; set; }
+        //public byte[] ModBytes { get; set; }
 
         public byte[] GetResourceData(BaseModResource resource);
 

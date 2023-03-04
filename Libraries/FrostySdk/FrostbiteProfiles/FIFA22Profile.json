@@ -54,7 +54,7 @@
   // Will the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
   "CacheWriter": "Fifa22CacheWriter",
@@ -78,7 +78,7 @@
   //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
   //"CompressedFormatLegacy": "None",
-  "LegacyFileManager": "LFM_Fifa22",
+  "LegacyFileManager": "ChunkFileManager2022",
   "CanUseModData": true,
   "ForceUseModData": true,
   "GameIdentifier": 196837,

@@ -14,6 +14,7 @@ using FrostySdk.IO;
 using FrostySdk.Resources;
 using Newtonsoft.Json;
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
@@ -29,414 +31,36 @@ using System.Threading.Tasks;
 
 namespace FrostySdk.Managers
 {
-
-
-    public class BinarySbDataHelper
-    {
-        protected Dictionary<string, byte[]> ebxDataFiles = new Dictionary<string, byte[]>();
-
-        protected Dictionary<string, byte[]> resDataFiles = new Dictionary<string, byte[]>();
-
-        protected Dictionary<string, byte[]> chunkDataFiles = new Dictionary<string, byte[]>();
-
-        private AssetManager am;
-
-        public BinarySbDataHelper(AssetManager inParent)
-        {
-            am = inParent;
-        }
-
-        public void FilterAndAddBundleData(DbObject baseList, DbObject deltaList)
-        {
-            FilterBinaryBundleData(baseList, deltaList, "ebx", ebxDataFiles);
-            FilterBinaryBundleData(baseList, deltaList, "res", resDataFiles);
-            FilterBinaryBundleData(baseList, deltaList, "chunks", chunkDataFiles);
-        }
-
-        public void RemoveEbxData(string name)
-        {
-            ebxDataFiles.Remove(name);
-        }
-
-        public void RemoveResData(string name)
-        {
-            resDataFiles.Remove(name);
-        }
-
-        public void RemoveChunkData(string name)
-        {
-            chunkDataFiles.Remove(name);
-        }
-
-        //public void WriteToCache(AssetManager am)
-        //{
-        //	if (ebxDataFiles.Count + resDataFiles.Count + chunkDataFiles.Count != 0)
-        //	{
-        //		using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(am.fs.CacheName + "_sbdata.cas", FileMode.Create)))
-        //		{
-        //			foreach (KeyValuePair<string, byte[]> ebxDataFile in ebxDataFiles)
-        //			{
-        //				am.EbxList[ebxDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-        //				binaryWriter.Write(ebxDataFile.Value);
-        //			}
-        //			foreach (KeyValuePair<string, byte[]> resDataFile in resDataFiles)
-        //			{
-        //				am.resList[resDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-        //				binaryWriter.Write(resDataFile.Value);
-        //			}
-        //			foreach (KeyValuePair<string, byte[]> chunkDataFile in chunkDataFiles)
-        //			{
-        //				Guid key = new Guid(chunkDataFile.Key);
-        //				am.chunkList[key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-        //				binaryWriter.Write(chunkDataFile.Value);
-        //			}
-        //		}
-        //		ebxDataFiles.Clear();
-        //		resDataFiles.Clear();
-        //		chunkDataFiles.Clear();
-        //	}
-        //}
-
-        private void FilterBinaryBundleData(DbObject baseList, DbObject deltaList, string listName, Dictionary<string, byte[]> dataFiles)
-        {
-            foreach (DbObject item in deltaList.GetValue<DbObject>(listName))
-            {
-                FMT.FileTools.Sha1 value = item.GetValue<FMT.FileTools.Sha1>("sha1");
-                string text = item.GetValue<string>("name");
-                if (text == null)
-                {
-                    text = item.GetValue<Guid>("id").ToString();
-                }
-                if (!dataFiles.ContainsKey(text))
-                {
-                    bool flag = false;
-                    if (baseList != null)
-                    {
-                        foreach (DbObject item2 in baseList.GetValue<DbObject>(listName))
-                        {
-                            if (item2.GetValue<FMT.FileTools.Sha1>("sha1") == value)
-                            {
-                                item.SetValue("size", item2.GetValue("size", 0L));
-                                item.SetValue("originalSize", item2.GetValue("originalSize", 0L));
-                                item.SetValue("offset", item2.GetValue("offset", 0L));
-                                item.RemoveValue("data");
-                                flag = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!flag)
-                    {
-                        byte[] array = Utils.CompressFile(item.GetValue<byte[]>("data"));
-                        dataFiles.Add(text, array);
-                        item.SetValue("size", array.Length);
-                        item.AddValue("cache", true);
-                        item.RemoveValue("sb");
-                    }
-                }
-            }
-        }
-    }
-
-
     public class AssetManager : IDisposable
     {
-        private static AssetManager _Instance;
         public static AssetManager Instance
         {
-            get
-            {
-                if (_Instance == null)
-                {
-                }
-                return _Instance;
-
-            }
-            set
-            {
-                _Instance = value;
-            }
+            get;set;
         }
 
-        public Dictionary<int, string> ModCASFiles = new Dictionary<int, string>();
+        //public Dictionary<int, string> ModCASFiles = new Dictionary<int, string>();
 
+        //private const ulong CacheMagic = 144213406785688134uL;
 
-        internal class FifaAssetLoader : IAssetLoader
-        {
-            internal struct BundleFileInfo
-            {
-                public int Index;
+        //private const uint CacheVersion = 2u;
 
-                public int Offset;
-
-                public int Size;
-
-                public BundleFileInfo(int index, int offset, int size)
-                {
-                    Index = index;
-                    Offset = offset;
-                    Size = size;
-                }
-            }
-
-            public void Load(AssetManager parent, BinarySbDataHelper helper)
-            {
-                byte[] key = KeyManager.Instance.GetKey("Key2");
-                foreach (Catalog item2 in parent.fs.EnumerateCatalogInfos())
-                {
-                    foreach (string sbName in item2.SuperBundles.Keys)
-                    {
-                        SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-                        int num = -1;
-                        if (superBundleEntry != null)
-                        {
-                            num = parent.superBundles.IndexOf(superBundleEntry);
-                        }
-                        else
-                        {
-                            parent.superBundles.Add(new SuperBundleEntry
-                            {
-                                Name = sbName
-                            });
-                            num = parent.superBundles.Count - 1;
-                        }
-                        parent.WriteToLog($"Loading data ({sbName})");
-                        parent.superBundles.Add(new SuperBundleEntry
-                        {
-                            Name = sbName
-                        });
-                        string arg = sbName;
-                        if (item2.SuperBundles[sbName])
-                        {
-                            arg = sbName.Replace("win32", item2.Name);
-                        }
-
-                        string resolvedTocPath = parent.fs.ResolvePath($"{arg}.toc");
-                        if (string.IsNullOrEmpty(resolvedTocPath))
-                            continue;
-
-                        {
-                            int num2 = 0;
-                            int num3 = 0;
-                            byte[] array = null;
-                            using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(resolvedTocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
-                            {
-                                uint num4 = nativeReader.ReadUInt();
-                                num2 = nativeReader.ReadInt() - 12;
-                                num3 = nativeReader.ReadInt() - 12;
-                                array = nativeReader.ReadToEnd();
-                                if (num4 == 3286619587u)
-                                {
-                                    using (Aes aes = Aes.Create())
-                                    {
-                                        aes.Key = key;
-                                        aes.IV = key;
-                                        aes.Padding = PaddingMode.None;
-                                        ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-                                        using (MemoryStream stream = new MemoryStream(array))
-                                        {
-                                            using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
-                                            {
-                                                cryptoStream.Read(array, 0, array.Length);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (array.Length != 0)
-                            {
-                                using (NativeReader nativeReader2 = new NativeReader(new MemoryStream(array)))
-                                {
-                                    List<int> list = new List<int>();
-                                    if (num2 > 0)
-                                    {
-                                        nativeReader2.Position = num2;
-                                        int numberOfBundles = nativeReader2.ReadInt();
-                                        for (int i = 0; i < numberOfBundles; i++)
-                                        {
-                                            list.Add(nativeReader2.ReadInt());
-                                        }
-                                        DateTime lastLogTime = DateTime.Now;
-
-                                        for (int j = 0; j < numberOfBundles; j++)
-                                        {
-                                            if (lastLogTime.AddSeconds(15) < DateTime.Now)
-                                            {
-                                                var percentDone = Math.Round(j / (double)numberOfBundles * 100.0);
-                                                parent.Logger.Log($"{arg} Progress: {percentDone}");
-                                                lastLogTime = DateTime.Now;
-                                            }
-
-
-                                            int num6 = nativeReader2.ReadInt() - 12;
-                                            long position = nativeReader2.Position;
-                                            nativeReader2.Position = num6;
-                                            int num7 = nativeReader2.ReadInt() - 1;
-                                            List<BundleFileInfo> list2 = new List<BundleFileInfo>();
-                                            MemoryStream memoryStream = new MemoryStream();
-                                            int num8;
-                                            do
-                                            {
-                                                num8 = nativeReader2.ReadInt();
-                                                int num9 = nativeReader2.ReadInt();
-                                                int num10 = nativeReader2.ReadInt();
-                                                using (NativeReader nativeReader3 = new NativeReader(new FileStream(parent.fs.ResolvePath(parent.fs.GetFilePath(num8 & int.MaxValue)), FileMode.Open, FileAccess.Read)))
-                                                {
-                                                    nativeReader3.Position = num9;
-                                                    memoryStream.Write(nativeReader3.ReadBytes(num10), 0, num10);
-                                                }
-                                                list2.Add(new BundleFileInfo(num8 & int.MaxValue, num9, num10));
-                                            }
-                                            while ((num8 & 2147483648u) != 0L);
-                                            nativeReader2.Position = num7 - 12;
-                                            int num11 = 0;
-                                            string text2 = "";
-                                            do
-                                            {
-                                                string str = nativeReader2.ReadNullTerminatedString();
-                                                num11 = nativeReader2.ReadInt() - 1;
-                                                text2 += str;
-                                                if (num11 != -1)
-                                                {
-                                                    nativeReader2.Position = num11 - 12;
-                                                }
-                                            }
-                                            while (num11 != -1);
-                                            text2 = Utils.ReverseString(text2);
-                                            nativeReader2.Position = position;
-                                            BundleEntry item = new BundleEntry
-                                            {
-                                                Name = text2,
-                                                SuperBundleId = num
-                                            };
-                                            parent.Bundles.Add(item);
-                                            BinarySbReader binarySbReader = null;
-                                            if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-                                                binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
-                                            else
-                                                binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator());
-
-                                            using (binarySbReader)
-                                            {
-                                                DbObject dbObject = binarySbReader.ReadDbObject();
-                                                BundleFileInfo bundleFileInfo = list2[0];
-                                                long offset = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L) + 4);
-                                                long currentSize = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L) + 4);
-                                                int num14 = 0;
-                                                foreach (DbObject item3 in dbObject.GetValue<DbObject>("ebx"))
-                                                {
-                                                    if (currentSize == 0L)
-                                                    {
-                                                        bundleFileInfo = list2[++num14];
-                                                        currentSize = bundleFileInfo.Size;
-                                                        offset = bundleFileInfo.Offset;
-                                                    }
-                                                    int value = item3.GetValue("size", 0);
-                                                    item3.SetValue("offset", offset);
-                                                    item3.SetValue("cas", bundleFileInfo.Index);
-                                                    offset += value;
-                                                    currentSize -= value;
-                                                }
-                                                foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
-                                                {
-                                                    if (currentSize == 0L)
-                                                    {
-                                                        bundleFileInfo = list2[++num14];
-                                                        currentSize = bundleFileInfo.Size;
-                                                        offset = bundleFileInfo.Offset;
-                                                    }
-                                                    int value2 = item4.GetValue("size", 0);
-                                                    item4.SetValue("offset", offset);
-                                                    item4.SetValue("cas", bundleFileInfo.Index);
-                                                    offset += value2;
-                                                    currentSize -= value2;
-                                                }
-                                                foreach (DbObject item5 in dbObject.GetValue<DbObject>("chunks"))
-                                                {
-                                                    if (currentSize == 0L)
-                                                    {
-                                                        bundleFileInfo = list2[++num14];
-                                                        currentSize = bundleFileInfo.Size;
-                                                        offset = bundleFileInfo.Offset;
-                                                    }
-                                                    int value3 = item5.GetValue("size", 0);
-                                                    item5.SetValue("offset", offset);
-                                                    item5.SetValue("cas", bundleFileInfo.Index);
-                                                    offset += value3;
-                                                    currentSize -= value3;
-                                                }
-                                                parent.ProcessBundleEbx(dbObject, parent.Bundles.Count - 1, helper);
-                                                parent.ProcessBundleRes(dbObject, parent.Bundles.Count - 1, helper);
-                                                parent.ProcessBundleChunks(dbObject, parent.Bundles.Count - 1, helper);
-                                            }
-                                        }
-                                    }
-                                    if (num3 > 0)
-                                    {
-                                        nativeReader2.Position = num3;
-                                        int num15 = nativeReader2.ReadInt();
-                                        list = new List<int>();
-                                        for (int k = 0; k < num15; k++)
-                                        {
-                                            list.Add(nativeReader2.ReadInt());
-                                        }
-                                        for (int l = 0; l < num15; l++)
-                                        {
-                                            int num16 = nativeReader2.ReadInt();
-                                            long position2 = nativeReader2.Position;
-                                            nativeReader2.Position = num16 - 12;
-                                            Guid guid = nativeReader2.ReadGuid();
-                                            int index = nativeReader2.ReadInt();
-                                            int offset = nativeReader2.ReadInt();
-                                            int num18 = nativeReader2.ReadInt();
-                                            if (!parent.Chunks.ContainsKey(guid))
-                                            {
-                                                //parent.chunkList.Add(guid, new ChunkAssetEntry());
-                                                parent.Chunks.TryAdd(guid, new ChunkAssetEntry());
-                                            }
-                                            ChunkAssetEntry chunkAssetEntry = parent.Chunks[guid];
-                                            chunkAssetEntry.Id = guid;
-                                            chunkAssetEntry.Size = num18;
-                                            chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                                            chunkAssetEntry.ExtraData = new AssetExtraData();
-                                            chunkAssetEntry.ExtraData.CasPath = parent.fs.GetFilePath(index);
-                                            chunkAssetEntry.ExtraData.DataOffset = (uint)offset;
-                                            parent.Chunks[guid].IsTocChunk = true;
-                                            nativeReader2.Position = position2;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        num++;
-                    }
-                }
-            }
-        }
-
-        private const ulong CacheMagic = 144213406785688134uL;
-
-        private const uint CacheVersion = 2u;
-
-        public FileSystem fs = FileSystem.Instance;
-
-        public FileSystem FileSystem => fs;
+        public FileSystem FileSystem { get; private set; } = FileSystem.Instance;
 
         public ILogger Logger { get; private set; }
 
-        public List<SuperBundleEntry> superBundles { get; } = new List<SuperBundleEntry>(500);
+        public List<SuperBundleEntry> superBundles { get; private set; } = new List<SuperBundleEntry>(500);
 
-        public List<BundleEntry> Bundles { get; } = new List<BundleEntry>(350000);
+        public List<BundleEntry> Bundles { get; private set; } = new List<BundleEntry>(350000);
 
-        public ConcurrentDictionary<string, EbxAssetEntry> EBX { get; } = new ConcurrentDictionary<string, EbxAssetEntry>(4, 500000, StringComparer.OrdinalIgnoreCase);
+        public ConcurrentDictionary<string, EbxAssetEntry> EBX { get; private set; }// = new ConcurrentDictionary<string, EbxAssetEntry>(4, 500000, StringComparer.OrdinalIgnoreCase);
 
-        public ConcurrentDictionary<string, ResAssetEntry> RES { get; } = new ConcurrentDictionary<string, ResAssetEntry>(4, 350000);
+        public ConcurrentDictionary<string, ResAssetEntry> RES { get; private set; }// = new ConcurrentDictionary<string, ResAssetEntry>(4, 350000);
 
-        public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks { get; } = new ConcurrentDictionary<Guid, ChunkAssetEntry>(4, 350000);
+        public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks { get; private set; }// = new ConcurrentDictionary<Guid, ChunkAssetEntry>(4, 1);
 
-        public ConcurrentDictionary<int, ChunkAssetEntry> SuperBundleChunks { get; } = new ConcurrentDictionary<int, ChunkAssetEntry>();
+        public ConcurrentDictionary<int, ChunkAssetEntry> SuperBundleChunks { get; private set; } = new ConcurrentDictionary<int, ChunkAssetEntry>();
 
-        public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; } = new ConcurrentDictionary<ulong, ResAssetEntry>();
+        public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; private set; } = new ConcurrentDictionary<ulong, ResAssetEntry>();
 
         public IEnumerable<IAssetEntry> ModifiedEntries
         {
@@ -452,9 +76,9 @@ namespace FrostySdk.Managers
             }
         }
 
-        public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; } = new Dictionary<string, ICustomAssetManager>(1);
+        public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; private set; } = new Dictionary<string, ICustomAssetManager>(1);
 
-        public List<EmbeddedFileEntry> EmbeddedFileEntries { get; } = new List<EmbeddedFileEntry>();
+        public List<EmbeddedFileEntry> EmbeddedFileEntries { get; private set; } = new List<EmbeddedFileEntry>();
 
         public LocaleINIMod LocaleINIMod;
 
@@ -463,6 +87,9 @@ namespace FrostySdk.Managers
             if (Instance != null)
                 throw new Exception("There can only be one instance of the AssetManager");
 
+            EBX = new ConcurrentDictionary<string, EbxAssetEntry>();
+            RES = new ConcurrentDictionary<string, ResAssetEntry>();
+            Chunks = new ConcurrentDictionary<Guid, ChunkAssetEntry>();
             Instance = this;
 
             LocaleINIMod = new LocaleINIMod();
@@ -473,14 +100,14 @@ namespace FrostySdk.Managers
             Logger = inLogger;
         }
 
-        public AssetManager(in FileSystem inFs)
-        {
-            fs = inFs;
+        //public AssetManager(in FileSystem inFs)
+        //{
+        //    fs = inFs;
 
-            Instance = this;
+        //    Instance = this;
 
-            LocaleINIMod = new LocaleINIMod();
-        }
+        //    LocaleINIMod = new LocaleINIMod();
+        //}
 
         // To detect redundant calls
         private bool _disposed = false;
@@ -492,7 +119,7 @@ namespace FrostySdk.Managers
             // Dispose of unmanaged resources.
             Dispose(true);
             // Suppress finalization.
-            GC.SuppressFinalize(this);
+            //GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -507,24 +134,40 @@ namespace FrostySdk.Managers
             {
                 CustomAssetManagers.Clear();
                 ChunkFileManager.Instance = null;
+                AllSdkAssemblyTypes.Clear();
+                AllSdkAssemblyTypes = null;
                 //foreach (var cam in CustomAssetManagers)
                 //{
                 //	cam.Value.Reset();
                 //}
                 Bundles.Clear();
-                //Bundles = null;
+                Bundles = null;
                 EBX.Clear();
-                //EBX = null;
+                EBX = null;
                 RES.Clear();
-                //RES = null;
+                RES = null;
                 resRidList.Clear();
-                //resRidList = null;
+                resRidList = null;
+                foreach (var c in Chunks)
+                {
+                    //Chunks[c.Key].Dispose();
+                    Chunks[c.Key] = null;
+                }
                 Chunks.Clear();
-                //Chunks = null;
-
+                Chunks = null;
+                SuperBundleChunks.Clear();
+                SuperBundleChunks = null;
+                LocaleINIMod = null;
                 TypeLibrary.ExistingAssembly = null;
-                //ResourceManager.Dispose();
-                Instance = null;
+                //Instance = null;
+
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                //var totalMemoryAfterCollect = GC.GetTotalMemory(true);
+                //var status = GC.WaitForFullGCApproach(-1);
+                //Debug.WriteLine(status);
+                //Debug.WriteLine(totalMemoryAfterCollect);
             }
         }
 
@@ -552,14 +195,6 @@ namespace FrostySdk.Managers
                     CustomAssetManagers.Add("legacy", cam);
 
             }
-            //else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsFIFA21DataVersion())
-            //{
-            //	CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
-            //}
-            //else
-            //{
-            //	CustomAssetManagers.Add("legacy", new ChunkFileManager(this));
-            //}
 
         }
 
@@ -654,9 +289,9 @@ namespace FrostySdk.Managers
             return null;
         }
 
-        public Dictionary<string, Type> CachedTypes = new Dictionary<string, Type>();
+        public static Dictionary<string, Type> CachedTypes = new Dictionary<string, Type>();
 
-        public object LoadTypeByName(string className, params object[] args)
+        public static object LoadTypeByName(string className, params object[] args)
         {
             if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
             {
@@ -831,7 +466,7 @@ namespace FrostySdk.Managers
 
             if (string.IsNullOrEmpty(ebx.Type))
             {
-                EBX.TryRemove(ebx.Name, out _);
+                //EBX.TryRemove(ebx.Name, out _);
             }
         }
 
@@ -1852,21 +1487,21 @@ namespace FrostySdk.Managers
         public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
         {
             // Old school, search by string
-            if (EBX.TryGetValue(name.ToString(), out var ent))// ContainsKey(name.ToString()))
+            if (EBX.TryGetValue(name.ToString().ToLower(), out var ent))// ContainsKey(name.ToString()))
                 return ent;// EBX[name.ToString()];
 
             // Search by string but with the typed name (for Assets searching)
-            if (EBX.ContainsKey($"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"))
-                return EBX[$"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"];
+            if (EBX.ContainsKey($"[{typeof(EbxAssetEntry).Name}]({name.ToString().ToLower()})"))
+                return EBX[$"[{typeof(EbxAssetEntry).Name}]({name.ToString().ToLower()})"];
 
             // Search by Fnv1
-            if (EBX.ContainsKey($"{Fnv1.HashString(name.ToString())}"))
-                return EBX[$"{Fnv1.HashString(name.ToString())}"];
+            if (EBX.ContainsKey($"{Fnv1.HashString(name.ToString().ToLower())}"))
+                return EBX[$"{Fnv1.HashString(name.ToString().ToLower())}"];
 
-            if (CacheManager.HasEbx(name.ToString()))
-            {
-                EBX.TryAdd(name.ToString(), CacheManager.GetEbx(name.ToString()));
-            }
+            //if (CacheManager.HasEbx(name.ToString()))
+            //{
+            //    EBX.TryAdd(name.ToString(), CacheManager.GetEbx(name.ToString()));
+            //}
 
             return null;
         }
@@ -2153,7 +1788,7 @@ namespace FrostySdk.Managers
 
             try
             {
-                var path = fs.ResolvePath($"{superBundleName}");
+                var path = FileSystem.ResolvePath($"{superBundleName}");
                 if (!string.IsNullOrEmpty(path))
                 {
 
@@ -2189,7 +1824,7 @@ namespace FrostySdk.Managers
 
             try
             {
-                var path = fs.ResolvePath($"{superBundleName}");
+                var path = FileSystem.ResolvePath($"{superBundleName}");
                 if (!string.IsNullOrEmpty(path))
                 {
 
@@ -2225,7 +1860,7 @@ namespace FrostySdk.Managers
 
             try
             {
-                var path = fs.ResolvePath($"{superBundleName}");
+                var path = FileSystem.ResolvePath($"{superBundleName}");
                 if (LastCasPath != path && LastCasPathInMemory != null)
                 {
                     LastCasPathInMemory.Close();
@@ -2444,13 +2079,13 @@ namespace FrostySdk.Managers
 
         public DbObject ProcessTocChunks(string superBundleName, BinarySbDataHelper helper, bool isBase = false)
         {
-            string text = fs.ResolvePath(superBundleName);
+            string text = FileSystem.ResolvePath(superBundleName);
             if (text == "")
             {
                 return null;
             }
             DbObject dbObject = null;
-            using (DbReader dbReader = new DbReader(new FileStream(text, FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+            using (DbReader dbReader = new DbReader(new FileStream(text, FileMode.Open, FileAccess.Read), FileSystem.CreateDeobfuscator()))
             {
                 dbObject = dbReader.ReadDbObject();
             }
@@ -2995,5 +2630,46 @@ namespace FrostySdk.Managers
         //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][ERROR] {text}");
         //      }
     }
+
+
+    public class BinarySbDataHelper
+    {
+        protected Dictionary<string, byte[]> ebxDataFiles = new Dictionary<string, byte[]>();
+
+        protected Dictionary<string, byte[]> resDataFiles = new Dictionary<string, byte[]>();
+
+        protected Dictionary<string, byte[]> chunkDataFiles = new Dictionary<string, byte[]>();
+
+        private AssetManager am;
+
+        public BinarySbDataHelper(AssetManager inParent)
+        {
+            am = inParent;
+        }
+
+        public void FilterAndAddBundleData(DbObject baseList, DbObject deltaList)
+        {
+            //FilterBinaryBundleData(baseList, deltaList, "ebx", ebxDataFiles);
+            //FilterBinaryBundleData(baseList, deltaList, "res", resDataFiles);
+            //FilterBinaryBundleData(baseList, deltaList, "chunks", chunkDataFiles);
+        }
+
+        public void RemoveEbxData(string name)
+        {
+            ebxDataFiles.Remove(name);
+        }
+
+        public void RemoveResData(string name)
+        {
+            resDataFiles.Remove(name);
+        }
+
+        public void RemoveChunkData(string name)
+        {
+            chunkDataFiles.Remove(name);
+        }
+
+    }
+
 }
 #pragma warning restore SYSLIB0021 // Type or member is obsolete

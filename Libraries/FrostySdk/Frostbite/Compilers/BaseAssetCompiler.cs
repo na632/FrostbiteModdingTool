@@ -549,6 +549,7 @@ namespace FrostySdk.Frostbite.Compilers
 
                                         nw_toc.Position = chunk.SB_CAS_Size_Position;
                                         nw_toc.Write((uint)data.Length, Endian.Big);
+                                        FileLogger.WriteLine($"Written TOC Chunk {chunkGuid} to {nextCasPath}");
                                     }
                                 }
 
@@ -659,6 +660,7 @@ namespace FrostySdk.Frostbite.Compilers
                         var positionOfData = nwCas.Position;
                         // write the new data to end of the file (this should be fine)
                         nwCas.Write(data);
+                        FileLogger.WriteLine($"Written {modItem.ModType} {modItem.NamePath} to {casPath}");
 
                         switch (modItem.ModType)
                         {

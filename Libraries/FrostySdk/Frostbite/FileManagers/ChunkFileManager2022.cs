@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Frostbite.FileManagers
 {
-    public class ChunkFileManager2022 : IChunkFileManager, ICustomAssetManager, IDisposable
+    public class ChunkFileManager2022 : IChunkFileManager, ICustomAssetManager//, IDisposable
     {
         protected ILogger Logger { get; set; }
 
@@ -1291,39 +1291,39 @@ namespace Frostbite.FileManagers
             //}
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects)
-                    LegacyEntries.Clear();
-                    LegacyEntries = null;
-                    ChunkBatches.Clear();
-                    ChunkBatches = null;
-                }
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!disposedValue)
+        //    {
+        //        if (disposing)
+        //        {
+        //            // TODO: dispose managed state (managed objects)
+        //            LegacyEntries.Clear();
+        //            LegacyEntries = null;
+        //            ChunkBatches.Clear();
+        //            ChunkBatches = null;
+        //        }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                ChunkFileManager.Instance = null;
-                disposedValue = true;
-            }
-        }
+        //        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+        //        // TODO: set large fields to null
+        //        ChunkFileManager.Instance = null;
+        //        disposedValue = true;
+        //    }
+        //}
 
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~ChunkFileManager2022()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
+        //// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        //// ~ChunkFileManager2022()
+        //// {
+        ////     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        ////     Dispose(disposing: false);
+        //// }
 
-        void IDisposable.Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        //void IDisposable.Dispose()
+        //{
+        //    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //    Dispose(disposing: true);
+        //    GC.SuppressFinalize(this);
+        //}
     }
 
 
