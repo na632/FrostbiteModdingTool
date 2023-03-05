@@ -1011,7 +1011,7 @@ namespace FrostbiteModdingTests
             FIFAModReader reader = new FIFAModReader(new FileStream(@"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod V2.fifamod", FileMode.Open));
 
             var fmtProj = new FMTProject("test");
-            fmtProj.ReadFromFIFAMod(reader);
+            fmtProj.Load(reader);
             fmtProj.Update();
             fmtProj = null;
 
