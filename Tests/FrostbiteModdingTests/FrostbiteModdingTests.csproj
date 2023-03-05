@@ -90,6 +90,9 @@
 	  <None Include="..\..\Plugins\StarWarsSquadronsPlugin\bin\Debug\net7.0-windows\StarWarsSquadronsPlugin.dll" Link="Plugins\StarWarsSquadronsPlugin.dll">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <EmbeddedResource Include="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fmtproj">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -569,23 +569,31 @@ namespace FIFAModdingUI.Windows
 
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Project files|*.fbproject";
+            saveFileDialog.Filter = "Project files|*.fbproject;*.fmtproj";
             var result = saveFileDialog.ShowDialog();
             if (result.HasValue && result.Value)
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
                     loadingDialog.Update("Saving Project", "Saving project to file", 0);
-                    await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
 
-                    lstProjectFiles.ItemsSource = null;
-                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+                    if (saveFileDialog.FileName.EndsWith(".fmtproj", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ProjectManagement.Project = new FMTProject(saveFileDialog.FileName).Update();
+                    }
+                    else
+                    {
+                        await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
+
+                        lstProjectFiles.ItemsSource = null;
+                        lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+                        
+                        DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
+                    }
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
-
                     UpdateWindowTitle(saveFileDialog.FileName);
 
-                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
                 }
             }
 
@@ -622,7 +630,7 @@ namespace FIFAModdingUI.Windows
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             //openFileDialog.Filter = "Project files|*.fbproject;*.fifamod;*.fmtproj";
-            openFileDialog.Filter = "Project files|*.fbproject;*.fifamod";
+            openFileDialog.Filter = "Project files|*.fbproject;*.fmtproj;*.fifamod;*.fbmod;";
             var result = openFileDialog.ShowDialog();
             if (result.HasValue && result.Value)
             {
@@ -658,8 +666,15 @@ namespace FIFAModdingUI.Windows
                             }
                             break;
                         case ".fmtproj":
-                            var mbFmtProj = MessageBox.Show("This is a NEW/UPCOMMING file format. This does nothing right now!", "EXPERIMENTAL");
-
+                            //var mbFmtProj = MessageBox.Show("This is a NEW/UPCOMMING file format. This does nothing right now!", "EXPERIMENTAL");
+                            try
+                            {
+                                ProjectManagement.Project = FMTProject.Read(openFileDialog.FileName);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogError("Unable to load project. This may be due to a Title Update. Message: " + ex.Message);
+                            }
                             break;
                         case ".fifamod":
 
@@ -672,19 +687,45 @@ namespace FIFAModdingUI.Windows
                             {
                                 using (FIFAModReader reader = new FIFAModReader(new FileStream(fiFile.FullName, FileMode.Open)))
                                 {
-                                    var fmtProjLoadInFIFAMod = new FMTProject("loadInFIFAMod");
-                                    if (fmtProjLoadInFIFAMod.ReadFromFIFAMod(reader))
+                                    ProjectManagement.Project.Load(reader);
+
+                                //    var fmtProjLoadInFIFAMod = new FMTProject("loadInFIFAMod");
+                                //    if (fmtProjLoadInFIFAMod.ReadFromFIFAMod(reader))
+                                //    {
+                                //        Log($"Successfully opened {fiFile.FullName}");
+                                //        fmtProjLoadInFIFAMod = null;
+                                //        if (File.Exists("loadInFIFAMod.fmtproj"))
+                                //            File.Delete("loadInFIFAMod.fmtproj");
+                                //    }
+                                //    else
+                                //    {
+                                //        Log($"Failed to open {fiFile.FullName}");
+                                //    }
+                                //    fmtProjLoadInFIFAMod = null;
+                                }
+                            }
+                            break;
+                        case ".fbmod":
+
+                            var mbFBMod = MessageBox.Show(
+                                "You are opening a compiled FBMod from Frostbite Modding Tool. " + Environment.NewLine +
+                                "This is experimental and may crash the Application. " + Environment.NewLine +
+                                "This process may be missing or losing files. " + Environment.NewLine +
+                                "Please always give credit to other's work!", "EXPERIMENTAL");
+                            if (mbFBMod == MessageBoxResult.OK)
+                            {
+                                FrostbiteMod frostbiteMod = new FrostbiteMod(fiFile.FullName);
+                                //using (FrostbiteModReader reader = new FrostbiteModReader(new FileStream(fiFile.FullName, FileMode.Open)))
+                                {
+                                    ProjectManagement.Instance.Project = new FMTProject("loadInFbMod");
+                                    if (ProjectManagement.Instance.Project.Load(frostbiteMod))
                                     {
                                         Log($"Successfully opened {fiFile.FullName}");
-                                        fmtProjLoadInFIFAMod = null;
-                                        if (File.Exists("loadInFIFAMod.fmtproj"))
-                                            File.Delete("loadInFIFAMod.fmtproj");
                                     }
                                     else
                                     {
                                         Log($"Failed to open {fiFile.FullName}");
                                     }
-                                    fmtProjLoadInFIFAMod = null;
                                 }
                             }
                             break;

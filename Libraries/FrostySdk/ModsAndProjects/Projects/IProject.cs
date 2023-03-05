@@ -1,4 +1,5 @@
 ﻿using FMT.FileTools;
+using FrostbiteSdk;
 using FrostySdk.Frosty.FET;
 using FrostySdk.Managers;
 using Microsoft.Win32;
@@ -23,6 +24,7 @@ namespace FrostySdk.ModsAndProjects.Projects
         public IEnumerable<AssetEntry> ModifiedAssetEntries { get; }
 
         public bool Load(in FIFAModReader reader);
+        public bool Load(in FrostbiteMod frostbiteMod);
         public bool Load(in string inFilename);
         public bool Load(in Stream inStream);
 

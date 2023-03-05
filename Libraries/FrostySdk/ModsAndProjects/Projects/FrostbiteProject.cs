@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace FrostySdk
 {
 
-    public class FrostbiteProject : IProject
+    public class FrostbiteProject : BaseProject, IProject
     {
         //private const uint FormatVersion = 12u;
         private uint CurrentFormatVersion { get; } = 23u;
@@ -102,53 +102,13 @@ namespace FrostySdk
             modSettings.ClearDirtyFlag();
         }
 
-        public bool Load(in FIFAModReader reader)
-        {
-            var resources = reader.ReadResources()
-                .OrderBy(x => x.Name)
-                .ThenBy(x => x.Name);
-
-            foreach (BaseModResource r in resources)
-            {
-                IAssetEntry entry = new AssetEntry();
-                var t = r.GetType().Name;
-                switch (t)
-                {
-                    case "EbxResource":
-                        entry = new EbxAssetEntry();
-                        break;
-                    case "ResResource":
-                        entry = new ResAssetEntry();
-                        break;
-                    case "ChunkResource":
-                        entry = new ChunkAssetEntry();
-                        break;
-                    default:
-                        entry = null;
-                        break;
-                }
-
-                if (entry != null)
-                {
-                    r.FillAssetEntry(entry);
-                    var d = reader.GetResourceData(r);
-                    CasReader casReader = new CasReader(new MemoryStream(d));
-                    var d2 = casReader.Read();
-                    AssetManager.Instance.ModifyEntry(entry, d2);
-                }
-            }
-
-            var modifiedEntries = AssetManager.Instance.ModifiedEntries;
-            return modifiedEntries.Any();
-        }
-
-        public bool Load(in string inFilename)
+        public override bool Load(in string inFilename)
         {
             filename = inFilename;
             return Load(new FileStream(inFilename, FileMode.Open, FileAccess.Read));
         }
 
-        public bool Load(in Stream inStream)
+        public override bool Load(in Stream inStream)
         {
             using (NativeReader nativeReader = new NativeReader(inStream))
             {
@@ -161,7 +121,7 @@ namespace FrostySdk
             //return false;
         }
 
-        public async Task<bool> LoadAsync(string inFilename, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> LoadAsync(string inFilename, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!File.Exists(inFilename))
                 return false;
@@ -176,7 +136,7 @@ namespace FrostySdk
 
         public static string LastFilePath;
 
-        public IEnumerable<AssetEntry> ModifiedAssetEntries
+        public override IEnumerable<AssetEntry> ModifiedAssetEntries
         {
             get
             {
@@ -189,7 +149,7 @@ namespace FrostySdk
             }
         }
 
-        public async Task<bool> SaveAsync(string overrideFilename = "", bool updateDirtyState = true)
+        public override async Task<bool> SaveAsync(string overrideFilename = "", bool updateDirtyState = true)
         {
             return await Task.Run(() => { return Save(overrideFilename, updateDirtyState); });
         }
@@ -565,25 +525,26 @@ namespace FrostySdk
             return modSettings;
         }
 
-        public void WriteToMod(string filename, ModSettings overrideSettings)
+        public override void WriteToMod(string filename, ModSettings overrideSettings)
         {
             byte[] projectbytes;
 
             if (File.Exists(filename))
                 File.Delete(filename);
 
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             FrostbiteModWriter frostyModWriter = new FrostbiteModWriter(memoryStream, overrideSettings);
             frostyModWriter.WriteProject(this);
 
             memoryStream.Position = 0;
-            projectbytes = new NativeReader(memoryStream).ReadToEnd();
+            using (var nr = new NativeReader(memoryStream))
+            projectbytes = nr.ReadToEnd();
             using NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
             nwFinal.Write(projectbytes);
 
         }
 
-        public void WriteToFIFAMod(string filename, ModSettings overrideSettings)
+        public override void WriteToFIFAMod(string filename, ModSettings overrideSettings)
         {
             if (File.Exists(filename))
                 File.Delete(filename);

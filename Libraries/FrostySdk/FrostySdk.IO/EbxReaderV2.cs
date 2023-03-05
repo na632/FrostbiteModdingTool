@@ -16,7 +16,7 @@ namespace FrostySdk.IO
 
         public static IEbxSharedTypeDescriptor patchStd;
 
-        public List<Guid> classGuids = new List<Guid>();
+        public List<Guid> classGuids { get; } = new List<Guid>();
 
         public bool patched;
 

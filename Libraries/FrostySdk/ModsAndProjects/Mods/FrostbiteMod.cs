@@ -83,16 +83,21 @@ namespace FrostbiteSdk
         //public byte[] ModBytes { get; set; }
         public EGame Game { get; set; }
 
+        short CompressType = -1;
+
+        byte[] ModBytes = null;
+
         private void ReadFromStream(Stream stream)
         {
             // Read initial bytes
             stream.Position = 0;
 
+            var nr = new NativeReader(stream);
             // Check for Zip or Zstd
-            int CompressType = new NativeReader(stream).ReadShort();
+            CompressType = nr.ReadShort();
             if (CompressType == 1)
             {
-                throw new NotSupportedException("FMT no longer supports compressed Frostbite Mods");
+                throw new NotSupportedException("FMT no longer supports Zip Compressed Frostbite Mods");
                 //var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
                 //using (ZipFile zipFileReader = ZipFile.Read(m))
                 //{
@@ -105,10 +110,16 @@ namespace FrostbiteSdk
             }
             else if (CompressType == 2)
             {
-                throw new NotSupportedException("FMT no longer supports compressed Frostbite Mods");
-                //var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
-                //CasReader casReader = new CasReader(m);
-                //ModBytes = casReader.Read();
+                ModBytes = nr.ReadToEnd();
+                stream.Close();
+                nr.Dispose();
+                //throw new NotSupportedException("FMT no longer supports compressed Frostbite Mods");
+                using (var m = new MemoryStream(ModBytes))
+                {
+                    CasReader casReader = new CasReader(m);
+                    ModBytes = casReader.Read();
+                }
+                stream = new MemoryStream(ModBytes);
             }
 
             stream.Position = 0;
@@ -155,10 +166,11 @@ namespace FrostbiteSdk
 
         public byte[] GetResourceData(BaseModResource resource)
         {
-            //if (ModBytes != null && ModBytes.Length > 0)
-            //{
-            //    return GetResourceData(resource, new MemoryStream(ModBytes));
-            //}
+            if (CompressType != -1 && ModBytes != null && ModBytes.Length > 0)
+            {
+                using(var ms = new MemoryStream(ModBytes))
+                    return GetResourceData(resource, ms);
+            }
             using (FrostbiteModReader frostyModReader = new FrostbiteModReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
                 return frostyModReader.GetResourceData(resource);
@@ -197,6 +209,11 @@ namespace FrostbiteSdk
                     // TODO: dispose managed state (managed objects)
                     ModDetails = null;
                     Resources = null;
+                    if(ModBytes != null)
+                    {
+                        ModBytes = null;
+                        CompressType = -1;
+                    }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

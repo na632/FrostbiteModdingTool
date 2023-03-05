@@ -14,10 +14,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using v2k4FIFAModding.Frosty;
+using static PInvoke.Kernel32;
 
 namespace FrostySdk.ModsAndProjects.Projects
 {
-    public class FMTProject : IProject
+    public class FMTProject : BaseProject, IProject
     {
         public static int MasterProjectVersion { get; } = 1;
         private static string projectExtension { get; } = ".fmtproj";
@@ -26,17 +27,25 @@ namespace FrostySdk.ModsAndProjects.Projects
 
         public FileInfo projectFileInfo { get { return new FileInfo(projectFilePath); } }
 
-        public bool IsDirty => throw new NotImplementedException();
+        public override bool IsDirty => throw new NotImplementedException();
 
-        public string Filename { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override string Filename => projectFilePath;
 
-        public string DisplayName => throw new NotImplementedException();
+        public override string DisplayName
+        {
+            get
+            {
+                if (Filename == "")
+                {
+                    return "New Project.fbproject";
+                }
+                return new FileInfo(Filename).Name;
+            }
+        }
 
-        public AssetManager AssetManager => throw new NotImplementedException();
+        public override AssetManager AssetManager => AssetManager.Instance;
 
-        public ModSettings ModSettings => throw new NotImplementedException();
-
-        public IEnumerable<AssetEntry> ModifiedAssetEntries => throw new NotImplementedException();
+        public override ModSettings ModSettings { get; } = new ModSettings();
 
         public ModSettings GetModSettings()
         {
@@ -247,7 +256,7 @@ namespace FrostySdk.ModsAndProjects.Projects
                 var json = nr.ReadLengthPrefixedString();
 
                 AssetEntryImporter assetEntryImporter = new AssetEntryImporter(AssetManager.Instance.GetEbxEntry(assetName));
-                assetEntryImporter.Import(Encoding.UTF8.GetBytes(json));
+                assetEntryImporter.ImportWithJSON(Encoding.UTF8.GetBytes(json));
             }
         }
 
@@ -405,7 +414,7 @@ namespace FrostySdk.ModsAndProjects.Projects
             }
         }
 
-        public void WriteToMod(string filename, ModSettings overrideSettings)
+        public override void WriteToMod(string filename, ModSettings overrideSettings)
         {
             byte[] projectbytes;
 
@@ -423,66 +432,7 @@ namespace FrostySdk.ModsAndProjects.Projects
 
         }
 
-        public bool ReadFromFIFAMod(in FIFAModReader reader)
-        {
-            var resources = reader.ReadResources()
-                .OrderBy(x => x.Name)
-                .ThenBy(x => x.Name);
-
-            foreach (BaseModResource r in resources)
-            {
-                IAssetEntry entry = new AssetEntry();
-                var t = r.GetType().Name;
-                switch (t)
-                {
-                    case "EbxResource":
-                        entry = AssetManager.Instance.GetEbxEntry(r.Name);
-                        break;
-                    case "ResResource":
-                        entry = AssetManager.Instance.GetResEntry(r.Name);
-                        break;
-                    case "ChunkResource":
-                        entry = AssetManager.Instance.GetChunkEntry(Guid.Parse(r.Name));
-                        break;
-                    default:
-                        entry = null;
-                        break;
-                }
-
-                if (entry != null)
-                {
-                    r.FillAssetEntry(entry);
-                    if (entry is ChunkAssetEntry)
-                    {
-                    }
-                    var d = reader.GetResourceData(r);
-                    using (CasReader casReader = new CasReader(new MemoryStream(d)))
-                    {
-                        var d2 = casReader.Read();
-                        AssetManager.Instance.ModifyEntry(entry, d2);
-                        if (entry is ChunkAssetEntry)
-                        {
-                            if (r.IsLegacyFile)
-                            {
-
-                            }
-                            if (entry.ModifiedEntry != null && !string.IsNullOrEmpty(entry.ModifiedEntry.UserData))
-                            {
-
-                            }
-                        }
-                    }
-                    d = null;
-                }
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            var modifiedEntries = AssetManager.Instance.ModifiedEntries;
-            return modifiedEntries.Any();
-        }
-
-        public void WriteToFIFAMod(string filename, ModSettings overrideSettings)
+        public override void WriteToFIFAMod(string filename, ModSettings overrideSettings)
         {
             throw new NotImplementedException();
         }
@@ -496,7 +446,7 @@ namespace FrostySdk.ModsAndProjects.Projects
             throw new NotImplementedException();
         }
 
-        public async Task<bool> LoadAsync(string fileName, CancellationToken cancellationToken)
+        public override async Task<bool> LoadAsync(string fileName, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
@@ -504,24 +454,22 @@ namespace FrostySdk.ModsAndProjects.Projects
             });
         }
 
-        public bool Load(in FIFAModReader reader)
+        public override bool Load(in string inFilename)
         {
             throw new NotImplementedException();
         }
 
-        public bool Load(in string inFilename)
+        public override bool Load(in Stream inStream)
         {
             throw new NotImplementedException();
         }
 
-        public bool Load(in Stream inStream)
+        public override async Task<bool> SaveAsync(string overrideFilename, bool updateDirtyState)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> SaveAsync(string overrideFilename, bool updateDirtyState)
-        {
-            throw new NotImplementedException();
+            return await Task.Run(() =>
+            {
+                return Update() != null;
+            });
         }
     }
 }

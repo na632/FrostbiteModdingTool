@@ -397,11 +397,11 @@ namespace FrostySdk.IO
                                 Type propertyType = item.PropertyType;
                                 if (FindExistingClass(propertyType) == -1)
                                 {
-                                    if (!typesToProcess.Contains(propertyType))
-                                    {
-                                        arrayTypes.Add(customAttribute2);
-                                        AddClass(item, propertyType);
-                                    }
+                                    //if (!typesToProcess.Contains(propertyType))
+                                    //{
+                                    //    arrayTypes.Add(customAttribute2);
+                                    //    AddClass(item, propertyType);
+                                    //}
                                     switch (ebxFieldType)
                                     {
                                         case EbxFieldType.Struct:
@@ -766,7 +766,8 @@ namespace FrostySdk.IO
                     }
                 case EbxFieldType.Array:
                     {
-                        int num2 = typesToProcess.FindIndex((Type item) => item == obj.GetType());
+                        var objType = obj.GetType();
+                        int num2 = typesToProcess.FindIndex((Type item) => item == objType);
                         int num3 = 0;
                         EbxClass classType = classTypes[num2];
                         ebxType = GetField(classType, classType.FieldIndex).DebugType;
